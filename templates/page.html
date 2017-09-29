@@ -7,9 +7,21 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="{{slug}} {{type}}">
+  <nav class="chapter-links">
+    <ul>
+      <li> <a href="{{prevURL}}"> &laquo; {{prevTitle}}</a>
+      <li> <a href="{{nextURL}}"> {{nextTitle}} &raquo;</a>
+    </ul>
+  </nav>
   <main>
   <h1>{{title}}</h1>
 {{content}}
   </main>
+  <nav class="chapter-links bottom">
+    <ul>
+      <li> <a href="{{prevURL}}"> &laquo; {{prevTitle}}</a>
+      <li> <a href="{{nextURL}}"> {{nextTitle}} &raquo;</a>
+    </ul>
+  </nav>
 </body>
 </html>

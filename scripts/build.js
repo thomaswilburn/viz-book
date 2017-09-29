@@ -9,12 +9,10 @@ var templateDir = path.resolve(__dirname, "../templates");
 var isList = /^[*-]\s+/;
 var isDirective = /^@([a-z]+)(\.{0,3})\s*(.*)$/i;
 
-/*
-TODO:
-- create TOC programmatically from a JSON list of chapters
-- add forward/back navigation to pages based on the TOC
-- support style based on article type
-*/
+var toc = [
+  "intro",
+  "jquery"
+];
 
 var data = {};
 
@@ -80,23 +78,37 @@ var process = function(lines, context = {}) {
 }
 
 var files = fs.readdirSync(sourceDir).filter(f => f.match(/text$/));
-files.forEach(function(f) {
-  var file = fs.readFileSync(path.resolve(sourceDir, f), "utf-8");
-  var slug = f.replace(".text", "");
+files.forEach(function(filename) {
+  var file = fs.readFileSync(path.resolve(sourceDir, filename), "utf-8");
+  var slug = filename.replace(".text", "");
   var lines = file.split("\n");
-  var context = { slug };
+  var context = { slug, filename: filename.replace(".text", ".html") };
   var content = process(lines, context);
   context.content = content.join("\n");
-  
   data[slug] = context;
 });
-
 
 var pageTemplate = fs.readFileSync(path.resolve(templateDir, "page.html"), "utf-8");
 
 for (var slug in data) {
   var context = data[slug];
+  var index = toc.indexOf(slug);
+  var nextSlug = toc[index + 1];
+  var prevSlug = toc[index - 1];
+  var next = data[nextSlug] || { title: "TOC", filename: "index.html" };
+  var previous = data[prevSlug] || { title: "TOC", filename: "index.html" };
+  context.nextURL = next.filename;
+  context.nextTitle = next.title;
+  context.prevURL = previous.filename;
+  context.prevTitle = previous.title;
   var page = pageTemplate.replace(/\{\{([a-z]+)\}\}/ig, (_, key) => context[key]);
   var out = path.resolve(docsDir, slug + ".html");
   fs.writeFileSync(out, page);
 };
+
+var tocTemplate = fs.readFileSync(path.resolve(templateDir, "toc.html"), "utf-8");
+var list = toc.map(function(item) {
+  var p = data[item];
+  return `<li> <a href="${p.filename}">${p.title}</a>`;
+}).join("\n");
+fs.writeFileSync(path.resolve(docsDir, "index.html"), tocTemplate.replace("{{content}}", list));

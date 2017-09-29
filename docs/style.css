@@ -9,6 +9,29 @@
   box-sizing: border-box;
 }
 
+nav.chapter-links {
+  background: var(--foreground);
+  color: var(--background);
+  padding: 20px;
+}
+
+nav.chapter-links ul {
+  list-style-type: none;
+  display: flex;
+  max-width: 800px;
+  margin: auto;
+  justify-content: space-between;
+  font-family: var(--sans-serif);
+}
+
+nav.chapter-links a {
+  color: currentColor;
+}
+
+nav.chapter-links.bottom {
+  margin-top: 60px;
+}
+
 main {
   max-width: 666px;
   margin: auto;
