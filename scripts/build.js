@@ -5,35 +5,38 @@ var path = require("path");
 var sourceDir = path.resolve(__dirname, "../src");
 var docsDir = path.resolve(__dirname, "../docs");
 var templateDir = path.resolve(__dirname, "../templates");
-var pageTemplate = fs.readFileSync(path.resolve(templateDir, "page.html"), "utf-8");
 
 var isList = /^[*-]\s+/;
 var isDirective = /^@([a-z]+)(\.{0,3})\s*(.*)$/i;
 
-var files = fs.readdirSync(sourceDir).filter(f => f.match(/text$/));
-files.forEach(function(f) {
-  var file = fs.readFileSync(path.resolve(sourceDir, f), "utf-8");
-  var lines = file.split("\n");
+/*
+TODO:
+- create TOC programmatically from a JSON list of chapters
+- add forward/back navigation to pages based on the TOC
+- support style based on article type
+*/
+
+var data = {};
+
+var process = function(lines, context = {}) {
   var processed = [];
+  var mode = null;
   var active = false;
   var buffer = [];
-  var context = {};
-  var mode = null;
   for (var i = 0; i < lines.length; i++) {
     var l = lines[i].trim();
-    if (!l) continue;
     switch (mode) {
         
       case "multiline":
         if (l == "..." + active) {
           if (!directives[active]) throw `No matching directive for @${active}`;
-          var result = directives[active](context, buffer);
+          var result = directives[active](context, buffer, process);
           if (result) processed.push(result);
           mode = null;
           active = false;
           buffer = [];
         } else {
-          buffer.push(l);
+          buffer.push(lines[i]);
         }
         break;
         
@@ -65,17 +68,35 @@ files.forEach(function(f) {
           } else {
             //immediate replace using arguments to end of line
             if (!directives[directive]) throw `No matching directive for @${directive}`;
-            var result = directives[directive](context, [input]);
+            var result = directives[directive](context, [input], process);
             if (result) processed.push(result);
           }
         } else {
-          processed.push(directives.paragraph(context, l));
+          if (l) processed.push(directives.paragraph(context, l));
         }
-        
     }
   }
-  context.content = processed.join("\n");
-  var page = pageTemplate.replace(/\{\{([a-z]+)\}\}/ig, (_, key) => context[key]);
-  var out = path.resolve(docsDir, path.basename(f).replace(".text", ".html"));
-  fs.writeFileSync(out, page);
+  return processed;
+}
+
+var files = fs.readdirSync(sourceDir).filter(f => f.match(/text$/));
+files.forEach(function(f) {
+  var file = fs.readFileSync(path.resolve(sourceDir, f), "utf-8");
+  var slug = f.replace(".text", "");
+  var lines = file.split("\n");
+  var context = { slug };
+  var content = process(lines, context);
+  context.content = content.join("\n");
+  
+  data[slug] = context;
 });
+
+
+var pageTemplate = fs.readFileSync(path.resolve(templateDir, "page.html"), "utf-8");
+
+for (var slug in data) {
+  var context = data[slug];
+  var page = pageTemplate.replace(/\{\{([a-z]+)\}\}/ig, (_, key) => context[key]);
+  var out = path.resolve(docsDir, slug + ".html");
+  fs.writeFileSync(out, page);
+};

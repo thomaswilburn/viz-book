@@ -1,5 +1,6 @@
 @metadata...
 title:Introduction
+type:intermission
 ...metadata
 
 When I started doing interactive journalism at Congressional Quarterly in 2009, it was an exciting time. Smartphones had started to become widespread, and while apps got much of the attention, it was a sea change for the web. In rapid succession, we learned about responsive design, got amazing new powers via HTML5, and tried to figure out how touchscreen interaction would work in a world previously filled with hover styles and tooltips.
@@ -20,4 +21,29 @@ Above all, through these short lessons, you should have a chance to level-up as 
 
 @subhead About the author
 
-Thomas Wilburn is a developer and data journalist on the Seattle Times' interactives team, where he builds graphics, special pages, and newsroom tools using JavaScript. Previously, he ran the multimedia team for Congressional Quarterly, and was a web programmer at ArenaNet working on UI and services for Guild Wars 2. He has been a guest lecturer at the University of Washington, and a speaker at tech and journalism conferences (including NICAR, SRCCON, CascadiaFest, and SeattleJS).
+Thomas Wilburn is a developer and data journalist on the Seattle Times' interactives team, where he builds graphics, special pages, and newsroom tools using JavaScript. Previously, he ran the multimedia team for Congressional Quarterly, and was a web programmer at ArenaNet working on UI and services for Guild Wars 2. He has been a guest lecturer at the University of Washington, and a speaker at tech and journalism conferences (including NICAR, SRCCON, CascadiaFest, and SeattleJS). 
+
+@subhead About the code
+
+For this book, I'm going to be writing in ES2015, a new version of JavaScript that's supported by most modern browsers. However, I won't be using any features that can't be compiled back down to the well-supported ES5 standard using tools like Babel. It's also not hard to translate in your head. For example, the following ES2015 function definition:
+
+@codeblock...
+
+var x = (a = 3, b = 4) => a + b;
+
+...codeblock
+
+would translate to something like this:
+
+@codeblock...
+
+var x = function(a, b) {
+  //set default values
+  a = a || 3;
+  b = b || 4;
+  return a + b;
+};
+
+...codeblock
+
+For more information on using the new features in ES2015, take a look [[TODO: ADD LINK TO GUIDE SOMEWHERE]]

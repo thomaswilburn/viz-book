@@ -1,0 +1,41 @@
+:root {
+  --foreground: #333;
+  --background: #EEE;
+  --sans-serif: "Noto Sans", sans-serif;
+  --mono: "Fira Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+main {
+  max-width: 666px;
+  margin: auto;
+  padding: 16px;
+  font-family: var(--sans-serif);
+  font-size: 18px;
+}
+
+code pre {
+  font-family: var(--mono);
+  font-size: 16px;
+  padding: 8px;
+  background: var(--foreground);
+  color: var(--background);
+  border-radius: 4px;
+  white-space: pre-wrap;
+}
+
+var {
+  font-family: var(--mono);
+  background: #DDD;
+  padding: 0 2px;
+  font-style: normal;
+}
+
+aside.sidebar {
+  border: 1px solid #DDD;
+  padding: 16px;
+  font-size: 16px;
+}
