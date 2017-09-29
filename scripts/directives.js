@@ -5,13 +5,10 @@ exports.metadata = function(context, lines) {
   });
 };
 
-exports.ul = function(context, lines) {
-  console.log("ul", context, lines);
-  return `<ul>
+exports.ul = (context, lines) => `<ul>
 ${lines.map(l => `<li>${l}</li>`).join("\n")}
 </ul>`;
-};
 
-exports.paragraph = function(context, lines) {
-  return `<p>${lines}</p>`;
-};
+exports.paragraph = (context, line) => `<p>${line}</p>`;
+
+exports.subhead = (context, lines) => `<h2>${lines.join("\n")}</h2>`;

@@ -17,3 +17,7 @@ In this book, you'll learn how to build powerful data visualizations in the brow
 * Have fun, because elegant code should be more enjoyable to write!
 
 Above all, through these short lessons, you should have a chance to level-up as an interactive developer, building the confidence to create your own stories and graphics from scratch. You'll also be in a better position to use frameworks when you need to do so, because you'll understand what's going on under the hood. Who knows? Maybe you'll even write your own. I can't wait to see what you will do!
+
+@subhead About the author
+
+Thomas Wilburn is a developer and data journalist on the Seattle Times' interactives team, where he builds graphics, special pages, and newsroom tools using JavaScript. Previously, he ran the multimedia team for Congressional Quarterly, and was a web programmer at ArenaNet working on UI and services for Guild Wars 2. He has been a guest lecturer at the University of Washington, and a speaker at tech and journalism conferences (including NICAR, SRCCON, CascadiaFest, and SeattleJS).
