@@ -1,12 +1,17 @@
 :root {
   --foreground: #333;
   --background: #EEE;
+  --primary: #808;
   --sans-serif: "Noto Sans", sans-serif;
   --mono: "Fira Mono", monospace;
 }
 
 * {
   box-sizing: border-box;
+}
+
+body {
+  margin: 0;
 }
 
 nav.chapter-links {
@@ -26,6 +31,7 @@ nav.chapter-links ul {
 
 nav.chapter-links a {
   color: currentColor;
+  text-decoration: none;
 }
 
 nav.chapter-links.bottom {
@@ -33,32 +39,62 @@ nav.chapter-links.bottom {
 }
 
 main {
-  max-width: 666px;
+  max-width: 800px;
   margin: auto;
   padding: 16px;
   font-family: var(--sans-serif);
   font-size: 18px;
+  line-height: 1.4;
+}
+
+a {
+  color: var(--primary);
+}
+
+a:visited {
+  color: var(--foreground);
 }
 
 code pre {
   font-family: var(--mono);
   font-size: 16px;
-  padding: 8px;
+  padding: 16px 8px;
   background: var(--foreground);
   color: var(--background);
   border-radius: 4px;
   white-space: pre-wrap;
 }
 
+code pre .line {
+  display: block;
+  padding-left: 24px;
+  text-indent: -16px;
+}
+
 var {
   font-family: var(--mono);
-  background: #DDD;
+  border: 1px dashed #E8E8E8;
   padding: 0 2px;
   font-style: normal;
+  font-weight: bold;
 }
 
 aside.sidebar {
-  border: 1px solid #DDD;
+  border: 4px dashed #DDD;
   padding: 16px;
   font-size: 16px;
+}
+
+/* table of contents */
+.table-of-contents ol.listing {
+  list-style-type: upper-roman;
+}
+
+.table-of-contents a[href=""] {
+  color: #888;
+}
+
+.table-of-contents a[href=""]::after {
+  color: #333;
+  content: " (TBD)"
 }
