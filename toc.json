@@ -1,0 +1,35 @@
+[
+  "intro",
+  {
+    "section": "section-js",
+    "chapters": [
+      "jquery",
+      "Scroll effects and client rects",
+      "Advanced template literals",
+      "FLIP animations",
+      "Scaling time and space from JS"
+    ]
+  },
+  {
+    "section": "Simplifying CSS and HTML",
+    "chapters": [
+      "Aspect ratios and positioning",
+      "Responsive scatter plots",
+      "attribute-dotmatrix",
+      "hue() and color spaces",
+      "Building stacked graphs with flex"
+    ]
+  },
+  {
+    "section": "SVG Mechanics and Mysteries",
+    "chapters": [
+      "Art direction with viewBox",
+      "Generating SVG from code",
+      "Common pitfalls with SVG DOM"
+    ]
+  },
+  {
+    "section": "Performance tips and tricks",
+    "chapters": []
+  }
+]

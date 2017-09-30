@@ -5,6 +5,8 @@ exports.metadata = function(context, lines) {
   });
 };
 
+exports.html = (_, lines) => lines.join("\n");
+
 exports.ul = (_, lines) => `<ul>
 ${lines.map(l => `<li>${l}</li>`).join("\n")}
 </ul>`;
@@ -13,10 +15,10 @@ exports.paragraph = (_, line) => `<p>${line}</p>`;
 
 exports.subhead = (_, lines) => `<h2>${lines.join("\n").trim()}</h2>`;
 
-var htmlify = s => s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+var escapeHTML = s => s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
 
 exports.codeblock = function(_, lines) {
-  var contents = lines.map(l => `<span class="line">${htmlify(l)}\n</span>`);
+  var contents = lines.map(l => `<span class="line">${escapeHTML(l)}\n</span>`);
   return `<code><pre>${contents.join("")}</pre></code>`
 };
 

@@ -96,5 +96,5 @@ aside.sidebar {
 
 .table-of-contents a[href=""]::after {
   color: #333;
-  content: " (TBD)"
+  content: " (TK)"
 }

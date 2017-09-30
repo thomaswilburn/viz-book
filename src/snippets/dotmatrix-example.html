@@ -1,0 +1,65 @@
+<div class="dot-matrix" data-category="a">
+  <div class="controls">
+    <input type="radio" name="dot-category" id="category-a" value="a" checked="checked">
+    <label for="category-a">Category A</label>
+    <input type="radio" name="dot-category" id="category-b" value="b">
+    <label for="category-b">Category B</label>
+  </div>
+  <div class="grid"></div>
+</div>
+<style>
+input[type="radio"] { opacity: 0; width: 0; }
+input[type="radio"] + label {
+  display: inline-block;
+  border: 1px solid #eee;
+  padding: 4px 8px;
+  color: #888;
+}
+input[type="radio"]:checked + label {
+  background: #EEE;
+  color: black;
+}
+.controls {
+  text-align: center;
+  padding: 16px;
+}
+.dot {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border-radius: 100%;
+  background: black;
+  margin-right: 4px;
+  margin-bottom: 4px;
+  transition: background .4s linear;
+}
+[data-category="a"] .big { background: green }
+[data-category="a"] .small { background: red }
+[data-category="b"] .yes { background: orange }
+[data-category="b"] .no { background: purple }
+</style>
+<script>
+//randomly generate 100 dots
+var dots = [];
+for (var i = 0; i < 100; i++) {
+  dots.push({
+    a: Math.random() > .5 ? "big" : "small",
+    b: Math.random() > .7 ? "yes" : "no"
+  });
+}
+
+var grid = document.querySelector(".grid");
+var container = document.querySelector(".dot-matrix");
+var controls = document.querySelector(".controls");
+
+var html = "";
+dots.forEach(function(d) {
+  html += `<div class="dot ${d.a} ${d.b}"></div>`;
+});
+grid.innerHTML = html;
+
+controls.addEventListener("change", function() {
+  var value = document.querySelector(`input[name="dot-category"]:checked`).value;
+  container.setAttribute("data-category", value);
+});
+</script>
