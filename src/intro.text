@@ -53,7 +53,7 @@ var x = function(a, b) {
 
 To be specific, I'll be using the following ES2015 syntax additions for this book:
 
-* Arrow functions (<var>=&lt;</var>)
+* Arrow functions (<var>=&gt;</var>)
 * Template strings
 * Destructuring
 * Enhanced object literals
