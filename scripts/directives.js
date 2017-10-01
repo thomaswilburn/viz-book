@@ -18,6 +18,15 @@ exports.subhead = (_, lines) => `<h2>${lines.join("\n").trim()}</h2>`;
 var escapeHTML = s => s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
 
 exports.codeblock = function(_, lines) {
+  var start = -1;
+  var end = 0;
+  //trim starting and ending blank lines
+  for (var i = 0; i < lines.length; i++) {
+    var l = lines[i].trim();
+    if (l) end = i + 1;
+    if (l && start == -1) start = i;
+  }
+  lines = lines.slice(start, end);
   var contents = lines.map(l => `<span class="line">${escapeHTML(l)}\n</span>`);
   return `<code><pre>${contents.join("")}</pre></code>`
 };
