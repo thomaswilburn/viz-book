@@ -46,3 +46,8 @@ Current tags (probably already out of date)
 * ``@codeblock`` - You'll see a lot of these, they're used for code listings. HTML characters are escaped for display.
 * ``@sidebar`` - Pretty self-explanatory.
 * ``@include`` - Load a file into the page as raw content. Usually used to import interactive examples from ``src/snippets``.
+
+Page templates
+--------------
+
+The content from the parsed .text files is loaded into template files from the (surprise!) ``templates/`` folder. These files aren't processed for directives, but they do have various values injected using {{mustache}} tags. If you set a value in the ``@metadata`` block for a page, like the title, it'll be used to replace "{{title}}" wherever it appears in the page template. Other values, like the next/previous links at the top and bottom of the page, are ad-hoc and defined in code for the ``scripts/build.js`` file. I'm sorry.

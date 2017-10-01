@@ -5,13 +5,14 @@ exports.metadata = function(context, lines) {
   });
 };
 
+//paragraph is special-cased
+exports.paragraph = (_, line) => `<p>${line}</p>`;
+
 exports.html = (_, lines) => lines.join("\n");
 
 exports.ul = (_, lines) => `<ul>
 ${lines.map(l => `<li>${l}</li>`).join("\n")}
 </ul>`;
-
-exports.paragraph = (_, line) => `<p>${line}</p>`;
 
 exports.subhead = (_, lines) => `<h2>${lines.join("\n").trim()}</h2>`;
 
