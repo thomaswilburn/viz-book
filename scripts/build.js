@@ -46,7 +46,7 @@ for (var slug in data) {
   context.nextTitle = next.title;
   context.prevURL = previous.filename;
   context.prevTitle = previous.title;
-  var page = pageTemplate.replace(/\{\{([a-z]+)\}\}/ig, (_, key) => context[key]);
+  var page = pageTemplate.replace(/\{\{([a-z]+)\}\}/ig, (_, key) => context[key] || "");
   var out = path.resolve(docsDir, slug + ".html");
   fs.writeFileSync(out, page);
 };

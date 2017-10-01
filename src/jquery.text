@@ -1,6 +1,7 @@
 @metadata...
 title:Deconstructing jQuery
 type:chapter
+summary:Selecting and iterating in the DOM | Events at a distance | A toast to John Resig
 ...metadata
 
 I love to eat, which means I love watching competitive cooking shows. One staple of these shows is the "deconstructed" meal: take the ingredients for something commonplace, like a hamburger, and then prepare a new version where those same ingredients are used to remix and restructure the old dish. It's a little silly and pretentious, but it's also a cool way to think about how flavor and presentation come together to create a taste.

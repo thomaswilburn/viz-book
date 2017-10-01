@@ -79,6 +79,16 @@ var {
   font-weight: bold;
 }
 
+aside.summary {
+  font-size: 15px;
+  text-transform: uppercase;
+  text-align: center;
+  max-width: 400px;
+  font-style: italic;
+  margin: auto;
+  font-family: serif;
+}
+
 aside.sidebar {
   border: 4px dashed #DDD;
   padding: 16px;
