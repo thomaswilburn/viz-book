@@ -38,7 +38,7 @@ It's easy to extend the tag system, since the directives are just JavaScript fun
 Current tags (probably already out of date)
 -------------------------------------------
 
-* ``@metadata`` - Starts each page and sets up additional context values for templating. Each line is a new entry, formatted as ``key:value``.
+* ``@metadata`` - Starts each page and sets up additional context values for templating. Each line is a new entry, formatted as "key:value".
 * ``@paragraph`` - You don't need to call this, it'll be run for you whenever there's a top-level paragraph not in a block of some kind.
 * ``@html`` - Lets you write multi-line raw HTML without triggering the automatic paragraph tags.
 * ``@ul`` - You don't need to call this either, it triggers when the parser sees a list block.
