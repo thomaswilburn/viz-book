@@ -1,0 +1,240 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Art direction with viewBox</title>
+  <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans" rel="stylesheet">
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body class="svg-viewbox chapter">
+  <nav class="chapter-links">
+    <ul>
+      <li> <a href="section-svg.html"> &laquo; SVG Mechanics and Mysteries</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li> <a href=""> Generating SVG from code &raquo;</a>
+    </ul>
+  </nav>
+  <main>
+  <aside class="summary">
+    The SVG coordinate system | Setting the camera bounds | Pan, zoom, and draw
+  </aside>
+  <h1>Art direction with viewBox</h1>
+<p>An SVG image, whether included inline or loaded via an image tag, is just an XML file. Here, for example, is a typical SVG graphic with a few shapes:</p>
+<code><pre><span class="line">&lt;svg width=100 height=100&gt;
+</span><span class="line">  &lt;rect x=20 y=20 width=40 height=60 style="fill: blue"&gt;</rect>
+</span><span class="line">  &lt;circle cx=60 cy=60 r=30 style="fill: purple"&gt;</circle>
+</span><span class="line">&lt;/svg&gt;
+</span></pre></code>
+<p>And here's what that looks like, rendered onto the page. I've outlined it in gray, so you can see the bounds of the image.</p>
+<svg width=100 height=100 style="outline: 1px solid gray">
+  <rect x=20 y=20 width=40 height=60 style="fill: blue"></rect>
+  <circle cx=60 cy=60 r=30 style="fill: purple"></circle>
+</svg>
+<p>It's a simple domain-specific language, really. Within the <var>svg</var> element, you can think of its child elements as being absolutely-positioned. The circle may look a little different, being positioned using the center x, center y, and radius, but so far it looks and acts a lot like HTML. It's certainly more like HTML than a JPG image: if you change the height and width (or set it from CSS), the SVG doesn't scale up or down. Instead, you just get more or less space around your shapes.</p>
+<p>But what if that weren't the case?</p>
+<h2>Adding a viewBox</h2>
+<p>Ideally, we write an SVG using three different "measurements:"</p>
+<ul>
+<li>Width and height attributes on the element itself, setting its "intrinsic" size and aspect ratio</li>
+<li>CSS to define the actual, on-page width and/or height</li>
+<li>a <var>viewBox</var> attribute to define the internal coordinate system</li>
+</ul>
+<p>The first two are basically identical to creating a JPG image, which also has an intrinsic size and can be resized from CSS. The view box, however, lets us choose a coordinate system that doesn't match the rest of the page, or even the final dimensions of the image. Its format is a space-separated list of "x y w h", meaning the x and y coordinates of the top-left corner, followed by the width and height of the visible space.</p>
+<p>This may be easier to understand visually. Here, for example, is the same graphic as before, but with a view box set to "0 0 50 50"&mdash;meaning that the SVG coordinate space starts at 0,0 and is 50x50 pixels.</p>
+<svg width=100 height=100 style="outline: 1px solid gray" viewBox="0 0 50 50">
+  <rect x=20 y=20 width=40 height=60 style="fill: blue"></rect>
+  <circle cx=60 cy=60 r=30 style="fill: purple"></circle>
+</svg>
+<p>We've essentially "zoomed in" on the upper left corner: the graphic still starts in the same place, but its "viewable area" is only half as big, so we cut off the bottom and right sides of the image. We can keep that same width and height, but instead move the origin with the first two parts of the attribute, setting a viewBox of "20 20 50 50". This puts our rectangle flush against the corner, since it was also defined to start at 20,20.</p>
+<svg width=100 height=100 style="outline: 1px solid gray" viewBox="20 20 50 50">
+  <rect x=20 y=20 width=40 height=60 style="fill: blue"></rect>
+  <circle cx=60 cy=60 r=30 style="fill: purple"></circle>
+</svg>
+<p>Note that in all of these examples, the attribute has the letter B capitalized: <var>viewBox</var>. Unlike HTML, SVG attributes are case-sensitive. If you don't capitalize it correctly, you won't see the desired behavior, and the default view box (starting at 0,0 and extending to the image's rendered width/height) will be used.</p>
+<p>It may be helpful to think of the view box as a camera looking down on a sheet of graph paper. With the first two numbers, we tell the camera how to pan across the image. The second two numbers tell it how to "zoom," or more specifically, how many squares on the graph paper should be visible in either direction. Unlike a real camera, however, that zoom doesn't have to be uniform in both directions: you can set the width and height in different ways, and by default the SVG will try to fit on the largest axis. Here's a view box with a height of 200, but a width of 100:</p>
+<svg width=100 height=100 style="outline: 1px solid gray" viewBox="0 0 100 200">
+  <rect x=20 y=20 width=40 height=60 style="fill: blue"></rect>
+  <circle cx=60 cy=60 r=30 style="fill: purple"></circle>
+</svg>
+<h2>Stretching out with preserveAspectRatio</h2>
+<p>How the SVG "camera" handles a mismatch between the size of the viewBox and the intrinsic height of the image (as defined by the width and height attributes) is set by the <var>preserveAspectRatio</var> attribute. This lets us either reposition the contents, stretch them, or cut them off as needed.</p>
+<p>Try setting different <var>viewBox</var> and <var>preserveAspectRatio</var> values in this interactive playground.</p>
+<div class="view-box interactive">
+  <div class="svg-container">
+    <svg width=100 height=100>
+      <rect x=20 y=20 width=40 height=60 style="fill: blue"></rect>
+      <circle cx=60 cy=60 r=30 style="fill: purple"></circle>
+    </svg>
+  </div>
+  <div class="form">
+    <label>viewBox</label>
+    <div class="row">
+      <input id="x" value="0" type="number">
+      <input id="y" value="0" type="number">
+      <input id="w" value="100" type="number">
+      <input id="h" value="100" type="number">
+    </div>
+    <label>preserveAspectRatio</label>
+    <select id="par">
+      <option>none</option>
+      <option>xMinYMin meet</option>
+      <option>xMinYMin slice</option>
+      <option>xMidYMid meet</option>
+      <option>xMidYMid slice</option>
+      <option>xMaxYMax meet</option>
+      <option>xMaxYMax slice</option>
+    </select>
+  </div>
+</div>
+<style>
+.view-box.interactive {
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+  padding: 20px 0;
+}
+
+@media (max-width: 480px) {
+  .view-box.interactive {
+    display: block;
+  }
+}
+
+.view-box.interactive svg {
+  outline: 1px dashed black;
+}
+
+.view-box.interactive .form {
+  padding: 0 16px;
+}
+
+.view-box.interactive .row input {
+  width: 3em;
+}
+
+.view-box.interactive label {
+  display: block;
+  font-family: var(--mono);
+  margin-top: 8px;
+  font-size: 15px;
+}
+</style>
+<script>
+(function() {
+var svg = document.querySelector(".view-box.interactive svg");
+var form = document.querySelector(".view-box.interactive .form");
+
+var update = function() {
+  var inputs = form.querySelectorAll("input, select");
+  var data = {};
+  for (var i = 0; i < inputs.length; i++) {
+    data[inputs[i].id] = inputs[i].value;
+  }
+  svg.setAttribute("viewBox", `${data.x} ${data.y} ${data.w} ${data.h}`);
+  svg.setAttribute("preserveAspectRatio", data.par);
+};
+
+form.addEventListener("change", update);
+update();
+})();
+</script>
+<p>Setting <var>preserveAspectRatio</var> to "none" causes the image to stretch and squish, much like if you set a width and height on a bitmap image that are different from its intrinsic width and height. This can certainly be useful at times, but it's usually not what you probably want. The other options are more interesting, and are set using a pair of keywords.</p>
+<p>The first keyword dictates how the SVG will position content where there's a mismatch between its size and the view box. Essentially, you're telling it where to add the leftover space. For example, on the X axis, it can either push content against the left side ("xMin"), center it along the horizontal axis ("xMid"), or fit it against the right side ("xMax"). These are paired with equivalent settings for the vertical axis ("YMin," "YMid," and "YMax," respectively). In the interactive, these are set the same across both axes, but they don't have to be. "xMinYMax" is a valid option, for example, which would push the content to the left and toward the bottom (thus allocating leftover space to the top and right).</p>
+<p>The second <var>preserveAspectRatio</var> keyword is either "meet" or "slice," and these decide how the graphic will decide to scale. If the "meet" keyword is used, the longest axis (either width or height) will be scaled to match the image's rendered size, leaving empty space on either side of the shorter axis. The "slice" keyword, on the other hand, tells the graphic to scale the <em>shorter</em> axis up, cutting off whatever falls outside the bounds of the graphic.</p>
+<p>There are probably cases where "slice" makes sense, but for our purposes, "meet" is usually a better choice. By setting a view box around a given element, and using a "meet" value, you'll make sure that whole element is always in view. This is a great technique to use when creating SVG images that "re-frame" themselves on mobile, or in response to interaction. It's also especially handy when we take the next step: animating the view box to move around the image.</p>
+<h2>Ready for your closeup?</h2>
+<p>Unfortunately, although it is a regular request from people who use SVG regularly, it's not possible to define the view box from CSS, which means that we can't use CSS transitions to alter its value smoothly. Instead, we're going to have to use JavaScript to split the attribute into its four component values, then interpolate between them. We'll first declare a function that we can call, passing in the SVG and an object containing the desired view box values:</p>
+<code><pre><span class="line">var pan = function(svg, final, duration = 1000) {
+</span><span class="line">  //Get the current viewBox value and convert to numbers
+</span><span class="line">  var [x, y, w, h] = svg.getAttribute("viewBox").split(" ").map(Number);
+</span><span class="line">  //current timestamp, same format as requestAnimationFrame
+</span><span class="line">  var start = performance.now();
+</span><span class="line">}
+</span></pre></code>
+<p>Inside of that function, we'll define a function that can be called each frame, figure out where we are along the elapsed time (from 0 to 1) and then scale the values to match. The details of this kind of animation are covered in more detail in <a href="">this chapter [[TODO: ADD REAL CHAPTER LINK]]</a>.</p>
+<code><pre><span class="line">var frame = function(t) {
+</span><span class="line">  var elapsed = t - start;
+</span><span class="line">  var dt = elapsed / duration;
+</span><span class="line">  if (dt &gt; 1) dt = 1;
+</span><span class="line">  var dx = x + (final.x - x) * dt;
+</span><span class="line">  var dy = y + (final.y - y) * dt;
+</span><span class="line">  var dw = w + (final.width - w) * dt;
+</span><span class="line">  var dh = h + (final.height - h) * dt;
+</span><span class="line">  //create the new viewBox
+</span><span class="line">  var box = [dx, dy, dw, dh].join(" ");
+</span><span class="line">  svg.setAttribute("viewBox", box);
+</span><span class="line">  if (dt &lt; 1) requestAnimationFrame(frame);
+</span><span class="line">};
+</span></pre></code>
+<p>Then, all that's left is to call the function in the next frame:</p>
+<code><pre><span class="line">requestAnimationFrame(frame);
+</span></pre></code>
+<p>And our transition should work. Try it out by clicking the buttons below to toggle between a couple of camera positions:</p>
+<svg width=100 height=100 class="camera-example" viewBox="0 0 100 100">
+  <rect x=20 y=20 width=40 height=60 style="fill: blue"></rect>
+  <circle cx=60 cy=60 r=30 style="fill: purple"></circle>
+</svg>
+<button class="toggle-example">Action!</button>
+<script>
+(function() {
+var svg = document.querySelector(".camera-example");
+var button = document.querySelector(".toggle-example");
+var noop = function() {};
+
+var pan = function(svg, final, duration = 1000, callback = noop) {
+  //Get the current viewBox value and convert to numbers
+  var [x, y, w, h] = svg.getAttribute("viewBox").split(" ").map(Number);
+  //current timestamp, same format as requestAnimationFrame
+  var start = performance.now();
+  
+  var frame = function(t) {
+    var elapsed = t - start;
+    var dt = elapsed / duration;
+    if (dt > 1) dt = 1;
+    var dx = x + (final.x - x) * dt;
+    var dy = y + (final.y - y) * dt;
+    var dw = w + (final.width - w) * dt;
+    var dh = h + (final.height - h) * dt;
+    //create the new viewBox
+    var box = [dx, dy, dw, dh].join(" ");
+    svg.setAttribute("viewBox", box);
+    if (dt < 1) {
+      requestAnimationFrame(frame);
+    } else callback();
+  };
+  
+  requestAnimationFrame(frame);
+};
+
+var circleBounds = document.querySelector(".camera-example circle").getBBox();
+
+var big = false;
+button.addEventListener("click", function() {
+  if (this.disabled) return;
+  var view = big ? { x: 0, y: 0, height: 150, width: 150 } : circleBounds;
+  big = !big;
+  this.disabled = true;
+  pan(svg, view, 1000, () => this.disabled = false);
+});
+
+})();
+</script>
+<p>To really get the most use out of this, we might need a way to get the coordinates (in view box space) of a given shape. Then we can tell our camera to zoom in on that particular item, whether a particular shape or (more likely) a layer group defined by the artist in Illustrator or their tool of choice. Luckily, SVG elements provide a helpful method for doing just that: calling any SVG element's <var>getBBox()</var> method will tell you how big it is, including all its child elements if it's a group element.</p>
+<code><pre><span class="line">var circle = $.one(".camera-example");
+</span><span class="line">var bounds = circle.getBBox();
+</span><span class="line">//pan to fit the circle
+</span><span class="line">pan(svg, bounds);
+</span></pre></code>
+<p>In 2016, Seattle voted on funding for Sound Transit 3, an enormous expansion of the existing bus and rail system for the city. In print, we spent a whole page on the additions, but online&mdash;and especially on a phone&mdash;that wasn't possible. However, because the page artist was able to break the Illustrator graphic into layers and then export those to SVG, it was easy to do a <a href="https://projects.seattletimes.com/2016/st3-guide/">voting guide</a> that zoomed and panned around the image as the user scrolled through the list of additions. It's a great example of how this technique can be let your newsroom re-use resources and still present a high-quality digital project.</p>
+<p>If you'd like to do something similar, we've abstracted the view box functionality into a micro-library called <a href="https://github.com/seattle-times/savage-camera/">Savage Camera</a>. Feel free to look through the code and take pieces that are helpful, or use it yourself!</p>
+  </main>
+  <nav class="chapter-links bottom">
+    <ul>
+      <li> <a href="section-svg.html"> &laquo; SVG Mechanics and Mysteries</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li> <a href=""> Generating SVG from code &raquo;</a>
+    </ul>
+  </nav>
+</body>
+</html>

@@ -11,7 +11,7 @@
     ]
   },
   {
-    "section": "Simplifying CSS and HTML",
+    "section": "section-css",
     "chapters": [
       "Aspect ratios and positioning",
       "Responsive scatter plots",
@@ -21,10 +21,11 @@
     ]
   },
   {
-    "section": "SVG Mechanics and Mysteries",
+    "section": "section-svg",
     "chapters": [
-      "Art direction with viewBox",
+      "svg-viewbox",
       "Generating SVG from code",
+      "Applying CSS to an SVG graphic",
       "Common pitfalls with SVG DOM"
     ]
   },

@@ -1,0 +1,80 @@
+<div class="view-box interactive">
+  <div class="svg-container">
+    <svg width=100 height=100>
+      <rect x=20 y=20 width=40 height=60 style="fill: blue"></rect>
+      <circle cx=60 cy=60 r=30 style="fill: purple"></circle>
+    </svg>
+  </div>
+  <div class="form">
+    <label>viewBox</label>
+    <div class="row">
+      <input id="x" value="0" type="number">
+      <input id="y" value="0" type="number">
+      <input id="w" value="100" type="number">
+      <input id="h" value="100" type="number">
+    </div>
+    <label>preserveAspectRatio</label>
+    <select id="par">
+      <option>none</option>
+      <option>xMinYMin meet</option>
+      <option>xMinYMin slice</option>
+      <option>xMidYMid meet</option>
+      <option>xMidYMid slice</option>
+      <option>xMaxYMax meet</option>
+      <option>xMaxYMax slice</option>
+    </select>
+  </div>
+</div>
+<style>
+.view-box.interactive {
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+  padding: 20px 0;
+}
+
+@media (max-width: 480px) {
+  .view-box.interactive {
+    display: block;
+  }
+}
+
+.view-box.interactive svg {
+  outline: 1px dashed black;
+}
+
+.view-box.interactive .form {
+  padding: 0 16px;
+}
+
+.view-box.interactive .row input {
+  width: 3em;
+}
+
+.view-box.interactive label {
+  display: block;
+  font-family: var(--mono);
+  margin-top: 8px;
+  font-size: 15px;
+}
+</style>
+<script>
+(function() {
+var svg = document.querySelector(".view-box.interactive svg");
+var form = document.querySelector(".view-box.interactive .form");
+
+var update = function() {
+  var inputs = form.querySelectorAll("input, select");
+  var data = {};
+  for (var i = 0; i < inputs.length; i++) {
+    data[inputs[i].id] = inputs[i].value;
+  }
+  svg.setAttribute("viewBox", `${data.x} ${data.y} ${data.w} ${data.h}`);
+  svg.setAttribute("preserveAspectRatio", data.par);
+};
+
+form.addEventListener("change", update);
+update();
+})();
+</script>
