@@ -3,11 +3,11 @@
   {
     "section": "section-js",
     "chapters": [
-      "jquery",
+      "js-jquery",
+      "js-scaling",
       "Scroll effects and client rects",
       "Advanced template literals",
-      "FLIP animations",
-      "Scaling time and space from JS"
+      "FLIP animations"
     ]
   },
   {

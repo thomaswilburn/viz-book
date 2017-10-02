@@ -1,0 +1,315 @@
+@metadata...
+title:Scaling time and space
+type:chapter
+summary:Normalizing space | Timing and easing | The new face of zero and one
+...metadata
+
+Almost all data visualizations are about expressing change or difference over one or more dimensions. The distinguishing factor of each visualization is what those dimensions are, and the units used. Are they a literal conversion of world space to display space? That's a map. Add another dimension, via color space, and now you have a cloropleth. Change the units to electoral votes instead of geographic area, and now you have a tile grid map.
+
+A universal feature of data visualizations, therefore, is figuring out the scaling function for your data. Many frameworks will do this for you, but we're going to do it from scratch here. And we're going to do so in a very particular way: we're going to "normalize" our data range, creating a function that takes a value and returns a number in the range from 0 to 1, with 0 being "the low end of our data set" and 1 being "the highest value in our data set." The formula for a normalized linear scale is <strong>(value - minimum) / (maximum - minimum)</strong>.
+
+For example, let's imagine that we're charting the murder rate for a given city over time. At its highest, the murder rate was 12.5 homicides per 100,000 people, and the lowest point was 3.6. If we set those as the bounds for our scale, the function to give us our scaled value is:
+
+@codeblock...
+var scaleMurders = value => (value - 3.6) / (12.5 - 3.6);
+...codeblock
+
+Essentially, we're writing a function to answer the question "how far along is this value, within this range?" Of course, writing individual scaling functions by hand can be frustrating, especially if our visualization has more than one axis. We might be better off writing a factory, which takes in a high and low value and returns a custom scaling function:
+
+@codeblock...
+var scaleFactory = function(low, high) {
+  return function(value) {
+    return (value - low) / (high - low);
+  };
+};
+...codeblock
+
+Why do we use 0 and 1 as the limits of our range? Basically, the math is convenient. Once your value is normalized, you can convert it to another range via the formula <strong>value * range + minimum</strong>. You might want to graph a value on a 600px wide canvas, but reserve the left 20px for drawing the axis. No problem: multiply your normalized value by 580 and add 20 to get the x coordinate in pixels. Normalization, therefore, creates useful intermediate values for going between "data space" and "screen space."
+
+@subhead A brief side trip into <var>Math</var>
+
+But how do we figure out the min and the max of the data in the first place? One complication of data visualizations in the browser is that they're often fed with an array of objects&mdash;say, a series of rows from a spreadsheet, or a JSON dump from a database. We may also want to change the property that we use as the basis for our chart based on user input, like changing the display from murder rate to robberies. So here's a trick for getting the minimum and maximum quickly.
+
+First, let's use the <var>map()</var> function to convert an array of objects into an array of values. A map is just a transformation from one list to another, based on a function you pass in. The following function takes an array of objects with many properties and converts it to just the values for the <var>murder</var> property:
+
+@codeblock...
+//cityData is an array of row objects
+var values = cityData.map(d => d.murder);
+...codeblock
+
+If we need to change the field that we're using for our chart values, we can change the code a little bit so that it's a reusable function, getting a property via the array operator (<var>[]</var>) instead of a dot operator:
+
+@codeblock...
+var getValues = function(mode) {
+  return cityData.map(d => d[mode]);
+};
+
+//get murder data
+var values = getValues("murder");
+
+//get robbery data instead
+values = getValues("robbery");
+...codeblock
+
+Now the clever part: instead of looping through those values and figuring out the minimum and maximum by hand, we'll use JavaScript's built-in math functions. <var>Math.min()</var> and <var>Math.max()</var> accept an arbitrary number of arguments, and will then tell you the lowest and highest value from those arguments. We can use the <var>apply()</var> function method to treat our array of values as individual arguments:
+
+@codeblock...
+
+// apply() takes two arguments:
+// the "this" value, and an arguments array
+var min = Math.min.apply(null, values);
+var max = Math.max.apply(null, values);
+
+// In ES2015, we can just use the spread operator
+var min = Math.min(...values);
+var max = Math.max(...values);
+
+...codeblock
+
+@subhead Sparklines in a flash
+
+A sparkline is a tiny graphic that's intended to be displayed inline, and illustrate a trend. You might use it in a business story, for example, to visualize the stock price of a company next to its ticker symbol. Let's use our scaling function to dynamically create sparklines for a story. First, we'll start with some quarterly data for each company:
+
+@codeblock...
+var stocks = {
+  ACME: [20.4, 30.2, 25.5, 14.9, 7.2],
+  BRDX: [14.1, 15.1, 16.3, 18.0, 17.7]
+};
+...codeblock
+
+And in our markup, we'll create placeholders for our script to find, using spans with a "ticker" class:
+
+@codeblock...
+<p>
+  Meanwhile, Acme Products (<span class="ticker">ACME</span>) continues its plunge, due mostly to the loss of the valuable "coyote" market.
+</p>
+...codeblock
+
+We'll also need to style our sparkline blocks, so that they're visible:
+
+@codeblock...
+.sparkline-block {
+  display: inline-block;
+  background: orange;
+  border-top: 1px solid darkorange;
+  width: 4px;
+}
+...codeblock
+
+Finally, we'll look through the page (using our <a href="js-jquery.html">deconstructed jQuery</a>) for our ticker spans, create a scaling function, and then add a series of sparkline blocks to the span. The height of each block will be the normalized value multiplied by the maximum height. In this case, we're going to be using <var>2ex</var>&mdash; an "ex" is the height of an "x" character, so two of them is a decent stand-in for the total height of a line of text.
+
+@codeblock...
+$(".ticker").forEach(function(span) {
+  // get the ticker symbol
+  var symbol = span.innerHTML.trim();
+  var data = stocks[symbol];
+  // if we don't have data, exit early
+  if (!data) return;
+  // create our scaling function
+  var min = Math.min(...data);
+  var max = Math.max(...data);
+  var scale = value => (value - min) / (max - min);
+  //now create our sparkline blocks
+  var sparkHTML = " ";
+  data.forEach(function(d) {
+    sparkHTML += `<div class="sparkline-block" style="height: ${scale(d) * 2}ex"></div>`;
+  });
+  span.innerHTML += sparkHTML;
+});
+...codeblock
+
+Here it is in action:
+
+@html...
+<blockquote>
+  Meanwhile, Acme Products (<span class="ticker">ACME</span>) continues its plunge, due mostly to the loss of the valuable "coyote" market.
+</blockquote>
+<style>
+.sparkline-block {
+  display: inline-block;
+  background: orange;
+  border-top: 1px solid darkorange;
+  width: 4px;
+}
+</style>
+<script>
+var $ = function(s) {
+  return Array.prototype.slice.call(document.querySelectorAll(s));
+};
+
+var stocks = {
+  ACME: [20.4, 30.2, 25.5, 14.9, 7.2],
+  BRDX: [14.1, 15.1, 16.3, 18.0, 17.7]
+};
+
+$(".ticker").forEach(function(span) {
+  // get the ticker symbol
+  var symbol = span.innerHTML.trim();
+  var data = stocks[symbol];
+  // if we don't have data, exit early
+  if (!data) return;
+  // create our scaling function
+  var min = Math.min(...data);
+  var max = Math.max(...data);
+  var scale = value => (value - min) / (max - min);
+  //now create our sparkline blocks
+  var sparkHTML = " ";
+  data.forEach(function(d) {
+    sparkHTML += `<div class="sparkline-block" style="height: ${scale(d) * 2}ex"></div>`;
+  });
+  span.innerHTML += sparkHTML;
+});
+</script>
+...html
+
+You'll see scaling functions like this used again and again throughout the book, so you'll have plenty of practice using them. And in space, they're fairly intuitive, since they're basically just a position on a number line between two points. But what about using them to express change over time?
+
+@subhead Tweens and easing
+
+Let's say that we wanted to animate between two values over time. Ideally, for visual changes, we should do that with a CSS transition, which will let the browser take care of it for maximum performance. But some values can't be transitioned in CSS, or we might be animating something in a canvas tag (which means there's no CSS to transition). In those cases, we'll write a "tween" to handle the animation (as in "between"). And at its core, a tween is just a scaling function that maps time to something visual.
+
+Let's demonstrate this with a simple canvas animation. When you click one of the buttons below, it'll animate a circle moving from left to right, either in a linear fashion or using a "swing" that accelerates and decelerates smoothly.
+
+@html...
+<div class="tween-demo">
+  <canvas width=300 height=40></canvas>
+  <button class="trigger-tween" data-mode="linear">Linear</button>
+  <button class="trigger-tween" data-mode="swing">Swing</button>
+</div>
+<style>
+.tween-demo {
+  text-align: center;
+}
+
+.tween-demo canvas {
+  display: block;
+  margin: auto;
+}
+</style>
+<script>
+
+var swing = p => 0.5 - Math.cos(p * Math.PI) / 2;
+
+var canvas = document.querySelector(".tween-demo canvas");
+var context = canvas.getContext("2d");
+
+var animate = function() {
+  $(".trigger-tween").forEach(el => el.disabled = true);
+  var mode = this.getAttribute("data-mode");
+
+  var start = performance.now();
+
+  var draw = function(t) {
+    var elapsed = t - start;
+    var dt = elapsed / 1000;
+    if (dt >= 1) dt = 1;
+    if (mode == "swing") dt = swing(dt);
+    var cx = dt * canvas.width;
+    var cy = canvas.height / 2;
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.beginPath();
+    context.arc(cx, cy, cy, 0, Math.PI * 2);
+    context.fill();
+    if (dt == 1) {
+      $(".trigger-tween").forEach(el => el.disabled = false);
+    } else {
+      requestAnimationFrame(draw);
+    }
+  };
+
+  requestAnimationFrame(draw);
+}
+
+$(".trigger-tween").forEach(el => el.addEventListener("click", animate));
+
+</script>
+...html
+
+To create this animation, we'll first define an outer <var>animate</var> function that gets called when you click a button, and records the current timestamp. We're going to get the time from the <var>performance</var> object, which gives us the number of milliseconds since the page was loaded. This is the same timestamp that's used by <var>requestAnimationFrame</var>, so we don't have to worry about any conversion mismatch. We'll also store a "mode" to figure out which button you clicked.
+
+@codeblock...
+var animate = function() {
+  var start = performance.now();
+  var mode = this.getAttribute("data-mode");
+}
+...codeblock
+
+Now, inside of animate, we'll add a "draw" function, which will be called during every frame of the animation. We're going to schedule it using the <var>requestAnimationFrame</var> function, so it'll be passed the current time as its argument. We can compare that time to the start time we recorded when <var>animate</var> was first called, to get the number of elapsed milliseconds:
+
+@codeblock...
+var draw = function(t) {
+  var elapsed = t - start;
+  var dt = elapsed / 1000;
+  if (dt >= 1) dt = 1;
+  /* ... */
+};
+...codeblock
+
+This animation will run for 1000 milliseconds. So our scaling equation above is <strong>number of milliseconds / duration</strong>, or <var>elapsed / 1000</var>. We don't have to subtract a minimum from either side for this version of the equation, because unless you have a time machine available, the minimum is always 0ms. If the scaled value goes over 1, we'll "clamp" the value to that maximum&mdash;because we're not in control of the browser's framerate, it's possible that our draw function will be called later than 1000 milliseconds from the start, and we don't want our animation to over-scale.
+
+Now we'll continue the function by converting the scaled time, <var>dt</var>, into an x coordinate that we can use to draw a circle:
+
+@codeblock...
+var draw = function(t) {
+  var elapsed = t - start;
+  var dt = elapsed / 1000;
+  if (dt >= 1) dt = 1;
+  // add a little optional easing
+  if (mode == "swing") dt = swing(dt);
+  // convert dt to position
+  var cx = dt * canvas.width;
+  var cy = canvas.height / 2;
+  //draw our circle
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.beginPath();
+  context.arc(cx, cy, cy, 0, Math.PI * 2);
+  context.fill();
+  // schedule the next frame if we're not done
+  if (dt < 1) {
+    requestAnimationFrame(draw);
+  }
+};
+...codeblock
+
+At the end of the function, we check our scaled time value. Remember, we clamped the time value, so even if the browser overshoots a little, it'll still be limited to 1 as a max value. If it's less than one, we're still in the middle of the animation, and we'll schedule our drawing function for another tick using <var>requestAnimationFrame</var>.
+
+Did you notice the "swing" check in the middle there? That's a reference to an <em>easing function</em>, which tweaks our normalized value into an acceleration curve. Without it, <var>dt</var> moves linearly from 0 to 1, which tends to feel "robotic" in motion. The swing function is taken from jQuery, and uses cosine to make our circle move slower at the beginning and end.
+
+@codeblock...
+var swing = p => 0.5 - Math.cos(p * Math.PI) / 2;
+...codeblock
+
+There are a lot of easing functions, and each of them has a different feel. Many of them are also defined in CSS, as options for the "transition" property. When doing animations, you should almost always apply an easing function to give movements a feeling of physical weight. The MDN page on <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function">transition-timing-function</a> has more details, and demonstrations so you can see what each easing value looks like in CSS.
+
+All together, our animate function looks like this:
+
+@codeblock...
+var animate = function() {
+  var start = performance.now();
+  var mode = this.getAttribute("data-mode");
+
+  var draw = function(t) {
+    var elapsed = t - start;
+    var dt = elapsed / 1000;
+    if (dt >= 1) dt = 1;
+    // add a little optional easing
+    if (mode == "swing") dt = swing(dt);
+    // convert dt to position
+    var cx = dt * canvas.width;
+    var cy = canvas.height / 2;
+    //draw our circle
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.beginPath();
+    context.arc(cx, cy, cy, 0, Math.PI * 2);
+    context.fill();
+    // schedule the next frame if we're not done
+    if (dt < 1) {
+      requestAnimationFrame(draw);
+    }
+  };
+
+  requestAnimationFrame(draw);
+}
+...codeblock
+
+Clicking a button calls this function, and triggers the animation. In this case, it just moves a circle around. But it should be easy to imagine using a similar function to animate points between two positions on a scatterplot, or to animate the heights of a bar chart in response to a filter. I've used it to tween the position of a camera for a 3D visualization. You can even use a similar technique to transition the RGB components of two colors, creating a color fade on a canvas. The possibilities are endless&mdash;or, at least, limited only to what you can do between zero and one!
