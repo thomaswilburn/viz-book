@@ -1,5 +1,5 @@
-An Elegant Selection (working title)
-====================================
+The Elegant Selection (working title)
+=====================================
 
 A book about creating news graphics for the web, targeting modern browsers.
 
