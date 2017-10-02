@@ -8,7 +8,7 @@ In this chapter, we're going to create a dot matrix chart, in which a grid of do
 
 @include snippets/dotmatrix-example.html
 
-Surprisingly, the JavaScript code used to set up this example is less than 20 lines, and it's not some kind of code golf (feel free to use the dev tools to check it out). Instead, we're mostly leveraging some basic, if obscure, features of HTML and CSS:
+Surprisingly, the JavaScript code used to set up this example is less than 20 lines, and it's not out of misplaced minimalism (feel free to use the dev tools to check it out). Instead, we're mostly leveraging some basic, if obscure, features of HTML and CSS:
 
 * Linking labels to input elements
 * CSS attribute selectors

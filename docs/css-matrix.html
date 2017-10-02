@@ -1,0 +1,194 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>A well-attributed matrix chart</title>
+  <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans" rel="stylesheet">
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body class="css-matrix chapter">
+  <nav class="chapter-links">
+    <ul>
+      <li> <a href=""> &laquo; Responsive scatter plots</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li> <a href=""> hue() and color spaces &raquo;</a>
+    </ul>
+  </nav>
+  <main>
+  <aside class="summary">
+    Radio buttons and their labels | Styling via attributes | Deep UI pattern thoughts
+  </aside>
+  <h1>A well-attributed matrix chart</h1>
+<p>In this chapter, we're going to create a dot matrix chart, in which a grid of dots is colored to correspond with a category. These kinds of charts are often used to show proportions of different category groups within a population, such as gender/race or job sector. We're going to do one better: our matrix is going to have controls letting a user toggle between two views, each with its own categories. Here's what the final result should look like:</p>
+<div class="dot-matrix" data-category="a">
+  <div class="controls">
+    <input type="radio" name="dot-category" id="category-a" value="a" checked="checked">
+    <label for="category-a">Category A</label>
+    <input type="radio" name="dot-category" id="category-b" value="b">
+    <label for="category-b">Category B</label>
+  </div>
+  <div class="grid"></div>
+</div>
+<style>
+input[type="radio"] { opacity: 0; width: 0; }
+input[type="radio"] + label {
+  display: inline-block;
+  border: 1px solid #eee;
+  padding: 4px 8px;
+  color: #888;
+}
+input[type="radio"]:checked + label {
+  background: #EEE;
+  color: black;
+}
+.controls {
+  text-align: center;
+  padding: 16px;
+}
+.dot {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border-radius: 100%;
+  background: black;
+  margin-right: 4px;
+  margin-bottom: 4px;
+  transition: background .4s linear;
+}
+[data-category="a"] .big { background: green }
+[data-category="a"] .small { background: red }
+[data-category="b"] .yes { background: orange }
+[data-category="b"] .no { background: purple }
+</style>
+<script>
+//randomly generate 100 dots
+var dots = [];
+for (var i = 0; i < 100; i++) {
+  dots.push({
+    a: Math.random() > .5 ? "big" : "small",
+    b: Math.random() > .7 ? "yes" : "no"
+  });
+}
+
+var grid = document.querySelector(".grid");
+var container = document.querySelector(".dot-matrix");
+var controls = document.querySelector(".controls");
+
+var html = "";
+dots.forEach(function(d) {
+  html += `<div class="dot ${d.a} ${d.b}"></div>`;
+});
+grid.innerHTML = html;
+
+controls.addEventListener("change", function() {
+  var value = document.querySelector(`input[name="dot-category"]:checked`).value;
+  container.setAttribute("data-category", value);
+});
+</script>
+<p>Surprisingly, the JavaScript code used to set up this example is less than 20 lines, and it's not out of misplaced minimalism (feel free to use the dev tools to check it out). Instead, we're mostly leveraging some basic, if obscure, features of HTML and CSS:</p>
+<ul>
+<li>Linking labels to input elements</li>
+<li>CSS attribute selectors</li>
+</ul>
+<p>In the resulting visualization, the browser does most of the work for us, and it's easy to add additional dimensions to the matrix. Having that kind of flexibility is really handy while prototyping, especially if you don't yet know which categories will be editorially significant.</p>
+<h2>There can be only one</h2>
+<p>There's a truism in the accessibility community: don't reinvent the <var>select</var> element. The form controls available in the browser may be clumsy, and difficult to restyle, but they also provide a large amount of benefit to screen readers, to people with reduced dexterity, and to users accustomed to the default behavior on their particular operating system. Reproducing all of that is an enormous investment, as <a href="https://accessibility.oit.ncsu.edu/it-accessibility-at-nc-state/developers/accessibility-handbook/aria-checkbox/">this guide to creating a "custom checkbox"</a> shows. The built-in defaults aren't as pretty, but there's good reason to just use them instead of doing all that work.</p>
+<p>However, I would go one step farther: for many common UI patterns, there may be a form element that we can build off, even if it's not an obvious choice. This shouldn't be surprising, since the point of "UI patterns" is to look for behaviors that crop up across multiple different widgets. Take, for example, a tabbed window and an image gallery with a "filmstrip" of thumbnails underneath. They have very different goals, and they look very different to users. But the functionality, in which the selected item is shown while the others are hidden, is largely the same, and the underlying code for them might be almost identical.</p>
+<p>In this case, what we're going to leverage is the radio button, one of the several types available for the <var>input</var> tag. Radio buttons are basically checkboxes, but they're linked together in groups, and only one can be checked at a time. Checking a different radio button will uncheck the first. Each button in a group can have its own value, and the group itself is created by a common value for the "name" attribute. Here's a set of three radio buttons in a group, each with its own label:</p>
+<code><pre><span class="line">&lt;div class="radio-block"&gt;
+</span><span class="line">  &lt;input type="radio" name="size" value="S" id="size-S" checked="checked"&gt;
+</span><span class="line">  &lt;label for="size-S"&gt;Small&lt;/label&gt;
+</span><span class="line">  &lt;input type="radio" name="size" value="M" id="size-M"&gt;
+</span><span class="line">  &lt;label for="size-M"&gt;Medium&lt;/label&gt;
+</span><span class="line">  &lt;input type="radio" name="size" value="L" id="size-L"&gt;
+</span><span class="line">  &lt;label for="size-L"&gt;Large&lt;/label&gt;
+</span><span class="line">&lt;/div&gt;
+</span></pre></code>
+<p>By giving each input its own ID, and setting the "for" attribute of each label to match, the browser hooks up each label to the corresponding input: clicking on the label text will select that radio button from the group. Essentially, it makes the label a part of the input.</p>
+<p>Now, with a little CSS trickery, we can make actually hide the inputs themselves, and instead show the checked/unchecked state on the label. To do so, we'll use the <var>+</var> CSS operator, which selects an element's next sibling, and the <var>:checked</var> pseudoclass. Here's some style rules that will highlight the label for the selected item in red:</p>
+<code><pre><span class="line">.radio-block input { opacity: 0; width: 0 }
+</span><span class="line">.radio-block input + label {
+</span><span class="line">  display: inline-block;
+</span><span class="line">  padding: 2px 4px;
+</span><span class="line">  background: white;
+</span><span class="line">  color: black;
+</span><span class="line">  cursor: pointer;
+</span><span class="line">}
+</span><span class="line">.radio-block input:focus + label {
+</span><span class="line">  outline: 1px solid blue;
+</span><span class="line">}
+</span><span class="line">.radio-block input:checked + label {
+</span><span class="line">  background: red;
+</span><span class="line">  color: white;
+</span><span class="line">}
+</span></pre></code>
+<p>And here it is in action:</p>
+<div class="radio-block">
+  <input type="radio" name="size" value="S" id="size-S" checked="checked">
+  <label for="size-S">Small</label>
+  <input type="radio" name="size" value="M" id="size-M">
+  <label for="size-M">Medium</label>
+  <input type="radio" name="size" value="L" id="size-L">
+  <label for="size-L">Large</label>
+</div>
+<style>
+.radio-block input { opacity: 0; width: 0 }
+.radio-block input + label {
+  display: inline-block;
+  padding: 2px 4px;
+  background: white;
+  color: black;
+  cursor: pointer;
+}
+.radio-block input:focus + label {
+  outline: 1px solid blue;
+}
+.radio-block input:checked + label {
+  background: red;
+  color: white;
+}
+</style>
+<p>Add a few extra styles, and it's easy to make this look like an iOS-style "pillbox," a set of Android tabs, a line of gallery thumbnails, or any other UI widget where the user can select only one item from a set of choices. We didn't have to write any JS code to keep track of the selected item and update the classes on those elements. And because we're just using HTML and CSS, this code is accessible to screen readers, and you can easily use the arrow keys to pick between the different options (although adding the <var>:focus</var> rule is necessary to make that more clear).</p>
+<p>It's worth experimenting with this technique, since it can also be generalized to checkboxes as well. But that's a topic for study on your own time&mdash;now that our controls are working, let's hook them up to our category palettes.</p>
+<h2>Your best attributes</h2>
+<p>Each dot in our matrix represents one person. Each person can have multiple category groups assigned, but only one within a group. So, for example, in our interactive, people can choose "big" or "small" in category A, and they can vote "yes" or "no" for category B. For this interactive, I'm creating 100 of them at random. Then I create the dots using a template string, and simply add classes that match the choices they've made for each category:</p>
+<code><pre><span class="line">var html = "";
+</span><span class="line">dots.forEach(function(d) {
+</span><span class="line">  html += `&lt;div class="dot ${d.a} ${d.b}"&gt;&lt;/div&gt;`;
+</span><span class="line">});
+</span><span class="line">grid.innerHTML = html;
+</span></pre></code>
+<p>Our dots are styled to be 30px by 30px inline blocks, and setting the border radius to 50% or more makes them circular. But where do they get their colors? For that, we set an attribute on the container element, and then use an attribute selector to match:</p>
+<code><pre><span class="line">[data-category="a"] .big { background: green }
+</span><span class="line">[data-category="a"] .small { background: red }
+</span><span class="line">[data-category="b"] .yes { background: orange }
+</span><span class="line">[data-category="b"] .no { background: purple }
+</span></pre></code>
+<p>Attribute selectors are written between square brackets, and are extremely flexible in how they match. These selectors check for the exact value of the attribute, but there are many other options available:</p>
+<ul>
+<li><var>[attr]</var> - simply matches an element that has the attribute, with any value (or no value).</li>
+<li><var>[attr="value"]</var> - as above, matches the exact value of the attribute.</li>
+<li><var>[attr~="value"]</var> - matches attributes that contain "value" as one of a list of whitespace-separated words. Basically, it's a class selector (<var>.foo</var> is the same as <var>[class~="foo"]</var>).</li>
+<li><var>[attr*="value"]</var> - matches an attribute that has "value" somewhere inside it</li>
+<li><var>[attr^="value"]</var> - matches an attribute that starts with "value"</li>
+<li><var>[attr$="value"]</var> - matches an attribute that ends with "value"</li>
+</ul>
+<p>A little experimentation creates all kinds of useful applications for these selectors, especially when combined with the <var>:not()</var> pseudoclass. For example, you might style links to external sites with a little indicator by looking for <var>a[href*="://"]:not([href*="yourdomain.com"])</var>, or links that open in a new window via <var>a[target]</var>. You could blank out image tags that don't have a <var>src</var> attribute, hiding the "broken image" icon. Or use this to hide UI widgets that haven't loaded until they have a "ready" attribute added. Indeed, because these selectors are more low-level than class and ID selectors, they open up a lot more power.</p>
+<p>To look back at our chart, however, we're simply allowing each dot to color itself based on the current "filter" of the container, as expressed by its "data-category" attribute. We don't need to set each element's color individually&mdash;they can have as many category classes as they want, but only one will be expressed at any time. And because the parent element is controlled using an attribute value instead of a class, we don't have to worry about removing old state when we switch filters. We can just clobber the attribute value with the new setting, and watch the colors adjust:</p>
+<code><pre><span class="line">controls.addEventListener("change", function() {
+</span><span class="line">  //find the radio button that's currently checked
+</span><span class="line">  var value = $.one(`input[name="dot-category"]:checked`).value;
+</span><span class="line">  container.setAttribute("data-category", value);
+</span><span class="line">});
+</span></pre></code>
+<p>It's this modal nature that has made attributes one of the most useful tools in my CSS toolkit. Compared to re-coloring the dots via JavaScript, or trying to set only one category class, this code is clean, simple, and reliable in any number of other situations. Remember this technique whenever you need to add, remove, or update a large number of DOM elements in response to a single updated value, like a system mode or filter.</p>
+  </main>
+  <nav class="chapter-links bottom">
+    <ul>
+      <li> <a href=""> &laquo; Responsive scatter plots</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li> <a href=""> hue() and color spaces &raquo;</a>
+    </ul>
+  </nav>
+</body>
+</html>

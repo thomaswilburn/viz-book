@@ -15,7 +15,7 @@
     "chapters": [
       "Aspect ratios and positioning",
       "Responsive scatter plots",
-      "attribute-dotmatrix",
+      "css-matrix",
       "hue() and color spaces",
       "Building stacked graphs with flex"
     ]
