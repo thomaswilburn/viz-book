@@ -25,6 +25,7 @@ nav.chapter-links ul {
   display: flex;
   max-width: 800px;
   margin: auto;
+  padding: 0;
   justify-content: space-between;
   font-family: var(--sans-serif);
 }
@@ -36,6 +37,16 @@ nav.chapter-links a {
 
 nav.chapter-links.bottom {
   margin-top: 60px;
+}
+
+@media (max-width: 480px) {
+  nav.chapter-links.top .next {
+    display: none;
+  }
+  
+  nav.chapter-links.bottom .previous {
+    display: none;
+  }
 }
 
 main {
@@ -62,7 +73,7 @@ code pre {
   background: var(--foreground);
   color: var(--background);
   border-radius: 4px;
-  white-space: pre-wrap;
+  overflow-x: auto;
 }
 
 code pre .line {
