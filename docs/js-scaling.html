@@ -20,7 +20,7 @@
   </aside>
   <h1>Scaling time and space</h1>
 <p>Almost all data visualizations are about expressing change or difference over one or more dimensions. The distinguishing factor of each visualization is what those dimensions are, and the units used. Are they a literal conversion of world space to display space? That's a map. Add another dimension, via color space, and now you have a cloropleth. Change the units to electoral votes instead of geographic area, and now you have a tile grid map.</p>
-<p>A universal feature of data visualizations, therefore, is figuring out the scaling function for your data. Many frameworks will do this for you, but we're going to do it from scratch here. And we're going to do so in a very particular way: we're going to "normalize" our data range, creating a function that takes a value and returns a number in the range from 0 to 1, with 0 being "the low end of our data set" and 1 being "the highest value in our data set." The formula for a normalized, linear scale is <strong>(value - minimum) / (maximum - minimum)</strong>.</p>
+<p>A universal feature of data visualizations, therefore, is figuring out the scaling function for your data. Many frameworks will do this for you, but we're going to do it from scratch here. And we're going to do so in a very particular way: we're going to "normalize" our data range, creating a function that takes a value and returns a number in the range from 0 to 1, with 0 being "the low end of our data set" and 1 being "the highest value in our data set." The formula for a normalized linear scale is <strong>(value - minimum) / (maximum - minimum)</strong>.</p>
 <p>For example, let's imagine that we're charting the murder rate for a given city over time. At its highest, the murder rate was 12.5 homicides per 100,000 people, and the lowest point was 3.6. If we set those as the bounds for our scale, the function to give us our scaled value is:</p>
 <code><pre><span class="line">var scaleMurders = value =&gt; (value - 3.6) / (12.5 - 3.6);
 </span></pre></code>
@@ -68,7 +68,7 @@
 </span></pre></code>
 <p>And in our markup, we'll create placeholders for our script to find, using spans with a "ticker" class:</p>
 <code><pre><span class="line">&lt;p&gt;
-</span><span class="line">  Meanwhile, Acme Products (&lt;span class="ticker"&gt;ACME</span>) continues its plunge, due mostly to the loss of the valuable "coyote" market.
+</span><span class="line">  Meanwhile, Acme Products (&lt;span class="ticker"&gt;ACME&lt;/span&gt;) continues its plunge, due mostly to the loss of the valuable "coyote" market.
 </span><span class="line">&lt;/p&gt;
 </span></pre></code>
 <p>We'll also need to style our sparkline blocks, so that they're visible:</p>
@@ -93,7 +93,7 @@
 </span><span class="line">  //now create our sparkline blocks
 </span><span class="line">  var sparkHTML = " ";
 </span><span class="line">  data.forEach(function(d) {
-</span><span class="line">    sparkHTML += `&lt;div class="sparkline-block" style="height: ${scale(d) * 2}ex"&gt;</div>`;
+</span><span class="line">    sparkHTML += `&lt;div class="sparkline-block" style="height: ${scale(d) * 2}ex"&gt;&lt;/div&gt;`;
 </span><span class="line">  });
 </span><span class="line">  span.innerHTML += sparkHTML;
 </span><span class="line">});

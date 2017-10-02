@@ -77,7 +77,7 @@
 </span><span class="line">
 </span><span class="line">var closest = function(element, selector, root = document) {
 </span><span class="line">  //walk up the tree until we match or run out of elements
-</span><span class="line">  while (!element[matches](selector) &amp;& element) {
+</span><span class="line">  while (!element[matches](selector) &amp;&amp; element) {
 </span><span class="line">    element = element.parentElement;
 </span><span class="line">  }
 </span><span class="line">  //if we hit the root, that's not a match

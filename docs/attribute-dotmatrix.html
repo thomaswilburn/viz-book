@@ -97,11 +97,11 @@ controls.addEventListener("change", function() {
 <p>In this case, what we're going to leverage is the radio button, one of the several types available for the <var>input</var> tag. Radio buttons are basically checkboxes, but they're linked together in groups, and only one can be checked at a time. Checking a different radio button will uncheck the first. Each button in a group can have its own value, and the group itself is created by a common value for the "name" attribute. Here's a set of three radio buttons in a group, each with its own label:</p>
 <code><pre><span class="line">&lt;div class="radio-block"&gt;
 </span><span class="line">  &lt;input type="radio" name="size" value="S" id="size-S" checked="checked"&gt;
-</span><span class="line">  &lt;label for="size-S"&gt;Small</label>
+</span><span class="line">  &lt;label for="size-S"&gt;Small&lt;/label&gt;
 </span><span class="line">  &lt;input type="radio" name="size" value="M" id="size-M"&gt;
-</span><span class="line">  &lt;label for="size-M"&gt;Medium</label>
+</span><span class="line">  &lt;label for="size-M"&gt;Medium&lt;/label&gt;
 </span><span class="line">  &lt;input type="radio" name="size" value="L" id="size-L"&gt;
-</span><span class="line">  &lt;label for="size-L"&gt;Large</label>
+</span><span class="line">  &lt;label for="size-L"&gt;Large&lt;/label&gt;
 </span><span class="line">&lt;/div&gt;
 </span></pre></code>
 <p>By giving each input its own ID, and setting the "for" attribute of each label to match, the browser hooks up each label to the corresponding input: clicking on the label text will select that radio button from the group. Essentially, it makes the label a part of the input.</p>
@@ -154,7 +154,7 @@ controls.addEventListener("change", function() {
 <p>Each dot in our matrix represents one person. Each person can have multiple category groups assigned, but only one within a group. So, for example, in our interactive, people can choose "big" or "small" in category A, and they can vote "yes" or "no" for category B. For this interactive, I'm creating 100 of them at random. Then I create the dots using a template string, and simply add classes that match the choices they've made for each category:</p>
 <code><pre><span class="line">var html = "";
 </span><span class="line">dots.forEach(function(d) {
-</span><span class="line">  html += `&lt;div class="dot ${d.a} ${d.b}"&gt;</div>`;
+</span><span class="line">  html += `&lt;div class="dot ${d.a} ${d.b}"&gt;&lt;/div&gt;`;
 </span><span class="line">});
 </span><span class="line">grid.innerHTML = html;
 </span></pre></code>
