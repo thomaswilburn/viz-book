@@ -1,5 +1,5 @@
 @metadata...
-title:Scatter plots with position and padding
+title:Making scatter plots with CSS positioning
 type:chapter
 summary:An origin story | Transforms, by comparison | Padding WTF
 prereqs:js-scaling
@@ -7,7 +7,7 @@ prereqs:js-scaling
 
 The simplest way to show the relationship of two variables in a data set, a scatter plot is also a perfect chance to talk about how CSS positioning works: how to place an element precisely within a space, with a consistent visual shape, regardless of screen size. HTML and CSS turn out to be well-suited for this task, even in comparison to SVG and canvas.
 
-Once complete, our basic scatter plot (measuring "joy" versus "dogs", for what it's worth) should look something like this:
+Once complete, our very basic demo chart (measuring "joy" versus "dogs", for what it's worth) should look something like this:
 
 @html...
 <div class="scatter-area"></div>
@@ -172,7 +172,7 @@ data.forEach(function(d, i) {
 
 ...codeblock
 
-We can add tooltips to each dot by placing inserting HTML into the dot with a ".tooltip" class, but hiding it unless the dot matches the <var>:hover</var> pseudo-class. Because the tooltips are also positioned absolutely, they take their positioning cues from the dot that contain them, but they don't distort its size (since <var>position: absolute</var> removes an element from layout calculation).
+We can add tooltips to each dot by placing inserting HTML into the dot with a ".tooltip" class, but hiding it unless the dot matches the <var>:hover</var> pseudo-class. Because the tooltips are also positioned absolutely, they take their positioning cues from the dot that contain them, but they don't distort its size (since <var>position: absolute</var> removes an element from layout calculation). The <var>pointer-events: none</var> also stops them from being too "sticky" in browsers that support it.
 
 @codeblock...
 
@@ -196,13 +196,15 @@ We can add tooltips to each dot by placing inserting HTML into the dot with a ".
 
 ...codeblock
 
-The code shown above is not entirely complete, and you should use your developer tools to explore some of the other niceties (such as the tooltips that "flip" from left to right when they cross the x-axis). Still, one more detail remains to be explained: because our dots are positioned using percentages, this graph is fully responsive, yet if you resize the window the example plot keeps its perfectly square shape no matter what. In the styles I've written above, it's defined as 400px high (which means it would distort on small screens), so clearly there's something else setting the graph's height. What's the change that makes a constant aspect ratio possible?
+The code shown above is not entirely complete, and you should use your developer tools to explore some of the other niceties (such as the tooltips that "flip" from left to right when they cross the x-axis). You can also adapt this technique any time that you need to place elements within a defined space&mdash;I like to use it, along with percentage-based widths and heights, to create "annotated" images, similar to the facial tagging seen on many social networks.
+
+Still, one more detail remains to be explained: because our dots are positioned using percentages, this graph is fully responsive, yet if you resize the window the example plot keeps its perfectly square shape no matter what. In the styles I've written above, it's defined as 400px high (which means it would distort on small screens), so clearly there's something else setting the graph's height. What's the change that makes a constant aspect ratio possible?
 
 @subhead Defining an aspect ratio
 
 Some HTML elements have aspect ratios built in, by virtue of their content. Images, for example, "know" how high and wide they should be, and that relationship holds constant even if you resize one axis. The same is true for videos, and for canvas tags with the width or height attributes set.
 
-Other HTML elements, unfortunately, do not know how big they "should" be. If you change the width of these elements, by resizing the browser or placing them in a container, the height does not maintain a constant relationship. For the most part, this makes sense: you wouldn't want your paragraphs to get shorter just because they got skinnier, since that would cut off the text inside. But sometimes we genuinely do want a non-image element (like an iframe containing a third-party video) to stay "frozen" at a certain aspect ratio, and there isn't an obvious style to make it happen.
+Other HTML elements, unfortunately, do not know how big they "should" be. If you change the width of these elements, by resizing the browser or placing them in a container, the height does not maintain a constant relationship. For the most part, this makes sense: you wouldn't want your paragraphs to get shorter just because they got skinnier, since that would cut off the text inside (or shrink it, which is equally bad). But sometimes we genuinely do want a non-image element, like an iframe containing a third-party video, to stay "frozen" at a certain aspect ratio, and there isn't an obvious style to make it happen.
 
 The trick, such as it is, comes from the "padding" property. In what seems like a bizarre (but helpful) choice, if you set an element's padding to be a percentage, the actual size of the padding will be determined by the width of the <em>parent</em> element. In other words, <var>padding-bottom: 100%</var> is equal to the width of your element's parent.
 
@@ -237,7 +239,36 @@ The iframe doesn't know how tall it wants to be, and if you set the width and he
 
 ...codeblock
 
-Even better, in the case of our scatter plot, we can use a pseudo-element to play the role of the inner padding, so that we don't need to add an additional tag to our markup:
+Here's the live demo:
+
+@html...
+<style>
+.aspect-container {
+  position: relative;
+  max-width: 600px;
+  margin: auto;
+}
+
+/* 56.25% is 9 / 16, or 16:9 aspect ratio */
+.aspect-inner { padding-bottom: 56.25% }
+
+.aspect-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+</style>
+<div class="aspect-container">
+  <div class="aspect-inner">
+    <iframe src="https://www.youtube.com/embed/a1Y73sPHKxw"></iframe>
+  </div>
+</div>
+...html
+
+Even better, in the case of our scatter plot, we can use the <var>::before</var> pseudo-element to play the role of the inner padding, so that we don't need to add an additional tag to our markup just for some empty padding:
 
 @codeblock...
 

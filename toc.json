@@ -8,7 +8,8 @@
       "js-templates",
       "Attaching data to the DOM",
       "Scroll effects and client rects",
-      "FLIP animations"
+      "Visualizations with canvas",
+      "Debugging and dev tools"
     ]
   },
   {
@@ -32,6 +33,12 @@
   },
   {
     "section": "Performance tips and tricks",
-    "chapters": []
-  }
+    "chapters": [
+      "FLIP animations",
+      "Measuring page speed for news",
+      "Strategies for deferred loading",
+      "Common sources of slowness"
+    ]
+  },
+  "Glossary"
 ]
