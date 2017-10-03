@@ -1,0 +1,246 @@
+@metadata...
+title:Inadvisable template literal tricks
+type:chapter
+summary:Substitutions and maps | Tagging templates | Just use Dot.js, honestly
+...metadata
+
+I want to start this chapter by pointing out that templating libraries are a genuinely good thing that you should use. Switching to a real templating system, like ICanHaz or Dot, instead of building strings via jQuery and manual concatenation, was one of the biggest paradigm shifts in my early career. And although this is a book about how to write smaller, browser-centric code, there are plenty of templating microlibraries available to you, and you should use them.
+
+With that out of the way, let's have some fun.
+
+@subhead Template literal basics
+
+Introduced in ES2015, template strings are a new kind of JavaScript string. Instead of using single or double quotes, they're wrapped in backticks. Unlike previous kinds of strings, they're allowed to span multiple lines, which makes them great for writing little chunks of HTML:
+
+@codeblock...
+var htmlText = `
+<div class="tooltip">
+  Hello, world!
+</div>
+`;
+...codeblock
+
+If that were all we were getting out of a new string type, it'd be pretty good. But template literals also have a new trick: they can be <em>interpolated</em>, meaning that we can inject values into the string without having to concatenate them on either side. To do so, you use the <var>${ }</var> delimiters, with your intended value inside the curly braces. Those expressions are immediately evaluated and placed into the string when it's defined, which means you do need to have access to the variable (you should be able to <var>console.log()</var> it). 
+
+@codeblock...
+var num = 2;
+var type = "people";
+
+var slogan = `There are ${num + 1} kinds of ${type} in this ${"world"}.`;
+// "There are 3 kinds of people in this world."
+...codeblock
+
+You can't write anything that's not a simple expression inside of a template literal, so no <var>if</var> statements or loops. You can use ternary expressions, however, if you need to make a choice:
+
+@codeblock...
+var quantity = 14;
+
+var cart = `You have ordered ${quantity} ${quantity > 1 ? "wheels" : "wheel"} of cheese.`;
+// "You have ordered 14 wheels of cheese."
+...codeblock
+
+Template strings are therefore ideal for graphics where you just need to dump some values into a string and show it to the user. I personally love using them for Leaflet map popups, where I'm just going to show the user some data about the marker or area that they've clicked, straight from my GeoJSON properties.
+
+They're also fantastic for building selectors, which is my favorite way to use a template string, if for no other reason than the fact that it makes inserting double-quotes (required for many attribute selectors) way, way easier.
+
+@codeblock...
+// find all elements with an initial attribute value
+var search = searchElement.value;
+var found = $(`[data-value^="${search}"]`);
+
+// I even just use them for quoted constants
+var featured = $(`[data-featured="true"]`);
+...codeblock
+
+@subhead More with maps
+
+Note that although I did say that you can't do loops in a template literal, that's only true for the <var>for</var> loop syntax. You can, however, call functions that perform loops as a part of an expression, and if that function returns a value, it'll be injected into the string. What looping function is generally available to us? That's right, it's our old friend <var>Array.map()</var>.
+
+@codeblock...
+var values = ["a", "b", "c", "d"];
+
+// we can build a list using map()
+// join() the result, or you'll get commas
+var listHTML = `
+<ul>
+  ${values.map(v => "<li>" + v).join("")}
+</ul>`;
+
+//we can even nest template literals
+var links = [
+  { href: "propublica.org", text: "Pro Publica" },
+  { href: "seattletimes.com", text: "Seattle Times" },
+  { href: "fivethirtyeight.com", text: "538" }
+];
+
+var menuHTML = `
+<nav class="news links">
+  <ul>
+    ${links.map(l => `
+    <li> <a href="http://${l.href}">${l.text}</a>
+`).join("\n")}
+  </ul>
+</nav>
+`;
+...codeblock
+
+So sure, it's possible to do a lot of basic HTML templating using these new kinds of strings. But it's not exactly ergonomic, especially compared to the kinds of user-friendly expressions available in Vue, React, Handlebars, or (my personal favorite) Dot. I suggest moving all text out to its own file when it becomes more than a few lines long, especially if it's in an actual language with a grammar, like HTML or WebGL shaders. For one thing, you don't get syntax highlighting inside template strings in most text editors, and you'll want that as the file gets bigger and more complicated.
+
+@subhead Taking it too far with tagged strings
+
+Template literals have one more interesting feature: you can "tag" them by sticking a function onto the front. This calls that function, and passes in the string as an odd set of arguments: first, an array containing all of the parts of the string that aren't interpolated, and then after that you get each evaluated expression inside the interpolation tags as an indeterminate list of arguments. It looks a bit like this:
+
+@codeblock...
+var tag = function(stringParts, ...values) {
+  console.log(stringParts, values);
+};
+
+tag`Hello ${42} World ${"!"}`;
+// ["Hello ", " World ", ""], 42, "!"
+...codeblock
+
+This is a weird syntax choice. There's the empty string after the second interpolation, for example. And why get all of the values as arguments, instead of as a second array? That said, tagged strings can be very interesting, because the return value of the tag function can be anything, not just a string. For example, you could build a DOM search that uses tags to save a couple of characters.
+
+@codeblock...
+var $ = function(selectors) {
+  return document.querySelectorAll(selectors.join());
+};
+
+var links = $`a[href]`;
+var sidebars = $`.sidebar`;
+...codeblock
+
+Another cool use for tag functions is to build and issue database queries in Node, since the tag function can escape the interpolated values and check for injection attacks before inserting them into the SQL string. For the most part, though, tagged template literals are rarely used, and don't offer a lot that a simple function call wouldn't offer.
+
+But if you wanted to make some very poor life choices, we could use it to emulate a real template system. You know, for educational purposes.
+
+We'll start with a tag function, <var>HTML()</var>, that just concatenates its inputs together:
+
+@codeblock...
+var HTML = function(parts, ...values) {
+  var output = "";
+  parts.forEach(function(str, i) {
+    //add each string and any interpolated value to the buffer
+    output += str + (values[i] || "");
+  });
+  return output;
+}
+...codeblock
+
+Then we can augment that function with additional methods, each of which emulates a kind of standard template functionality. These special methods will take functions as arguments, because that way we can evaluate them conditionally (i.e., if an "if" statement fails, it shouldn't run the code anyway in case it has side effects).
+
+@codeblock...
+// "if" - condition, then "true" clause
+HTML.fi = function(condition, result) {
+  return condition ? result() : "";
+};
+
+// loop for both objects and arrays
+HTML.each = function(collection, iterator) {
+  var output;
+  if (collection instanceof Array) {
+    // arrays are easy
+    output = collection.map(iterator);
+  } else {
+    // for objects, loop over keys
+    var keys = Object.keys(collection);
+    output = keys.map(function(key) {
+      return iterator(collection[key], key);
+    });
+  }
+  return output.join("");
+};
+
+...codeblock
+
+Put this together, and now we have a functioning&mdash;if hideous&mdash;templating language built out of ES2015's new primitives.
+
+@codeblock...
+var title = "Hello, world."
+var age = 35;
+var eclipses = [2022, 2043, 2077];
+
+var mangled = HTML`
+  <b>${title}</b>
+  Your age is ${age}:
+  ${HTML.fi(age > 18, () => 
+    `<div>You can vote in the US</div>`
+  )}
+  
+  ${HTML.fi(age > 65, () =>
+    `<div>You may be nearing retirement</div>`
+  )}
+
+  There will be another eclipse in your location in:
+  <ul>
+  ${HTML.each(eclipses, v => `
+    <li> ${v} </li>
+  `)}
+  </ul>
+`;
+...codeblock
+
+Results in:
+
+@html...
+<blockquote class="output"></blockquote>
+<script>
+var HTML = function(parts, ...values) {
+  var output = "";
+  parts.forEach(function(str, i) {
+    //add each string and any interpolated value to the buffer
+    output += str + (values[i] || "");
+    console.log(str, values[i]);
+  });
+  return output;
+}
+
+// "if" - condition, then "true" clause
+HTML.fi = function(condition, result) {
+  return condition ? result() : "";
+};
+
+// loop for both objects and arrays
+HTML.each = function(collection, iterator) {
+  var output;
+  if (collection instanceof Array) {
+    // arrays are easy
+    output = collection.map(iterator);
+  } else {
+    // for objects, loop over keys
+    var keys = Object.keys(collection);
+    output = keys.map(function(key) {
+      return iterator(collection[key], key);
+    });
+  }
+  return output.join("");
+};
+
+var title = "Hello, world."
+var age = 35;
+var eclipses = [2022, 2043, 2077];
+
+var mangled = HTML`
+  <b>${title}</b>
+  Your age is ${age}:
+  ${HTML.fi(age > 18, () => 
+    `<div>You can vote in the US</div>`
+  )}
+  
+  ${HTML.fi(age > 65, () =>
+    `<div>You may be nearing retirement</div>`
+  )}
+
+  There will be another eclipse in your location in:
+  <ul>
+  ${HTML.each(eclipses, (v) => `
+    <li> ${v} </li>
+  `)}
+  </ul>
+`;
+
+document.querySelector(".output").innerHTML = mangled;
+</script>
+...html
+
+Good idea? Absolutely not. Like many modern JavaScript APIs, the goal of tag functions is to give users low-level tools so that they can build simpler, more pleasant abstractions on top of them. But if you need to do some templating, and code size is your top priority, this is probably about as small as the functionality could be. And creative abuse of template string interpolation is another interesting tool to keep in your pocket, just in case.

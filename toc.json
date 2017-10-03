@@ -5,8 +5,8 @@
     "chapters": [
       "js-jquery",
       "js-scaling",
+      "js-templates",
       "Scroll effects and client rects",
-      "Advanced template literals",
       "FLIP animations"
     ]
   },
