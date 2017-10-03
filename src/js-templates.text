@@ -54,7 +54,7 @@ var featured = $(`[data-featured="true"]`);
 
 @subhead More with maps
 
-Note that although I did say that you can't do loops in a template literal, that's only true for the <var>for</var> loop syntax. You can, however, call functions that perform loops as a part of an expression, and if that function returns a value, it'll be injected into the string. What looping function is generally available to us? That's right, it's our old friend <var>Array.map()</var>.
+Note that although I did say that you can't write loops in a template literal, that's only true for the <var>for</var> loop syntax. You can, however, call functions that loop as a part of an expression, and if that function returns a value, it'll be injected into the string. What looping function with return values is generally available to us? That's right, it's our old friend <var>Array.map()</var>.
 
 @codeblock...
 var values = ["a", "b", "c", "d"];
