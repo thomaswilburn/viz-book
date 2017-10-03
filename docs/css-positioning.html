@@ -1,0 +1,234 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Scatter plots with position and padding</title>
+  <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans" rel="stylesheet">
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body class="css-positioning chapter">
+  <nav class="chapter-links top">
+    <ul>
+      <li class="previous"> <a href="section-css.html"> &laquo; Full-power CSS and HTML</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href=""> Floats without confusion &raquo;</a>
+    </ul>
+  </nav>
+  <main>
+  <aside class="summary">
+    An origin story | Transforms, by comparison | Padding WTF
+  </aside>
+  <h1>Scatter plots with position and padding</h1>
+<p>The simplest way to show the relationship of two variables in a data set, a scatter plot is also a perfect example to talk about how CSS positioning works: how to place an element precisely within a space, regardless of screen size, and in comparison to the newer "transform" style property. HTML and CSS turn out to be well-suited for this task, even in comparison to SVG and canvas.</p>
+<p>Once complete, our basic scatter plot (measuring "joy" versus "dogs", for what it's worth) should look something like this:</p>
+<div class="scatter-area"></div>
+<style>
+.scatter-area {
+  position: relative;
+  background: #eee;
+  border-bottom: 1px solid black;
+  border-left: 1px solid black;
+  max-width: 400px;
+  margin: auto;
+}
+
+.scatter-area::before {
+  content: "";
+  display: block;
+  padding-bottom: 100%;
+}
+
+.scatter-area .dot {
+  border-radius: 100%;
+  background: rgba(0, 0, 128, .4);
+  border: 1px solid darkblue;
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  margin: -10px;
+  /*transform: translateX(-50%) translateY(-50%);*/
+}
+
+.scatter-area .tooltip {
+  position: absolute;
+  background: white;
+  padding: 8px;
+  box-shadow: 0 8px 16px -8px rgba(0, 0, 0, .2);
+  font-size: 15px;
+  width: 100px;
+  display: none;
+  top: 50%;
+  left: 50%;
+  z-index: 999;
+  pointer-events: none;
+}
+
+.scatter-area .tooltip.flip {
+  right: 50%;
+  left: auto;
+}
+
+.scatter-area .dot:hover .tooltip {
+  display: block;
+}
+
+.scatter-area .tooltip h3 {
+  font-size: 16px;
+}
+
+.scatter-area .tooltip ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+<script>
+(function() {
+
+var bounds = {
+  x: 20,
+  y: 50
+}
+
+var data = [];
+for (var i = 0; i < 10; i++) {
+  data.push({
+    joy: bounds.x * .2 + Math.random() * bounds.x * .6,
+    dogs: bounds.y * .2 + Math.random() * bounds.y * .6
+  });
+}
+
+var scaleX = v => v / bounds.x * 100;
+var scaleY = v => 100 - (v / bounds.y * 100);
+
+var grid = document.querySelector(".scatter-area");
+
+data.forEach(function(d, i) {
+  var dot = document.createElement("div");
+  dot.className = "dot";
+  dot.style.left = scaleX(d.joy) + "%";
+  dot.style.top = scaleY(d.dogs) + "%";
+  dot.innerHTML = `
+<div class="tooltip ${d.joy > bounds.x / 2 ? "flip" : ""}">
+  <h3>Dot #${i + 1}</h3>
+  <ul class="notes">
+    <li> Joy: ${d.joy.toFixed(2)}
+    <li> Dogs: ${d.dogs.toFixed(2)}
+  </ul>
+</div>
+  `
+  grid.appendChild(dot);
+});
+
+})();
+</script>
+<h2>CSS position basics</h2>
+<p>The easiest way to think of the "position" style is that it sets an element's frame of reference for layout. By default, every element in the browser starts with the style <var>position: static</var>. That means that as long as it's not floated, it positions itself according to the standard document flow: it's either inline with text, or it's one of many blocks "stacked" vertically in the page.</p>
+<p>By setting an element's position to "relative," it still initially places itself in document flow. But now, if you set one of the additional offset styles ("top", "bottom", "left", or "right"), you can shift the element <em>visually</em> by the given amount. This is only a visual shift&mdash;it still leaves a "hole" behind in the layout where it was actually placed. Using relative positioning this way should be fairly rare. However, it becomes more important in conjunction with the next value.</p>
+<p>An "absolute" value for CSS position means that you're removing that element from document flow entirely. It will no longer count for layout of other elements, text won't flow around it, and it no longer has the standard block size of 100% page width. Instead, it takes its size and position cues from the first ancestor element <em>with a non-static position</em>.</p>
+<p>That means that a common arrangement for data visualizations, where we want to precisely place dots or icons on a "field" within our page, is to make a container that's <var>position: relative</var> to serve as the new coordinate system reference (or "origin") for <var>position: absolute</var> elements inside. Which, if you inspect it, is exactly how our dots are placed above.</p>
+<p>There are two other position values that you might use, albeit more rarely than these other three. A "fixed" position is much like an absolute, but its offset and dimensions are determined by the window's viewport, not another element. On the other hand, a "sticky" element lives in normal document flow until it crosses a boundary within the viewport, at which point it becomes fixed (you often see this used for sidebar menus that attach themselves to the frame so that they're always visible).</p>
+<h2>Placing our dots</h2>
+<p>Back to our scatter plot, we start with one element that will serve as our chart's background. It is positioned relative, so that our dots can be placed inside using absolute positioning. A negative margin of half the dot's height and width will "center" it on the desired coordinate.</p>
+<code><pre><span class="line">.scatter-area {
+</span><span class="line">  position: relative;
+</span><span class="line">  background: #eee;
+</span><span class="line">  border-bottom: 1px solid black;
+</span><span class="line">  border-left: 1px solid black;
+</span><span class="line">  max-width: 400px;
+</span><span class="line">  margin: auto;
+</span><span class="line">  height: 400px;
+</span><span class="line">}
+</span><span class="line">
+</span><span class="line">.scatter-area .dot {
+</span><span class="line">  border-radius: 100%;
+</span><span class="line">  background: rgba(0, 0, 128, .4);
+</span><span class="line">  border: 1px solid darkblue;
+</span><span class="line">  position: absolute;
+</span><span class="line">  width: 20px;
+</span><span class="line">  height: 20px;
+</span><span class="line">  margin: -10px;
+</span><span class="line">}
+</span></pre></code>
+<p>Creating our dots is just a matter of looping through our data, generating an element for each dot, and adding it to the ".scatter-area" container. The <var>scaleX</var> and <var>scaleY</var> used below should look familiar from <a href="js-scaling.html">the section on scaling functions</a>, with one change: <var>scaleY</var> has to flip its axis by subtracting the scaled value from 100%. That's because the Y value of CSS starts at zero and increases as we move down, but our scatter plot puts zero at the bottom and increases as values move up.</p>
+<code><pre><span class="line">var scaleX = v =&gt; v / bounds.x * 100;
+</span><span class="line">var scaleY = v =&gt; 100 - (v / bounds.y * 100);
+</span><span class="line">
+</span><span class="line">data.forEach(function(d, i) {
+</span><span class="line">  var dot = document.createElement("div");
+</span><span class="line">  dot.className = "dot";
+</span><span class="line">  dot.style.left = scaleX(d.joy) + "%";
+</span><span class="line">  dot.style.top = scaleY(d.dogs) + "%";
+</span><span class="line">  grid.appendChild(dot);
+</span><span class="line">});
+</span></pre></code>
+<p>We can add tooltips to each dot by placing inserting HTML into the dot with a ".tooltip" class, but hiding it unless the dot matches the <var>:hover</var> pseudo-class. Because the tooltips are also positioned absolutely, they take their positioning cues from the dot that contain them, but they don't distort its size (since <var>position: absolute</var> removes an element from layout calculation).</p>
+<code><pre><span class="line">.scatter-area .tooltip {
+</span><span class="line">  position: absolute;
+</span><span class="line">  background: white;
+</span><span class="line">  padding: 8px;
+</span><span class="line">  box-shadow: 0 8px 16px -8px rgba(0, 0, 0, .2);
+</span><span class="line">  font-size: 15px;
+</span><span class="line">  width: 100px;
+</span><span class="line">  display: none;
+</span><span class="line">  top: 50%;
+</span><span class="line">  left: 50%;
+</span><span class="line">  z-index: 999;
+</span><span class="line">  pointer-events: none;
+</span><span class="line">}
+</span><span class="line">
+</span><span class="line">.scatter-area .dot:hover .tooltip {
+</span><span class="line">  display: block;
+</span><span class="line">}
+</span></pre></code>
+<p>The code shown above is not entirely complete, and you should use your developer tools to explore some of the other niceties (such as the tooltips that "flip" from left to right when they cross the x-axis). Still, one more detail remains to be explained: because our dots are positioned using percentages, this graph is fully responsive, yet if you resize the window the example plot keeps its perfectly square shape no matter what. In the styles I've written above, it's defined as 400px high (which means it would distort on small screens), so clearly there's something else setting the graph's height. What's the change that makes a constant aspect ratio possible?</p>
+<h2>Defining an aspect ratio</h2>
+<p>Some HTML elements have aspect ratios built in, by virtue of their content. Images, for example, "know" how high and wide they should be, and that relationship holds constant even if you resize one axis. The same is true for videos, and for canvas tags with the width or height attributes set.</p>
+<p>Other HTML elements, unfortunately, do not know how big they "should" be. If you change the width of these elements, by resizing the browser or placing them in a container, the height does not maintain a constant relationship. For the most part, this makes sense: you wouldn't want your paragraphs to get shorter just because they got skinnier, since that would cut off the text inside. But sometimes we genuinely do want a non-image element (like an iframe containing a third-party video) to stay "frozen" at a certain aspect ratio, and there isn't an obvious style to make it happen.</p>
+<p>The trick, such as it is, comes from the "padding" property. In what seems like a bizarre (but helpful) choice, if you set an element's padding to be a percentage, the actual size of the padding will be determined by the width of the <em>parent</em> element. In other words, <var>padding-bottom: 100%</var> is equal to the width of your element's parent.</p>
+<p>Take the following markup:</p>
+<code><pre><span class="line">&lt;div class="aspect-container"&gt;
+</span><span class="line">  &lt;div class="aspect-inner"&gt;
+</span><span class="line">    &lt;iframe src="https://www.youtube.com/embed/a1Y73sPHKxw"&gt;&lt;/iframe&gt;
+</span><span class="line">  &lt;/div&gt;
+</span><span class="line">&lt;/div&gt;
+</span></pre></code>
+<p>The iframe doesn't know how tall it wants to be, and if you set the width and height on it manually (as YouTube does by default), it'll either overflow small screens, or (if the max-width style is set) it won't resize the height when the width is restricted. However, setting the following styles will cause it to "lock" to 16:9, by positioning it absolutely within its container, and defining that container's height using its child's bottom padding.</p>
+<code><pre><span class="line">.aspect-container { position: relative }
+</span><span class="line">
+</span><span class="line">/* 56.25% is 9 / 16, or 16:9 aspect ratio */
+</span><span class="line">.aspect-inner { padding-bottom: 56.25% }
+</span><span class="line">
+</span><span class="line">.aspect-container iframe {
+</span><span class="line">  position: absolute;
+</span><span class="line">  top: 0;
+</span><span class="line">  left: 0;
+</span><span class="line">  width: 100%;
+</span><span class="line">  height: 100%;
+</span><span class="line">}
+</span></pre></code>
+<p>Even better, in the case of our scatter plot, we can use a pseudo-element to play the role of the inner padding, so that we don't need to add an additional tag to our markup:</p>
+<code><pre><span class="line">.scatter-area {
+</span><span class="line">  position: relative;
+</span><span class="line">  /* ... */
+</span><span class="line">}
+</span><span class="line">
+</span><span class="line">.scatter-area::before {
+</span><span class="line">  display: block;
+</span><span class="line">  content: "";
+</span><span class="line">  padding-bottom: 100%;
+</span><span class="line">}
+</span></pre></code>
+<p>100% padding is 100% of the container's width, creating a perfectly square block no matter how big or small the page gets (up to the container's max-width of 400px, of course). Once you start using this technique, it's not just good for plots and videos, but also for maps, canvas elements, and SVG graphics.</p>
+<p>Finally, a great advantage of setting sizes this way is that padding can be overridden from a media query, based either on screen width or (a little-known property) on the window's own aspect ratio. So small portrait screens can get a taller scatter plot, while big and wide screens get one that uses more vertical space, all just by adjusting a single CSS property. So while it's a bizarre choice to match padding and parent width this way, it works out well for us in the end.</p>
+  </main>
+  <nav class="chapter-links bottom">
+    <ul>
+      <li class="previous"> <a href="section-css.html"> &laquo; Full-power CSS and HTML</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href=""> Floats without confusion &raquo;</a>
+    </ul>
+  </nav>
+</body>
+</html>

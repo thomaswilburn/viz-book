@@ -2,6 +2,7 @@
 title:A well-attributed matrix chart
 type:chapter
 summary:Radio buttons and their labels | Styling via attributes | Deep UI pattern thoughts
+prereqs:js-templates
 ...metadata
 
 In this chapter, we're going to create a dot matrix chart, in which a grid of dots is colored to correspond with a category. These kinds of charts are often used to show proportions of different category groups within a population, such as gender/race or job sector. We're going to do one better: our matrix is going to have controls letting a user toggle between two views, each with its own categories. Here's what the final result should look like:

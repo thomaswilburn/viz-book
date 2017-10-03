@@ -6,6 +6,7 @@
       "js-jquery",
       "js-scaling",
       "js-templates",
+      "Attaching data to the DOM",
       "Scroll effects and client rects",
       "FLIP animations"
     ]
@@ -13,8 +14,8 @@
   {
     "section": "section-css",
     "chapters": [
-      "Aspect ratios and positioning",
-      "Responsive scatter plots",
+      "css-positioning",
+      "Floats without confusion",
       "css-matrix",
       "hue() and color spaces",
       "Building stacked graphs with flex"
