@@ -84,22 +84,32 @@ var menuHTML = `
 `;
 ...codeblock
 
-So sure, it's possible to do a lot of basic HTML templating using these new kinds of strings. But it's not exactly ergonomic, especially compared to the kinds of user-friendly expressions available in Vue, React, Handlebars, or (my personal favorite) Dot. I suggest moving all text out to its own file when it becomes more than a few lines long, especially if it's in an actual language with a grammar, like HTML or WebGL shaders. For one thing, you don't get syntax highlighting inside template strings in most text editors, and you'll want that as the file gets bigger and more complicated.
+So sure, it's possible to do a lot of basic HTML templating using these new kinds of strings. If you're trying to get something done quickly, they're a great prototyping tool. But it's not exactly ergonomic, especially compared to the kinds of user-friendly expressions available in Vue, React, Handlebars, or (my personal favorite) Dot. As soon as the content becomes more than a few lines long, you should move it out into its own file and import it using your build process or other tooling.
+
+It's also important to move text out into another file if it's in an actual language with a grammar, like HTML or WebGL shaders. For one thing, you don't get syntax highlighting and error checking inside template strings in most text editors, and you'll want that as the code gets bigger and more complicated.
 
 @subhead Taking it too far with tagged strings
 
-Template literals have one more interesting feature: you can "tag" them by sticking a function onto the front. This calls that function, and passes in the string as an odd set of arguments: first, an array containing all of the parts of the string that aren't interpolated, and then after that you get each evaluated expression inside the interpolation tags as an indeterminate list of arguments. It looks a bit like this:
+Template literals have one more interesting feature: you can "tag" them by sticking a function onto the front. The browser then calls that function, and passes in the tagged string as an odd arrangement of arguments: first, an array containing all of the parts of the string that aren't interpolated, and then after that you get each evaluated expression inside the interpolation tags as individual values. It looks a bit like this:
 
 @codeblock...
-var tag = function(stringParts, ...values) {
-  console.log(stringParts, values);
+var log = function(stringParts, a, b) {
+  console.log(stringParts, a, b);
 };
 
-tag`Hello ${42} World ${"!"}`;
+log`Hello ${42} World ${"!"}`;
 // ["Hello ", " World ", ""], 42, "!"
+
+// Using the spread operator makes this a little better
+var logSpread = function(parts, ...values) {
+  console.log(parts, values);
+};
+
+logSpread`a ${1} b ${2} c ${3}`;
+// ["a ", " b ", " c ", ""], [1, 2, 3]
 ...codeblock
 
-This is a weird syntax choice. There's the empty string after the second interpolation, for example. And why get all of the values as arguments, instead of as a second array? That said, tagged strings can be very interesting, because the return value of the tag function can be anything, not just a string. For example, you could build a DOM search that uses tags to save a couple of characters.
+This is a weird syntax choice. There's the empty string that you get after the final interpolation, for example. And why pass all of the values as arguments, instead of as a second array? That said, tagged strings can be very interesting, because the return value of the tag function can be anything, not just a string. For example, you could create a familiar-looking DOM search function that uses tags to save a couple of characters.
 
 @codeblock...
 var $ = function(selectors) {
@@ -243,4 +253,4 @@ document.querySelector(".output").innerHTML = mangled;
 </script>
 ...html
 
-Good idea? Absolutely not. Like many modern JavaScript APIs, the goal of tag functions is to give users low-level tools so that they can build simpler, more pleasant abstractions on top of them. But if you need to do some templating, and code size is your top priority, this is probably about as small as the functionality could be. And creative abuse of template string interpolation is another interesting tool to keep in your pocket, just in case.
+Good idea? Absolutely not. Like many modern JavaScript APIs, the goal of tag functions is to give users low-level tools so that they can build simpler, more pleasant abstractions on top of them. But if you need to do some templating, and code size is your top priority, this is probably about as small as the functionality could be. And it's good to know how tags work, in those cases (like SQL escaping or WebGL shader compilation) that their "unique" syntax can be beneficial.

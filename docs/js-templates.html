@@ -80,17 +80,26 @@
 </span><span class="line">&lt;/nav&gt;
 </span><span class="line">`;
 </span></pre></code>
-<p>So sure, it's possible to do a lot of basic HTML templating using these new kinds of strings. But it's not exactly ergonomic, especially compared to the kinds of user-friendly expressions available in Vue, React, Handlebars, or (my personal favorite) Dot. I suggest moving all text out to its own file when it becomes more than a few lines long, especially if it's in an actual language with a grammar, like HTML or WebGL shaders. For one thing, you don't get syntax highlighting inside template strings in most text editors, and you'll want that as the file gets bigger and more complicated.</p>
+<p>So sure, it's possible to do a lot of basic HTML templating using these new kinds of strings. If you're trying to get something done quickly, they're a great prototyping tool. But it's not exactly ergonomic, especially compared to the kinds of user-friendly expressions available in Vue, React, Handlebars, or (my personal favorite) Dot. As soon as the content becomes more than a few lines long, you should move it out into its own file and import it using your build process or other tooling.</p>
+<p>It's also important to move text out into another file if it's in an actual language with a grammar, like HTML or WebGL shaders. For one thing, you don't get syntax highlighting and error checking inside template strings in most text editors, and you'll want that as the code gets bigger and more complicated.</p>
 <h2>Taking it too far with tagged strings</h2>
-<p>Template literals have one more interesting feature: you can "tag" them by sticking a function onto the front. This calls that function, and passes in the string as an odd set of arguments: first, an array containing all of the parts of the string that aren't interpolated, and then after that you get each evaluated expression inside the interpolation tags as an indeterminate list of arguments. It looks a bit like this:</p>
-<code><pre><span class="line">var tag = function(stringParts, ...values) {
-</span><span class="line">  console.log(stringParts, values);
+<p>Template literals have one more interesting feature: you can "tag" them by sticking a function onto the front. The browser then calls that function, and passes in the tagged string as an odd arrangement of arguments: first, an array containing all of the parts of the string that aren't interpolated, and then after that you get each evaluated expression inside the interpolation tags as individual values. It looks a bit like this:</p>
+<code><pre><span class="line">var log = function(stringParts, a, b) {
+</span><span class="line">  console.log(stringParts, a, b);
 </span><span class="line">};
 </span><span class="line">
-</span><span class="line">tag`Hello ${42} World ${"!"}`;
+</span><span class="line">log`Hello ${42} World ${"!"}`;
 </span><span class="line">// ["Hello ", " World ", ""], 42, "!"
+</span><span class="line">
+</span><span class="line">// Using the spread operator makes this a little better
+</span><span class="line">var logSpread = function(parts, ...values) {
+</span><span class="line">  console.log(parts, values);
+</span><span class="line">};
+</span><span class="line">
+</span><span class="line">logSpread`a ${1} b ${2} c ${3}`;
+</span><span class="line">// ["a ", " b ", " c ", ""], [1, 2, 3]
 </span></pre></code>
-<p>This is a weird syntax choice. There's the empty string after the second interpolation, for example. And why get all of the values as arguments, instead of as a second array? That said, tagged strings can be very interesting, because the return value of the tag function can be anything, not just a string. For example, you could build a DOM search that uses tags to save a couple of characters.</p>
+<p>This is a weird syntax choice. There's the empty string that you get after the final interpolation, for example. And why pass all of the values as arguments, instead of as a second array? That said, tagged strings can be very interesting, because the return value of the tag function can be anything, not just a string. For example, you could create a familiar-looking DOM search function that uses tags to save a couple of characters.</p>
 <code><pre><span class="line">var $ = function(selectors) {
 </span><span class="line">  return document.querySelectorAll(selectors.join());
 </span><span class="line">};
@@ -215,7 +224,7 @@ var mangled = HTML`
 
 document.querySelector(".output").innerHTML = mangled;
 </script>
-<p>Good idea? Absolutely not. Like many modern JavaScript APIs, the goal of tag functions is to give users low-level tools so that they can build simpler, more pleasant abstractions on top of them. But if you need to do some templating, and code size is your top priority, this is probably about as small as the functionality could be. And creative abuse of template string interpolation is another interesting tool to keep in your pocket, just in case.</p>
+<p>Good idea? Absolutely not. Like many modern JavaScript APIs, the goal of tag functions is to give users low-level tools so that they can build simpler, more pleasant abstractions on top of them. But if you need to do some templating, and code size is your top priority, this is probably about as small as the functionality could be. And it's good to know how tags work, in those cases (like SQL escaping or WebGL shader compilation) that their "unique" syntax can be beneficial.</p>
   </main>
   <nav class="chapter-links bottom">
     <ul>
