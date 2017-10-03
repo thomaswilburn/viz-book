@@ -5,7 +5,7 @@ summary:An origin story | Transforms, by comparison | Padding WTF
 prereqs:js-scaling
 ...metadata
 
-The simplest way to show the relationship of two variables in a data set, a scatter plot is also a perfect example to talk about how CSS positioning works: how to place an element precisely within a space, regardless of screen size, and in comparison to the newer "transform" style property. HTML and CSS turn out to be well-suited for this task, even in comparison to SVG and canvas.
+The simplest way to show the relationship of two variables in a data set, a scatter plot is also a perfect chance to talk about how CSS positioning works: how to place an element precisely within a space, with a consistent visual shape, regardless of screen size. HTML and CSS turn out to be well-suited for this task, even in comparison to SVG and canvas.
 
 Once complete, our basic scatter plot (measuring "joy" versus "dogs", for what it's worth) should look something like this:
 
@@ -155,6 +155,8 @@ Back to our scatter plot, we start with one element that will serve as our chart
 
 Creating our dots is just a matter of looping through our data, generating an element for each dot, and adding it to the ".scatter-area" container. The <var>scaleX</var> and <var>scaleY</var> used below should look familiar from <a href="js-scaling.html">the section on scaling functions</a>, with one change: <var>scaleY</var> has to flip its axis by subtracting the scaled value from 100%. That's because the Y value of CSS starts at zero and increases as we move down, but our scatter plot puts zero at the bottom and increases as values move up.
 
+It's useful to have our scaling functions as common infrastructure, because they're useful for drawing more than just dots. If this were a real graphic, I would want to add grid lines to it, and those are just 1px wide/tall elements positioned behind the dots, using the same scaling as the scatter plot.
+
 @codeblock...
 
 var scaleX = v => v / bounds.x * 100;
@@ -254,4 +256,4 @@ Even better, in the case of our scatter plot, we can use a pseudo-element to pla
 
 100% padding is 100% of the container's width, creating a perfectly square block no matter how big or small the page gets (up to the container's max-width of 400px, of course). Once you start using this technique, it's not just good for plots and videos, but also for maps, canvas elements, and SVG graphics.
 
-Finally, a great advantage of setting sizes this way is that padding can be overridden from a media query, based either on screen width or (a little-known property) on the window's own aspect ratio. So small portrait screens can get a taller scatter plot, while big and wide screens get one that uses more vertical space, all just by adjusting a single CSS property. So while it's a bizarre choice to match padding and parent width this way, it works out well for us in the end.
+Finally, a great advantage of setting sizes this way is that padding can be overridden from a media query, based either on screen width or (a little-known property) on the window's own aspect ratio. So small portrait screens can get a taller scatter plot, while big and wide screens get one that uses more horizontal space, all just by adjusting a single CSS property. So while it's a bizarre choice to match padding and parent width this way, it works out well for us in the end.
