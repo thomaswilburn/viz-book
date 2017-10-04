@@ -6,7 +6,7 @@
       "js-jquery",
       "js-scaling",
       "js-templates",
-      "Attaching data to the DOM",
+      "js-domdata",
       "Scroll effects and client rects",
       "Visualizations with canvas",
       "Debugging and dev tools"

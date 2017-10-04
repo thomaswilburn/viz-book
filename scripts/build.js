@@ -35,6 +35,11 @@ toc.forEach(function(item) {
   }
 });
 
+var listify = function(slug) {
+  var p = data[slug] || { filename: "", title: slug };
+  return `<li> <a href="${p.filename}">${p.title}</a>\n`;
+};
+
 for (var slug in data) {
   var context = data[slug];
   var index = flattened.indexOf(slug);
@@ -52,11 +57,6 @@ for (var slug in data) {
 };
 
 var tocTemplate = fs.readFileSync(path.resolve(templateDir, "toc.html"), "utf-8");
-
-var listify = function(slug) {
-  var p = data[slug] || { filename: "", title: slug };
-  return `<li> <a href="${p.filename}">${p.title}</a>\n`;
-};
 
 var list = "";
 toc.forEach(function(item) {

@@ -1,0 +1,190 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Attaching data to the DOM</title>
+  <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans" rel="stylesheet">
+  <link rel="stylesheet" href="static/style.css">
+</head>
+<body class="js-domdata chapter">
+  <nav class="chapter-links top">
+    <ul>
+      <li class="previous"> <a href="js-templates.html"> &laquo; Inadvisable template literal tricks</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href=""> Scroll effects and client rects &raquo;</a>
+    </ul>
+  </nav>
+  <main>
+  <aside class="summary">
+    
+  </aside>
+  <h1>Attaching data to the DOM</h1>
+<p>At the end of the day, as a news developer, the technical part of our job boils down to having data on the one hand, a web page on the other, and trying to get the two of them to communicate. This is not as easy as it sounds, and it can be a daunting task when you're staring at a blank text editor on deadline. So in this chapter, we're going to talk about all the ways that you can transform data into markup, and how to reverse the process when a user interacts with the page.</p>
+<h2>Making markup</h2>
+<p>Let's imagine that we have an array containing a set of objects, each of which is the biographical details of a person in our story. How do we turn that data into web markup that people can actually see, just using the standard browser APIs? Usually, there are two methods we can pick from: generating HTML as a string, or creating actual element nodes. For either one, however, we'll want a placeholder element where our dynamic content will go:</p>
+<code><pre><span class="line">&lt;div class="rogues"&gt;&lt;/div&gt;
+</span></pre></code>
+<p>By setting the <var>innerHTML</var> property of this element, the browser will parse and generate elements for us. I like to do this using a single big string, to which we add the markup for each item, like so. Note that for this and all the other examples, we'll be using the selector functions from our <a href="js-jquery-html">Deconstructed jQuery</a> chapter.</p>
+<code><pre><span class="line">var container = $.one(".rogues");
+</span><span class="line">var html = "";
+</span><span class="line">
+</span><span class="line">// people is our data array
+</span><span class="line">people.forEach(function(person) {
+</span><span class="line">  html += `
+</span><span class="line">&lt;div class="person" data-person="${person.id}"&gt;
+</span><span class="line">  &lt;img src="${person.mug}"&gt;
+</span><span class="line">  &lt;h2&gt;${person.name}&lt;/h2&gt;
+</span><span class="line">&lt;/div&gt;
+</span><span class="line">`;
+</span><span class="line">});
+</span><span class="line">
+</span><span class="line">container.innerHTML = html;
+</span></pre></code>
+<p>You can also add the markup to the <var>innerHTML</var> property one unit at a time, using the <var>+=</var> operator, but it's faster for the browser to get it and parse it all in one big chunk.</p>
+<p>Creating markup this way is fast and easy, but it does have a flaw: because the elements don't exist until the string is handed over to the browser, we can't add event listeners or retain references right away. Instead, we have to generate a big string, use that to create the container's contents, and then query the newly-created elements in order to manipulate them. It's not very convenient, it's slower (since we have to query for all the elements), and we have to write a second loop:</p>
+<code><pre><span class="line">/* generate elements as a string, then... */
+</span><span class="line">$(".person", container).forEach(el =&gt; el.addEventListener("click", function() {
+</span><span class="line">  console.log("You've clicked on:", el);
+</span><span class="line">}));
+</span></pre></code>
+<p>That's why I would argue that it's nicer to actually just create HTML using the DOM APIs, which return "live" elements, and then append them to each other. Unfortunately, creating elements this way is way too verbose (a common problem for built-in browser functions):</p>
+<code><pre><span class="line">people.forEach(function(person) {
+</span><span class="line">  var div = document.createElement("div");
+</span><span class="line">  div.className = "person";
+</span><span class="line">  div.setAttribute("data-person", person.id);
+</span><span class="line">  
+</span><span class="line">  var img = document.createElement("img");
+</span><span class="line">  img.src = person.mug;
+</span><span class="line">  div.appendChild(img);
+</span><span class="line">
+</span><span class="line">  var h2 = document.createElement("h2");
+</span><span class="line">  h2.innerHTML = person.name;
+</span><span class="line">  div.appendChild(h2);
+</span><span class="line">
+</span><span class="line">  container.appendChild(div);
+</span><span class="line">});
+</span></pre></code>
+<p>What if we could make this a bit cleaner, writing JavaScript code that mimics the structure of the tree we're trying to create, similar to the HTML markup itself? That's absolutely possible if we steal a trick from React.</p>
+<p>React uses an embedded language called JSX, which embeds HTML templates directly into the JavaScript. However, behind the scenes, that JSX is actually just translated into function calls&mdash;specifically <var>React.createElement()</var>. Our version of this will take three arguments: the tag that we want to create, an optional object containing attributes, and then the contents of the element as a string (for setting text contents) or an array of child elements.</p>
+<p>In practice, it doesn't look that much different from HTML itself:</p>
+<code><pre><span class="line">// &lt;div class="container"&gt;
+</span><span class="line">makeDOM("div", { class: "container" }, [
+</span><span class="line">  // &lt;figure&gt;
+</span><span class="line">  makeDOM("figure", [
+</span><span class="line">    // &lt;img src="example.svg"&gt;
+</span><span class="line">    makeDOM("img", { src: "example.svg" }),
+</span><span class="line">    // &lt;caption&gt;Hello, world!&lt;/caption&gt;
+</span><span class="line">    makeDOM("caption", "Hello, World!")
+</span><span class="line">  ])
+</span><span class="line">  // &lt;/figure&gt;
+</span><span class="line">]);
+</span><span class="line">// &lt;/div&gt;
+</span></pre></code>
+<p>Here's the actual code to implement <var>makeDOM</var>. Most of the complication here is the code to support different argument combinations (attributes but no children, no attributes and string contents, no attributes and child elements, both attributes and text or child elements), but the ergonomics are much better that way.</p>
+<code><pre><span class="line">var makeDOM = function(tagName, attributes = {}, children = []) {
+</span><span class="line">  // generate the element
+</span><span class="line">  var element = document.createElement(tagName);
+</span><span class="line">  // did you skip attributes, meaning that it's actually children?
+</span><span class="line">  if (attributes instanceof Array || typeof attributes == "string") {
+</span><span class="line">    children = attributes;
+</span><span class="line">    attributes = {};
+</span><span class="line">  }
+</span><span class="line">  // set attributes on our element
+</span><span class="line">  for (var attr in attributes) {
+</span><span class="line">    var value = attributes[attr];
+</span><span class="line">    element.setAttribute(attr, value);
+</span><span class="line">  }
+</span><span class="line">  // is children actually a string for the inner HTML?
+</span><span class="line">  if (typeof children == "string") {
+</span><span class="line">    element.innerHTML = children;
+</span><span class="line">  } else {
+</span><span class="line">    // append children
+</span><span class="line">    children.forEach(c =&gt; element.appendChild(c);
+</span><span class="line">  }
+</span><span class="line">  // hand back the constructed DOM
+</span><span class="line">  return element
+</span><span class="line">};
+</span></pre></code>
+<p>As above, because <var>makeDOM</var> accepts an array of elements to be children, we can nest multiple calls to this inside the arguments, and build a whole subtree on the spot. Here's our loop through the bio data using this function instead of manually calling the DOM API, which is much more readable:</p>
+<code><pre><span class="line">people.forEach(function(person) {
+</span><span class="line">  //shorten the function name for readability
+</span><span class="line">  var m = makeDOM;
+</span><span class="line">  // &lt;div class="person" data-person="..."&gt;
+</span><span class="line">  var element = m("div", { class: "person", "data-person": person.id }, [
+</span><span class="line">    // &lt;img src="..."&gt;
+</span><span class="line">    m("img", { src: person.mug }),
+</span><span class="line">    // &lt;h2&gt;...&lt;/h2&gt;
+</span><span class="line">    m("h2", person.name)
+</span><span class="line">  ]);
+</span><span class="line">  container.appendChild(element);
+</span><span class="line">});
+</span></pre></code>
+<p>Our JavaScript is now structured in a very similar way to our HTML markup, indentation and all, but it creates "live" DOM elements. Now it's time to associate those elements with data, by binding for events.</p>
+<h2>Matching DOM to data</h2>
+<p>Making HTML from our data is only half the challenge, and it's the easier half. We still have to be able to reverse that process whenever a user interacts with our page: for each element, we need to retrieve the corresponding data for display or manipulation.</p>
+<p>As mentioned above, one way to do this is by associating the data directly with the event listener for the element, using a closure inside of our loop. A "closure" is a function that incorporates outside variables from the context in which it was created. For example, the following loop has an event listener that "closes over" the <var>person</var> value.</p>
+<code><pre><span class="line">people.forEach(function(person) {
+</span><span class="line">  var m = makeDOM;
+</span><span class="line">  var element = m("div", { class: "person", "data-person": person.id }, [
+</span><span class="line">    m("img", { src: person.mug }),
+</span><span class="line">    m("h2", person.name)
+</span><span class="line">  ]);
+</span><span class="line">  // this listener will remember the specific "person"
+</span><span class="line">  element.addEventListener("click", function() {
+</span><span class="line">    console.log(`You clicked on: ${person.name}`);
+</span><span class="line">  });
+</span><span class="line">  container.appendChild(element);
+</span><span class="line">});
+</span></pre></code>
+<p>Unfortuantely, by using individual listener functions for each element, you're adding some extra memory for every element you create. That may not be important, if you only have a few people in your graphic. But if you have a lot, or if you repeatedly remove and create new elements (say, because you allow the list of people to be filtered), you'll end up using a lot more memory, which may cause your application to stutter, slow down, or even become unresponsive.</p>
+<p>It's preferable instead to share a single listener function between all of your elements. By defining it outside the loop, you'll create the function once, and then it can use the <var>this</var> value to determine which specific element was clicked.</p>
+<code><pre><span class="line">var clickedPerson = function() {
+</span><span class="line">  console.log("You clicked this element:", this);
+</span><span class="line">};
+</span><span class="line">
+</span><span class="line">people.forEach(function(person) {
+</span><span class="line">  var m = makeDOM;
+</span><span class="line">  var element = m("div", { class: "person", "data-person": person.id }, [
+</span><span class="line">    m("img", { src: person.mug }),
+</span><span class="line">    m("h2", person.name)
+</span><span class="line">  ]);
+</span><span class="line">  element.addEventListener("click", clickedPerson);
+</span><span class="line">  container.appendChild(element);
+</span><span class="line">});
+</span></pre></code>
+<p>Now, however, we have a problem: we're sharing a single function across all our elements, which means that it can figure out which <em>element</em> was clicked, but it doesn't know what data is associated with that element, because it was defined outside of the loop where that data was available. Luckily, we've been setting the element's "data-person" attribute to be the same as the person's ID in our data. We could loop through the data to search for that identifier, but a little preparation can speed things up.</p>
+<p>Let's build a lookup table using a JavaScript object. During element creation, we'll add references to the object, with the keys being the person IDs and the values being the source data itself. Then, inside our listener, we can get the attribute value from <var>this</var> and ask the lookup table for the matching array object.</p>
+<code><pre><span class="line">var lookup = {};
+</span><span class="line">
+</span><span class="line">var clickedPerson = function() {
+</span><span class="line">  var id = this.getAttribute("data-person");
+</span><span class="line">  // which person has that ID?
+</span><span class="line">  var person = lookup[id];
+</span><span class="line">  console.log(`You clicked on ${person.name}`);
+</span><span class="line">};
+</span><span class="line">
+</span><span class="line">people.forEach(function(person) {
+</span><span class="line">  // store the person in our lookup table
+</span><span class="line">  lookup[person.id] = person;
+</span><span class="line">
+</span><span class="line">  var m = makeDOM;
+</span><span class="line">  var element = m("div", { class: "person", id: person.id }, [
+</span><span class="line">    m("img", { src: person.mug }),
+</span><span class="line">    m("h2", person.name)
+</span><span class="line">  ]);
+</span><span class="line">  element.addEventListener("click", clickedPerson);
+</span><span class="line">  container.appendChild(element);
+</span><span class="line">});
+</span></pre></code>
+<p>Thus is the circle complete: we generate markup from the data, track the IDs that we've left on our elements, and then use those IDs to get the data back when events occur in the generated markup. This architecture is pretty consistent across every interactive I've ever created, with the real differences only being in where I get the data, and what I do in response to events. Learn how to adapt these patterns, and they'll serve you well.</p>
+  </main>
+  <nav class="chapter-links bottom">
+    <ul>
+      <li class="previous"> <a href="js-templates.html"> &laquo; Inadvisable template literal tricks</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href=""> Scroll effects and client rects &raquo;</a>
+    </ul>
+  </nav>
+</body>
+</html>
