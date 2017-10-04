@@ -67,7 +67,7 @@ people.forEach(function(person) {
 
 What if we could make this a bit cleaner, writing JavaScript code that mimics the structure of the tree we're trying to create, similar to the HTML markup itself? That's absolutely possible if we steal a trick from React.
 
-React uses an embedded language called JSX, which embeds HTML templates directly into the JavaScript. However, behind the scenes, that JSX is actually just translated into function calls&mdash;specifically <var>React.createElement()</var>. Our version of this will take three arguments: the tag that we want to create, an optional object containing attributes, and then the contents of the element as a string (for setting text contents) or an array of child elements.
+React uses an embedded language called JSX, which puts HTML templates directly into the JavaScript. However, behind the scenes, that JSX is actually just translated into function calls&mdash;specifically <var>React.createElement()</var>. Our version of this will take three arguments: the tag that we want to create, an optional object containing attributes, and then the contents of the element as a string (for setting text contents) or an array of child elements.
 
 In practice, it doesn't look that much different from HTML itself:
 
@@ -193,7 +193,7 @@ people.forEach(function(person) {
   lookup[person.id] = person;
 
   var m = makeDOM;
-  var element = m("div", { class: "person", id: person.id }, [
+  var element = m("div", { class: "person", "data-person": person.id }, [
     m("img", { src: person.mug }),
     m("h2", person.name)
   ]);
@@ -202,4 +202,6 @@ people.forEach(function(person) {
 });
 ...codeblock
 
-Thus is the circle complete: we generate markup from the data, track the IDs that we've left on our elements, and then use those IDs to get the data back when events occur in the generated markup. This architecture is pretty consistent across every interactive I've ever created, with the real differences only being in where I get the data, and what I do in response to events. Learn how to adapt these patterns, and they'll serve you well.
+As a rule of thumb, remember that when you're writing markup, you're leaving clues for your future self. Be generous! HTML generated via JavaScript doesn't cost the user in terms of download time or (barring extreme cases) parse time, so make sure that you place classes and attributes throughout to be helpful for yourself, instead of just using bare tags. You never know when you might need those hooks later.
+
+Thus is the circle complete: we generate markup from the data, track the IDs that we've left on our elements, and then use those IDs to get the data back when events occur in the generated markup. This architecture is pretty consistent across every interactive I've ever created, with the real differences only being in where I get the data, and what I do in response to events. Learn to adapt these patterns, and they'll serve you well.
