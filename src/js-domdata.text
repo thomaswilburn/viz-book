@@ -107,7 +107,7 @@ var makeDOM = function(tagName, attributes = {}, children = []) {
     element.innerHTML = children;
   } else {
     // append children
-    children.forEach(c => element.appendChild(c);
+    children.forEach(c => element.appendChild(c));
   }
   // hand back the constructed DOM
   return element
