@@ -6,6 +6,7 @@
   <title>Making scatter plots with CSS positioning</title>
   <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans" rel="stylesheet">
   <link rel="stylesheet" href="static/style.css">
+  <link rel="stylesheet" href="static/highlight/hybrid.css">
 </head>
 <body class="css-positioning chapter">
   <nav class="chapter-links top">
@@ -131,58 +132,55 @@ data.forEach(function(d, i) {
 <p>There are two other position values that you might use, albeit more rarely than these other three. A "fixed" position is much like an absolute, but its offset and dimensions are determined by the window's viewport, not another element. On the other hand, a "sticky" element lives in normal document flow until it crosses a boundary within the viewport, at which point it becomes fixed (you often see this used for sidebar menus that attach themselves to the frame so that they're always visible).</p>
 <h2>Placing our dots</h2>
 <p>Back to our scatter plot, we start with one element that will serve as our chart's background. It is positioned relative, so that our dots can be placed inside using absolute positioning. A negative margin of half the dot's height and width will "center" it on the desired coordinate.</p>
-<code class="language-css"><pre><span class="line">.scatter-area {
-</span><span class="line">  position: relative;
-</span><span class="line">  background: #eee;
-</span><span class="line">  border-bottom: 1px solid black;
-</span><span class="line">  border-left: 1px solid black;
-</span><span class="line">  max-width: 400px;
-</span><span class="line">  margin: auto;
-</span><span class="line">  height: 400px;
-</span><span class="line">}
-</span><span class="line">
-</span><span class="line">.scatter-area .dot {
-</span><span class="line">  border-radius: 100%;
-</span><span class="line">  background: rgba(0, 0, 128, .4);
-</span><span class="line">  border: 1px solid darkblue;
-</span><span class="line">  position: absolute;
-</span><span class="line">  width: 20px;
-</span><span class="line">  height: 20px;
-</span><span class="line">  margin: -10px;
-</span><span class="line">}
-</span></pre></code>
+<code class="language-css"><pre><span class="hljs-selector-class">.scatter-area</span> {
+  <span class="hljs-attribute">position</span>: relative;
+  <span class="hljs-attribute">background</span>: <span class="hljs-number">#eee</span>;
+  <span class="hljs-attribute">border-bottom</span>: <span class="hljs-number">1px</span> solid black;
+  <span class="hljs-attribute">border-left</span>: <span class="hljs-number">1px</span> solid black;
+  <span class="hljs-attribute">max-width</span>: <span class="hljs-number">400px</span>;
+  <span class="hljs-attribute">margin</span>: auto;
+  <span class="hljs-attribute">height</span>: <span class="hljs-number">400px</span>;
+}
+
+<span class="hljs-selector-class">.scatter-area</span> <span class="hljs-selector-class">.dot</span> {
+  <span class="hljs-attribute">border-radius</span>: <span class="hljs-number">100%</span>;
+  <span class="hljs-attribute">background</span>: <span class="hljs-built_in">rgba</span>(0, 0, 128, .4);
+  <span class="hljs-attribute">border</span>: <span class="hljs-number">1px</span> solid darkblue;
+  <span class="hljs-attribute">position</span>: absolute;
+  <span class="hljs-attribute">width</span>: <span class="hljs-number">20px</span>;
+  <span class="hljs-attribute">height</span>: <span class="hljs-number">20px</span>;
+  <span class="hljs-attribute">margin</span>: -<span class="hljs-number">10px</span>;
+}</pre></code>
 <p>Creating our dots is just a matter of looping through our data, generating an element for each dot, and adding it to the ".scatter-area" container. The <var>scaleX</var> and <var>scaleY</var> used below should look familiar from <a href="js-scaling.html">the section on scaling functions</a>, with one change: <var>scaleY</var> has to flip its axis by subtracting the scaled value from 100%. That's because the Y value of CSS starts at zero and increases as we move down, but our scatter plot puts zero at the bottom and increases as values move up.</p>
 <p>It's useful to have our scaling functions as common infrastructure, because they're useful for drawing more than just dots. If this were a real graphic, I would want to add grid lines to it, and those are just 1px wide/tall elements positioned behind the dots, using the same scaling as the scatter plot.</p>
-<code class="language-js"><pre><span class="line">var scaleX = v =&gt; v / bounds.x * 100;
-</span><span class="line">var scaleY = v =&gt; 100 - (v / bounds.y * 100);
-</span><span class="line">
-</span><span class="line">data.forEach(function(d, i) {
-</span><span class="line">  var dot = document.createElement("div");
-</span><span class="line">  dot.className = "dot";
-</span><span class="line">  dot.style.left = scaleX(d.joy) + "%";
-</span><span class="line">  dot.style.top = scaleY(d.dogs) + "%";
-</span><span class="line">  grid.appendChild(dot);
-</span><span class="line">});
-</span></pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> scaleX = <span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> v / bounds.x * <span class="hljs-number">100</span>;
+<span class="hljs-keyword">var</span> scaleY = <span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> <span class="hljs-number">100</span> - (v / bounds.y * <span class="hljs-number">100</span>);
+
+data.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d, i</span>) </span>{
+  <span class="hljs-keyword">var</span> dot = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">"div"</span>);
+  dot.className = <span class="hljs-string">"dot"</span>;
+  dot.style.left = scaleX(d.joy) + <span class="hljs-string">"%"</span>;
+  dot.style.top = scaleY(d.dogs) + <span class="hljs-string">"%"</span>;
+  grid.appendChild(dot);
+});</pre></code>
 <p>We can add tooltips to each dot by placing inserting HTML into the dot with a ".tooltip" class, but hiding it unless the dot matches the <var>:hover</var> pseudo-class. Because the tooltips are also positioned absolutely, they take their positioning cues from the dot that contain them, but they don't distort its size (since <var>position: absolute</var> removes an element from layout calculation). The <var>pointer-events: none</var> also stops them from being too "sticky" in browsers that support it.</p>
-<code class="language-css"><pre><span class="line">.scatter-area .tooltip {
-</span><span class="line">  position: absolute;
-</span><span class="line">  background: white;
-</span><span class="line">  padding: 8px;
-</span><span class="line">  box-shadow: 0 8px 16px -8px rgba(0, 0, 0, .2);
-</span><span class="line">  font-size: 15px;
-</span><span class="line">  width: 100px;
-</span><span class="line">  display: none;
-</span><span class="line">  top: 50%;
-</span><span class="line">  left: 50%;
-</span><span class="line">  z-index: 999;
-</span><span class="line">  pointer-events: none;
-</span><span class="line">}
-</span><span class="line">
-</span><span class="line">.scatter-area .dot:hover .tooltip {
-</span><span class="line">  display: block;
-</span><span class="line">}
-</span></pre></code>
+<code class="language-css"><pre><span class="hljs-selector-class">.scatter-area</span> <span class="hljs-selector-class">.tooltip</span> {
+  <span class="hljs-attribute">position</span>: absolute;
+  <span class="hljs-attribute">background</span>: white;
+  <span class="hljs-attribute">padding</span>: <span class="hljs-number">8px</span>;
+  <span class="hljs-attribute">box-shadow</span>: <span class="hljs-number">0</span> <span class="hljs-number">8px</span> <span class="hljs-number">16px</span> -<span class="hljs-number">8px</span> <span class="hljs-built_in">rgba</span>(0, 0, 0, .2);
+  <span class="hljs-attribute">font-size</span>: <span class="hljs-number">15px</span>;
+  <span class="hljs-attribute">width</span>: <span class="hljs-number">100px</span>;
+  <span class="hljs-attribute">display</span>: none;
+  <span class="hljs-attribute">top</span>: <span class="hljs-number">50%</span>;
+  <span class="hljs-attribute">left</span>: <span class="hljs-number">50%</span>;
+  <span class="hljs-attribute">z-index</span>: <span class="hljs-number">999</span>;
+  <span class="hljs-attribute">pointer-events</span>: none;
+}
+
+<span class="hljs-selector-class">.scatter-area</span> <span class="hljs-selector-class">.dot</span><span class="hljs-selector-pseudo">:hover</span> <span class="hljs-selector-class">.tooltip</span> {
+  <span class="hljs-attribute">display</span>: block;
+}</pre></code>
 <p>The code shown above is not entirely complete, and you should use your developer tools to explore some of the other niceties (such as the tooltips that "flip" from left to right when they cross the x-axis). You can also adapt this technique any time that you need to place elements within a defined space&mdash;I like to use it, along with percentage-based widths and heights, to create "annotated" images, similar to the facial tagging seen on many social networks.</p>
 <p>Still, one more detail remains to be explained: because our dots are positioned using percentages, this graph is fully responsive, yet if you resize the window the example plot keeps its perfectly square shape no matter what. In the styles I've written above, it's defined as 400px high (which means it would distort on small screens), so clearly there's something else setting the graph's height. What's the change that makes a constant aspect ratio possible?</p>
 <h2>Defining an aspect ratio</h2>
@@ -190,26 +188,24 @@ data.forEach(function(d, i) {
 <p>Other HTML elements, unfortunately, do not know how big they "should" be. If you change the width of these elements, by resizing the browser or placing them in a container, the height does not maintain a constant relationship. For the most part, this makes sense: you wouldn't want your paragraphs to get shorter just because they got skinnier, since that would cut off the text inside (or shrink it, which is equally bad). But sometimes we genuinely do want a non-image element, like an iframe containing a third-party video, to stay "frozen" at a certain aspect ratio, and there isn't an obvious style to make it happen.</p>
 <p>The trick, such as it is, comes from the "padding" property. In what seems like a bizarre (but helpful) choice, if you set an element's padding to be a percentage, the actual size of the padding will be determined by the width of the <em>parent</em> element. In other words, <var>padding-bottom: 100%</var> is equal to the width of your element's parent.</p>
 <p>Take the following markup:</p>
-<code class="language-html"><pre><span class="line">&lt;div class="aspect-container"&gt;
-</span><span class="line">  &lt;div class="aspect-inner"&gt;
-</span><span class="line">    &lt;iframe src="https://www.youtube.com/embed/a1Y73sPHKxw"&gt;&lt;/iframe&gt;
-</span><span class="line">  &lt;/div&gt;
-</span><span class="line">&lt;/div&gt;
-</span></pre></code>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"aspect-container"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"aspect-inner"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">iframe</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://www.youtube.com/embed/a1Y73sPHKxw"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">iframe</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
 <p>The iframe doesn't know how tall it wants to be, and if you set the width and height on it manually (as YouTube does by default), it'll either overflow small screens, or (if the max-width style is set) it won't resize the height when the width is restricted. However, setting the following styles will cause it to "lock" to 16:9, by positioning it absolutely within its container, and defining that container's height using its child's bottom padding.</p>
-<code class="language-css"><pre><span class="line">.aspect-container { position: relative }
-</span><span class="line">
-</span><span class="line">/* 56.25% is 9 / 16, or 16:9 aspect ratio */
-</span><span class="line">.aspect-inner { padding-bottom: 56.25% }
-</span><span class="line">
-</span><span class="line">.aspect-container iframe {
-</span><span class="line">  position: absolute;
-</span><span class="line">  top: 0;
-</span><span class="line">  left: 0;
-</span><span class="line">  width: 100%;
-</span><span class="line">  height: 100%;
-</span><span class="line">}
-</span></pre></code>
+<code class="language-css"><pre><span class="hljs-selector-class">.aspect-container</span> { <span class="hljs-attribute">position</span>: relative }
+
+<span class="hljs-comment">/* 56.25% is 9 / 16, or 16:9 aspect ratio */</span>
+<span class="hljs-selector-class">.aspect-inner</span> { <span class="hljs-attribute">padding-bottom</span>: <span class="hljs-number">56.25%</span> }
+
+<span class="hljs-selector-class">.aspect-container</span> <span class="hljs-selector-tag">iframe</span> {
+  <span class="hljs-attribute">position</span>: absolute;
+  <span class="hljs-attribute">top</span>: <span class="hljs-number">0</span>;
+  <span class="hljs-attribute">left</span>: <span class="hljs-number">0</span>;
+  <span class="hljs-attribute">width</span>: <span class="hljs-number">100%</span>;
+  <span class="hljs-attribute">height</span>: <span class="hljs-number">100%</span>;
+}</pre></code>
 <p>Here's the live demo:</p>
 <style>
 .aspect-container {
@@ -236,17 +232,16 @@ data.forEach(function(d, i) {
   </div>
 </div>
 <p>Even better, in the case of our scatter plot, we can use the <var>::before</var> pseudo-element to play the role of the inner padding, so that we don't need to add an additional tag to our markup just for some empty padding:</p>
-<code class="language-css"><pre><span class="line">.scatter-area {
-</span><span class="line">  position: relative;
-</span><span class="line">  /* ... */
-</span><span class="line">}
-</span><span class="line">
-</span><span class="line">.scatter-area::before {
-</span><span class="line">  display: block;
-</span><span class="line">  content: "";
-</span><span class="line">  padding-bottom: 100%;
-</span><span class="line">}
-</span></pre></code>
+<code class="language-css"><pre><span class="hljs-selector-class">.scatter-area</span> {
+  <span class="hljs-attribute">position</span>: relative;
+  <span class="hljs-comment">/* ... */</span>
+}
+
+<span class="hljs-selector-class">.scatter-area</span><span class="hljs-selector-pseudo">::before</span> {
+  <span class="hljs-attribute">display</span>: block;
+  <span class="hljs-attribute">content</span>: <span class="hljs-string">""</span>;
+  <span class="hljs-attribute">padding-bottom</span>: <span class="hljs-number">100%</span>;
+}</pre></code>
 <p>100% padding is 100% of the container's width, creating a perfectly square block no matter how big or small the page gets (up to the container's max-width of 400px, of course). Once you start using this technique, it's not just good for plots and videos, but also for maps, canvas elements, and SVG graphics.</p>
 <p>Finally, a great advantage of setting sizes this way is that padding can be overridden from a media query, based either on screen width or (a little-known property) on the window's own aspect ratio. So small portrait screens can get a taller scatter plot, while big and wide screens get one that uses more horizontal space, all just by adjusting a single CSS property. So while it's a bizarre choice to match padding and parent width this way, it works out well for us in the end.</p>
   </main>

@@ -6,6 +6,7 @@
   <title>A well-attributed matrix chart</title>
   <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans" rel="stylesheet">
   <link rel="stylesheet" href="static/style.css">
+  <link rel="stylesheet" href="static/highlight/hybrid.css">
 </head>
 <body class="css-matrix chapter">
   <nav class="chapter-links top">
@@ -96,33 +97,31 @@ controls.addEventListener("change", function() {
 <p>There's a truism in the accessibility community: don't reinvent the <var>select</var> element. The form controls available in the browser may be clumsy, and difficult to restyle, but they also provide a large amount of benefit to screen readers, to people with reduced dexterity, and to users accustomed to the default behavior on their particular operating system. Reproducing all of that is an enormous investment, as <a href="https://accessibility.oit.ncsu.edu/it-accessibility-at-nc-state/developers/accessibility-handbook/aria-checkbox/">this guide to creating a "custom checkbox"</a> shows. The built-in defaults aren't as pretty, but there's good reason to just use them instead of doing all that work.</p>
 <p>However, I would go one step farther: for many common UI patterns, there may be a form element that we can build off, even if it's not an obvious choice. This shouldn't be surprising, since the point of "UI patterns" is to look for behaviors that crop up across multiple different widgets. Take, for example, a tabbed window and an image gallery with a "filmstrip" of thumbnails underneath. They have very different goals, and they look very different to users. But the functionality, in which the selected item is shown while the others are hidden, is largely the same, and the underlying code for them might be almost identical.</p>
 <p>In this case, what we're going to leverage is the radio button, one of the several types available for the <var>input</var> tag. Radio buttons are basically checkboxes, but they're linked together in groups, and only one can be checked at a time. Checking a different radio button will uncheck the first. Each button in a group can have its own value, and the group itself is created by a common value for the "name" attribute. Here's a set of three radio buttons in a group, each with its own label:</p>
-<code class="language-html"><pre><span class="line">&lt;div class="radio-block"&gt;
-</span><span class="line">  &lt;input type="radio" name="size" value="S" id="size-S" checked="checked"&gt;
-</span><span class="line">  &lt;label for="size-S"&gt;Small&lt;/label&gt;
-</span><span class="line">  &lt;input type="radio" name="size" value="M" id="size-M"&gt;
-</span><span class="line">  &lt;label for="size-M"&gt;Medium&lt;/label&gt;
-</span><span class="line">  &lt;input type="radio" name="size" value="L" id="size-L"&gt;
-</span><span class="line">  &lt;label for="size-L"&gt;Large&lt;/label&gt;
-</span><span class="line">&lt;/div&gt;
-</span></pre></code>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"radio-block"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"radio"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"size"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"S"</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"size-S"</span> <span class="hljs-attr">checked</span>=<span class="hljs-string">"checked"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">"size-S"</span>&gt;</span>Small<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"radio"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"size"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"M"</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"size-M"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">"size-M"</span>&gt;</span>Medium<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"radio"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"size"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"L"</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"size-L"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">"size-L"</span>&gt;</span>Large<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
 <p>By giving each input its own ID, and setting the "for" attribute of each label to match, the browser hooks up each label to the corresponding input: clicking on the label text will select that radio button from the group. Essentially, it makes the label a part of the input.</p>
 <p>Now, with a little CSS trickery, we can make actually hide the inputs themselves, and instead show the checked/unchecked state on the label. To do so, we'll use the <var>+</var> CSS operator, which selects an element's next sibling, and the <var>:checked</var> pseudoclass. Here's some style rules that will highlight the label for the selected item in red:</p>
-<code class="language-css"><pre><span class="line">.radio-block input { opacity: 0; width: 0 }
-</span><span class="line">.radio-block input + label {
-</span><span class="line">  display: inline-block;
-</span><span class="line">  padding: 2px 4px;
-</span><span class="line">  background: white;
-</span><span class="line">  color: black;
-</span><span class="line">  cursor: pointer;
-</span><span class="line">}
-</span><span class="line">.radio-block input:focus + label {
-</span><span class="line">  outline: 1px solid blue;
-</span><span class="line">}
-</span><span class="line">.radio-block input:checked + label {
-</span><span class="line">  background: red;
-</span><span class="line">  color: white;
-</span><span class="line">}
-</span></pre></code>
+<code class="language-css"><pre><span class="hljs-selector-class">.radio-block</span> <span class="hljs-selector-tag">input</span> { <span class="hljs-attribute">opacity</span>: <span class="hljs-number">0</span>; <span class="hljs-attribute">width</span>: <span class="hljs-number">0</span> }
+<span class="hljs-selector-class">.radio-block</span> <span class="hljs-selector-tag">input</span> + <span class="hljs-selector-tag">label</span> {
+  <span class="hljs-attribute">display</span>: inline-block;
+  <span class="hljs-attribute">padding</span>: <span class="hljs-number">2px</span> <span class="hljs-number">4px</span>;
+  <span class="hljs-attribute">background</span>: white;
+  <span class="hljs-attribute">color</span>: black;
+  <span class="hljs-attribute">cursor</span>: pointer;
+}
+<span class="hljs-selector-class">.radio-block</span> <span class="hljs-selector-tag">input</span><span class="hljs-selector-pseudo">:focus</span> + <span class="hljs-selector-tag">label</span> {
+  <span class="hljs-attribute">outline</span>: <span class="hljs-number">1px</span> solid blue;
+}
+<span class="hljs-selector-class">.radio-block</span> <span class="hljs-selector-tag">input</span><span class="hljs-selector-pseudo">:checked</span> + <span class="hljs-selector-tag">label</span> {
+  <span class="hljs-attribute">background</span>: red;
+  <span class="hljs-attribute">color</span>: white;
+}</pre></code>
 <p>And here it is in action:</p>
 <div class="radio-block">
   <input type="radio" name="size" value="S" id="size-S" checked="checked">
@@ -153,18 +152,16 @@ controls.addEventListener("change", function() {
 <p>It's worth experimenting with this technique, since it can also be generalized to checkboxes as well. But that's a topic for study on your own time&mdash;now that our controls are working, let's hook them up to our category palettes.</p>
 <h2>Your best attributes</h2>
 <p>Each dot in our matrix represents one person. Each person can have multiple category groups assigned, but only one within a group. So, for example, in our interactive, people can choose "big" or "small" in category A, and they can vote "yes" or "no" for category B. For this interactive, I'm creating 100 of them at random. Then I create the dots using a template string, and simply add classes that match the choices they've made for each category:</p>
-<code class="language-js"><pre><span class="line">var html = "";
-</span><span class="line">dots.forEach(function(d) {
-</span><span class="line">  html += `&lt;div class="dot ${d.a} ${d.b}"&gt;&lt;/div&gt;`;
-</span><span class="line">});
-</span><span class="line">grid.innerHTML = html;
-</span></pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> html = <span class="hljs-string">""</span>;
+dots.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{
+  html += <span class="hljs-string">`&lt;div class="dot <span class="hljs-subst">${d.a}</span> <span class="hljs-subst">${d.b}</span>"&gt;&lt;/div&gt;`</span>;
+});
+grid.innerHTML = html;</pre></code>
 <p>Our dots are styled to be 30px by 30px inline blocks, and setting the border radius to 50% or more makes them circular. But where do they get their colors? For that, we set an attribute on the container element, and then use an attribute selector to match:</p>
-<code class="language-css"><pre><span class="line">[data-category="a"] .big { background: green }
-</span><span class="line">[data-category="a"] .small { background: red }
-</span><span class="line">[data-category="b"] .yes { background: orange }
-</span><span class="line">[data-category="b"] .no { background: purple }
-</span></pre></code>
+<code class="language-css"><pre><span class="hljs-selector-attr">[data-category="a"]</span> <span class="hljs-selector-class">.big</span> { <span class="hljs-attribute">background</span>: green }
+<span class="hljs-selector-attr">[data-category="a"]</span> <span class="hljs-selector-class">.small</span> { <span class="hljs-attribute">background</span>: red }
+<span class="hljs-selector-attr">[data-category="b"]</span> <span class="hljs-selector-class">.yes</span> { <span class="hljs-attribute">background</span>: orange }
+<span class="hljs-selector-attr">[data-category="b"]</span> <span class="hljs-selector-class">.no</span> { <span class="hljs-attribute">background</span>: purple }</pre></code>
 <p>Attribute selectors are written between square brackets, and are extremely flexible in how they match. These selectors check for the exact value of the attribute, but there are many other options available:</p>
 <ul>
 <li><var>[attr]</var> - simply matches an element that has the attribute, with any value (or no value).</li>
@@ -176,12 +173,11 @@ controls.addEventListener("change", function() {
 </ul>
 <p>A little experimentation creates all kinds of useful applications for these selectors, especially when combined with the <var>:not()</var> pseudoclass. For example, you might style links to external sites with a little indicator by looking for <var>a[href*="://"]:not([href*="yourdomain.com"])</var>, or links that open in a new window via <var>a[target]</var>. You could blank out image tags that don't have a <var>src</var> attribute, hiding the "broken image" icon. Or use this to hide UI widgets that haven't loaded until they have a "ready" attribute added. Indeed, because these selectors are more low-level than class and ID selectors, they open up a lot more power.</p>
 <p>To look back at our chart, however, we're simply allowing each dot to color itself based on the current "filter" of the container, as expressed by its "data-category" attribute. We don't need to set each element's color individually&mdash;they can have as many category classes as they want, but only one will be expressed at any time. And because the parent element is controlled using an attribute value instead of a class, we don't have to worry about removing old state when we switch filters. We can just clobber the attribute value with the new setting, and watch the colors adjust:</p>
-<code class="language-js"><pre><span class="line">controls.addEventListener("change", function() {
-</span><span class="line">  //find the radio button that's currently checked
-</span><span class="line">  var value = $.one(`input[name="dot-category"]:checked`).value;
-</span><span class="line">  container.setAttribute("data-category", value);
-</span><span class="line">});
-</span></pre></code>
+<code class="language-js"><pre>controls.addEventListener(<span class="hljs-string">"change"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-comment">//find the radio button that's currently checked</span>
+  <span class="hljs-keyword">var</span> value = $.one(<span class="hljs-string">`input[name="dot-category"]:checked`</span>).value;
+  container.setAttribute(<span class="hljs-string">"data-category"</span>, value);
+});</pre></code>
 <p>It's this modal nature that has made attributes one of the most useful tools in my CSS toolkit. Compared to re-coloring the dots via JavaScript, or trying to set only one category class, this code is clean, simple, and reliable in any number of other situations. Remember this technique whenever you need to add, remove, or update a large number of DOM elements in response to a single updated value, like a system mode or filter.</p>
   </main>
   <nav class="chapter-links bottom">

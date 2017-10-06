@@ -6,6 +6,7 @@
   <title>Inadvisable template literal tricks</title>
   <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans" rel="stylesheet">
   <link rel="stylesheet" href="static/style.css">
+  <link rel="stylesheet" href="static/highlight/hybrid.css">
 </head>
 <body class="js-templates chapter">
   <nav class="chapter-links top">
@@ -24,147 +25,137 @@
 <p>With that out of the way, let's have some fun.</p>
 <h2>Template literal basics</h2>
 <p>Introduced in ES2015, template strings are a new kind of JavaScript string. Instead of using single or double quotes, they're wrapped in backticks. Unlike previous kinds of strings, they're allowed to span multiple lines, which makes them great for writing little chunks of HTML:</p>
-<code class="language-js"><pre><span class="line">var htmlText = `
-</span><span class="line">&lt;div class="tooltip"&gt;
-</span><span class="line">  Hello, world!
-</span><span class="line">&lt;/div&gt;
-</span><span class="line">`;
-</span></pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> htmlText = <span class="hljs-string">`
+&lt;div class="tooltip"&gt;
+  Hello, world!
+&lt;/div&gt;
+`</span>;</pre></code>
 <p>If that were all we were getting out of a new string type, it'd be pretty good. But template literals also have a new trick: they can be <em>interpolated</em>, meaning that we can inject values into the string without having to concatenate them on either side. To do so, you use the <var>${ }</var> delimiters, with your intended value inside the curly braces. Those expressions are immediately evaluated and placed into the string when it's defined, which means you do need to have access to the variable (you should be able to <var>console.log()</var> it).</p>
-<code class="language-js"><pre><span class="line">var num = 2;
-</span><span class="line">var type = "people";
-</span><span class="line">
-</span><span class="line">var slogan = `There are ${num + 1} kinds of ${type} in this ${"world"}.`;
-</span><span class="line">// "There are 3 kinds of people in this world."
-</span></pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> num = <span class="hljs-number">2</span>;
+<span class="hljs-keyword">var</span> type = <span class="hljs-string">"people"</span>;
+
+<span class="hljs-keyword">var</span> slogan = <span class="hljs-string">`There are <span class="hljs-subst">${num + <span class="hljs-number">1</span>}</span> kinds of <span class="hljs-subst">${type}</span> in this <span class="hljs-subst">${<span class="hljs-string">"world"</span>}</span>.`</span>;
+<span class="hljs-comment">// "There are 3 kinds of people in this world."</span></pre></code>
 <p>You can't write anything that's not a simple expression inside of a template literal, so no <var>if</var> statements or loops. You can use ternary expressions, however, if you need to make a choice:</p>
-<code class="language-js"><pre><span class="line">var quantity = 14;
-</span><span class="line">
-</span><span class="line">var cart = `You have ordered ${quantity} ${quantity &gt; 1 ? "wheels" : "wheel"} of cheese.`;
-</span><span class="line">// "You have ordered 14 wheels of cheese."
-</span></pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> quantity = <span class="hljs-number">14</span>;
+
+<span class="hljs-keyword">var</span> cart = <span class="hljs-string">`You have ordered <span class="hljs-subst">${quantity}</span> <span class="hljs-subst">${quantity &gt; <span class="hljs-number">1</span> ? <span class="hljs-string">"wheels"</span> : <span class="hljs-string">"wheel"</span>}</span> of cheese.`</span>;
+<span class="hljs-comment">// "You have ordered 14 wheels of cheese."</span></pre></code>
 <p>Template strings are therefore ideal for graphics where you just need to dump some values into a string and show it to the user. I personally love using them for Leaflet map popups, where I'm just going to show the user some data about the marker or area that they've clicked, straight from my GeoJSON properties.</p>
 <p>They're also fantastic for building selectors, which is my favorite way to use a template string, if for no other reason than the fact that it makes inserting double-quotes (required for many attribute selectors) way, way easier.</p>
-<code class="language-js"><pre><span class="line">// find all elements with an initial attribute value
-</span><span class="line">var search = searchElement.value;
-</span><span class="line">var found = $(`[data-value^="${search}"]`);
-</span><span class="line">
-</span><span class="line">// I even just use them for quoted constants
-</span><span class="line">var featured = $(`[data-featured="true"]`);
-</span></pre></code>
+<code class="language-js"><pre><span class="hljs-comment">// find all elements with an initial attribute value</span>
+<span class="hljs-keyword">var</span> search = searchElement.value;
+<span class="hljs-keyword">var</span> found = $(<span class="hljs-string">`[data-value^="<span class="hljs-subst">${search}</span>"]`</span>);
+
+<span class="hljs-comment">// I even just use them for quoted constants</span>
+<span class="hljs-keyword">var</span> featured = $(<span class="hljs-string">`[data-featured="true"]`</span>);</pre></code>
 <h2>More with maps</h2>
 <p>Note that although I did say that you can't write loops in a template literal, that's only true for the <var>for</var> loop syntax. You can, however, call functions that loop as a part of an expression, and if that function returns a value, it'll be injected into the string. What looping function with return values is generally available to us? That's right, it's our old friend <var>Array.map()</var>.</p>
-<code class="language-js"><pre><span class="line">var values = ["a", "b", "c", "d"];
-</span><span class="line">
-</span><span class="line">// we can build a list using map()
-</span><span class="line">// join() the result, or you'll get commas
-</span><span class="line">var listHTML = `
-</span><span class="line">&lt;ul&gt;
-</span><span class="line">  ${values.map(v =&gt; "&lt;li&gt;" + v).join("")}
-</span><span class="line">&lt;/ul&gt;`;
-</span><span class="line">
-</span><span class="line">//we can even nest template literals
-</span><span class="line">var links = [
-</span><span class="line">  { href: "propublica.org", text: "Pro Publica" },
-</span><span class="line">  { href: "seattletimes.com", text: "Seattle Times" },
-</span><span class="line">  { href: "fivethirtyeight.com", text: "538" }
-</span><span class="line">];
-</span><span class="line">
-</span><span class="line">var menuHTML = `
-</span><span class="line">&lt;nav class="news links"&gt;
-</span><span class="line">  &lt;ul&gt;
-</span><span class="line">    ${links.map(l =&gt; `
-</span><span class="line">    &lt;li&gt; &lt;a href="http://${l.href}"&gt;${l.text}&lt;/a&gt;
-</span><span class="line">`).join("\n")}
-</span><span class="line">  &lt;/ul&gt;
-</span><span class="line">&lt;/nav&gt;
-</span><span class="line">`;
-</span></pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> values = [<span class="hljs-string">"a"</span>, <span class="hljs-string">"b"</span>, <span class="hljs-string">"c"</span>, <span class="hljs-string">"d"</span>];
+
+<span class="hljs-comment">// we can build a list using map()</span>
+<span class="hljs-comment">// join() the result, or you'll get commas</span>
+<span class="hljs-keyword">var</span> listHTML = <span class="hljs-string">`
+&lt;ul&gt;
+  <span class="hljs-subst">${values.map(v =&gt; <span class="hljs-string">"&lt;li&gt;"</span> + v).join(<span class="hljs-string">""</span>)}</span>
+&lt;/ul&gt;`</span>;
+
+<span class="hljs-comment">//we can even nest template literals</span>
+<span class="hljs-keyword">var</span> links = [
+  { <span class="hljs-attr">href</span>: <span class="hljs-string">"propublica.org"</span>, <span class="hljs-attr">text</span>: <span class="hljs-string">"Pro Publica"</span> },
+  { <span class="hljs-attr">href</span>: <span class="hljs-string">"seattletimes.com"</span>, <span class="hljs-attr">text</span>: <span class="hljs-string">"Seattle Times"</span> },
+  { <span class="hljs-attr">href</span>: <span class="hljs-string">"fivethirtyeight.com"</span>, <span class="hljs-attr">text</span>: <span class="hljs-string">"538"</span> }
+];
+
+<span class="hljs-keyword">var</span> menuHTML = <span class="hljs-string">`
+&lt;nav class="news links"&gt;
+  &lt;ul&gt;
+    <span class="hljs-subst">${links.map(l =&gt; <span class="hljs-string">`
+    &lt;li&gt; &lt;a href="http://<span class="hljs-subst">${l.href}</span>"&gt;<span class="hljs-subst">${l.text}</span>&lt;/a&gt;
+`</span>).join(<span class="hljs-string">"\n"</span>)}</span>
+  &lt;/ul&gt;
+&lt;/nav&gt;
+`</span>;</pre></code>
 <p>So sure, it's possible to do a lot of basic HTML templating using these new kinds of strings. If you're trying to get something done quickly, they're a great prototyping tool. But it's not exactly ergonomic, especially compared to the kinds of user-friendly expressions available in Vue, React, Handlebars, or (my personal favorite) Dot. As soon as the content becomes more than a few lines long, you should move it out into its own file and import it using your build process or other tooling.</p>
 <p>It's also important to move text out into another file if it's in an actual language with a grammar, like HTML or WebGL shaders. For one thing, you don't get syntax highlighting and error checking inside template strings in most text editors, and you'll want that as the code gets bigger and more complicated.</p>
 <h2>Taking it too far with tagged strings</h2>
 <p>Template literals have one more interesting feature: you can "tag" them by sticking a function onto the front. The browser then calls that function, and passes in the tagged string as an odd arrangement of arguments: first, an array containing all of the parts of the string that aren't interpolated, and then after that you get each evaluated expression inside the interpolation tags as individual values. It looks a bit like this:</p>
-<code class="language-js"><pre><span class="line">var log = function(stringParts, a, b) {
-</span><span class="line">  console.log(stringParts, a, b);
-</span><span class="line">};
-</span><span class="line">
-</span><span class="line">log`Hello ${42} World ${"!"}`;
-</span><span class="line">// ["Hello ", " World ", ""], 42, "!"
-</span><span class="line">
-</span><span class="line">// Using the spread operator makes this a little better
-</span><span class="line">var logSpread = function(parts, ...values) {
-</span><span class="line">  console.log(parts, values);
-</span><span class="line">};
-</span><span class="line">
-</span><span class="line">logSpread`a ${1} b ${2} c ${3}`;
-</span><span class="line">// ["a ", " b ", " c ", ""], [1, 2, 3]
-</span></pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> log = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">stringParts, a, b</span>) </span>{
+  <span class="hljs-built_in">console</span>.log(stringParts, a, b);
+};
+
+log<span class="hljs-string">`Hello <span class="hljs-subst">${<span class="hljs-number">42</span>}</span> World <span class="hljs-subst">${<span class="hljs-string">"!"</span>}</span>`</span>;
+<span class="hljs-comment">// ["Hello ", " World ", ""], 42, "!"</span>
+
+<span class="hljs-comment">// Using the spread operator makes this a little better</span>
+<span class="hljs-keyword">var</span> logSpread = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">parts, ...values</span>) </span>{
+  <span class="hljs-built_in">console</span>.log(parts, values);
+};
+
+logSpread<span class="hljs-string">`a <span class="hljs-subst">${<span class="hljs-number">1</span>}</span> b <span class="hljs-subst">${<span class="hljs-number">2</span>}</span> c <span class="hljs-subst">${<span class="hljs-number">3</span>}</span>`</span>;
+<span class="hljs-comment">// ["a ", " b ", " c ", ""], [1, 2, 3]</span></pre></code>
 <p>This is a weird syntax choice. There's the empty string that you get after the final interpolation, for example. And why pass all of the values as arguments, instead of as a second array? That said, tagged strings can be very interesting, because the return value of the tag function can be anything, not just a string. For example, you could create a familiar-looking DOM search function that uses tags to save a couple of characters.</p>
-<code class="language-js"><pre><span class="line">var $ = function(selectors) {
-</span><span class="line">  return document.querySelectorAll(selectors.join());
-</span><span class="line">};
-</span><span class="line">
-</span><span class="line">var links = $`a[href]`;
-</span><span class="line">var sidebars = $`.sidebar`;
-</span></pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> $ = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">selectors</span>) </span>{
+  <span class="hljs-keyword">return</span> <span class="hljs-built_in">document</span>.querySelectorAll(selectors.join());
+};
+
+<span class="hljs-keyword">var</span> links = $<span class="hljs-string">`a[href]`</span>;
+<span class="hljs-keyword">var</span> sidebars = $<span class="hljs-string">`.sidebar`</span>;</pre></code>
 <p>Another cool use for tag functions is to build and issue database queries in Node, since the tag function can escape the interpolated values and check for injection attacks before inserting them into the SQL string. For the most part, though, tagged template literals are rarely used, and don't offer a lot that a simple function call wouldn't offer.</p>
 <p>But if you wanted to make some very poor life choices, we could use it to emulate a real template system. You know, for educational purposes.</p>
 <p>We'll start with a tag function, <var>HTML()</var>, that just concatenates its inputs together:</p>
-<code class="language-js"><pre><span class="line">var HTML = function(parts, ...values) {
-</span><span class="line">  var output = "";
-</span><span class="line">  parts.forEach(function(str, i) {
-</span><span class="line">    //add each string and any interpolated value to the buffer
-</span><span class="line">    output += str + (values[i] || "");
-</span><span class="line">  });
-</span><span class="line">  return output;
-</span><span class="line">}
-</span></pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> HTML = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">parts, ...values</span>) </span>{
+  <span class="hljs-keyword">var</span> output = <span class="hljs-string">""</span>;
+  parts.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">str, i</span>) </span>{
+    <span class="hljs-comment">//add each string and any interpolated value to the buffer</span>
+    output += str + (values[i] || <span class="hljs-string">""</span>);
+  });
+  <span class="hljs-keyword">return</span> output;
+}</pre></code>
 <p>Then we can augment that function with additional methods, each of which emulates a kind of standard template functionality. These special methods will take functions as arguments, because that way we can evaluate them conditionally (i.e., if an "if" statement fails, it shouldn't run the code anyway in case it has side effects).</p>
-<code class="language-js"><pre><span class="line">// "if" - condition, then "true" clause
-</span><span class="line">HTML.fi = function(condition, result) {
-</span><span class="line">  return condition ? result() : "";
-</span><span class="line">};
-</span><span class="line">
-</span><span class="line">// loop for both objects and arrays
-</span><span class="line">HTML.each = function(collection, iterator) {
-</span><span class="line">  var output;
-</span><span class="line">  if (collection instanceof Array) {
-</span><span class="line">    // arrays are easy
-</span><span class="line">    output = collection.map(iterator);
-</span><span class="line">  } else {
-</span><span class="line">    // for objects, loop over keys
-</span><span class="line">    var keys = Object.keys(collection);
-</span><span class="line">    output = keys.map(function(key) {
-</span><span class="line">      return iterator(collection[key], key);
-</span><span class="line">    });
-</span><span class="line">  }
-</span><span class="line">  return output.join("");
-</span><span class="line">};
-</span></pre></code>
+<code class="language-js"><pre><span class="hljs-comment">// "if" - condition, then "true" clause</span>
+HTML.fi = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">condition, result</span>) </span>{
+  <span class="hljs-keyword">return</span> condition ? result() : <span class="hljs-string">""</span>;
+};
+
+<span class="hljs-comment">// loop for both objects and arrays</span>
+HTML.each = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">collection, iterator</span>) </span>{
+  <span class="hljs-keyword">var</span> output;
+  <span class="hljs-keyword">if</span> (collection <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Array</span>) {
+    <span class="hljs-comment">// arrays are easy</span>
+    output = collection.map(iterator);
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-comment">// for objects, loop over keys</span>
+    <span class="hljs-keyword">var</span> keys = <span class="hljs-built_in">Object</span>.keys(collection);
+    output = keys.map(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">key</span>) </span>{
+      <span class="hljs-keyword">return</span> iterator(collection[key], key);
+    });
+  }
+  <span class="hljs-keyword">return</span> output.join(<span class="hljs-string">""</span>);
+};</pre></code>
 <p>Put this together, and now we have a functioning&mdash;if hideous&mdash;templating language built out of ES2015's new primitives.</p>
-<code class="language-js"><pre><span class="line">var title = "Hello, world."
-</span><span class="line">var age = 35;
-</span><span class="line">var eclipses = [2022, 2043, 2077];
-</span><span class="line">
-</span><span class="line">var mangled = HTML`
-</span><span class="line">  &lt;b&gt;${title}&lt;/b&gt;
-</span><span class="line">  Your age is ${age}:
-</span><span class="line">  ${HTML.fi(age &gt; 18, () =&gt; 
-</span><span class="line">    `&lt;div&gt;You can vote in the US&lt;/div&gt;`
-</span><span class="line">  )}
-</span><span class="line">  
-</span><span class="line">  ${HTML.fi(age &gt; 65, () =&gt;
-</span><span class="line">    `&lt;div&gt;You may be nearing retirement&lt;/div&gt;`
-</span><span class="line">  )}
-</span><span class="line">
-</span><span class="line">  There will be another eclipse in your location in:
-</span><span class="line">  &lt;ul&gt;
-</span><span class="line">  ${HTML.each(eclipses, v =&gt; `
-</span><span class="line">    &lt;li&gt; ${v} &lt;/li&gt;
-</span><span class="line">  `)}
-</span><span class="line">  &lt;/ul&gt;
-</span><span class="line">`;
-</span></pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> title = <span class="hljs-string">"Hello, world."</span>
+<span class="hljs-keyword">var</span> age = <span class="hljs-number">35</span>;
+<span class="hljs-keyword">var</span> eclipses = [<span class="hljs-number">2022</span>, <span class="hljs-number">2043</span>, <span class="hljs-number">2077</span>];
+
+<span class="hljs-keyword">var</span> mangled = HTML<span class="hljs-string">`
+  &lt;b&gt;<span class="hljs-subst">${title}</span>&lt;/b&gt;
+  Your age is <span class="hljs-subst">${age}</span>:
+  <span class="hljs-subst">${HTML.fi(age &gt; <span class="hljs-number">18</span>, () =&gt; 
+    <span class="hljs-string">`&lt;div&gt;You can vote in the US&lt;/div&gt;`</span>
+  )}</span>
+  
+  <span class="hljs-subst">${HTML.fi(age &gt; <span class="hljs-number">65</span>, () =&gt;
+    <span class="hljs-string">`&lt;div&gt;You may be nearing retirement&lt;/div&gt;`</span>
+  )}</span>
+
+  There will be another eclipse in your location in:
+  &lt;ul&gt;
+  <span class="hljs-subst">${HTML.each(eclipses, v =&gt; <span class="hljs-string">`
+    &lt;li&gt; <span class="hljs-subst">${v}</span> &lt;/li&gt;
+  `</span>)}</span>
+  &lt;/ul&gt;
+`</span>;</pre></code>
 <p>Results in:</p>
 <blockquote class="output"></blockquote>
 <script>

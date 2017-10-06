@@ -43,14 +43,14 @@ In the chapters ahead, I assume that you're familiar with the web, and have buil
 
 For this book, I'm going to be writing in ES2015, a new version of JavaScript that's supported by most modern browsers. However, I won't be using any features that can't be compiled back down to the well-supported ES5 standard using tools like Babel. It's also not hard to translate in your head. For example, the following ES2015 function definition:
 
-@codeblock...
+@codeblock(js)...
 
 var x = (a = 3, b = 4) => a + b;
 
 ...codeblock
 would translate to something like this:
 
-@codeblock...
+@codeblock(js)...
 
 var x = function(a, b) {
   //set default values

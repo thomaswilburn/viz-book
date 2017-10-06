@@ -1,3 +1,5 @@
+var hljs = require("highlight.js");
+
 exports.metadata = function(context, { lines }) {
   lines.forEach(function(l) {
     var [key, val] = l.split(":");
@@ -31,8 +33,9 @@ exports.codeblock = function(_, def) {
     if (l && start == -1) start = i;
   }
   lines = lines.slice(start, end);
-  var contents = lines.map(l => `<span class="line">${escapeHTML(l)}\n</span>`);
-  return `<code class="language-${def.arg}"><pre>${contents.join("")}</pre></code>`
+  var contents = lines.join("\n");
+  var highlighted = hljs.highlight(def.arg || "html", contents).value;
+  return `<code class="language-${def.arg}"><pre>${highlighted}</pre></code>`
 };
 
 exports.sidebar = (_, { lines }, process) => `<aside class="sidebar">

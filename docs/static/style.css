@@ -80,12 +80,6 @@ code pre {
   overflow-x: auto;
 }
 
-code pre .line {
-  display: block;
-  padding-left: 24px;
-  text-indent: -16px;
-}
-
 var {
   font-family: var(--mono);
   border: 1px dashed #E8E8E8;

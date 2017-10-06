@@ -6,6 +6,7 @@
   <title>Introduction</title>
   <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans" rel="stylesheet">
   <link rel="stylesheet" href="static/style.css">
+  <link rel="stylesheet" href="static/highlight/hybrid.css">
 </head>
 <body class="intro intermission">
   <nav class="chapter-links top">
@@ -43,16 +44,14 @@
 <p>In the chapters ahead, I assume that you're familiar with the web, and have built at least a few pages. I won't be covering how to add a stylesheet to your HTML file, or what JavaScript is. You should know the fundamentals of the JavaScript language, such as loops and functions, and be able to use jQuery without looking at the docs for the easy stuff. And if a chapter seems confusing, feel free to skip it and come back later: although they're arranged in a rough reading order, most chapters are independent of each other.</p>
 <h2>About the code</h2>
 <p>For this book, I'm going to be writing in ES2015, a new version of JavaScript that's supported by most modern browsers. However, I won't be using any features that can't be compiled back down to the well-supported ES5 standard using tools like Babel. It's also not hard to translate in your head. For example, the following ES2015 function definition:</p>
-<code class="language-undefined"><pre><span class="line">var x = (a = 3, b = 4) =&gt; a + b;
-</span></pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> x = <span class="hljs-function">(<span class="hljs-params">a = <span class="hljs-number">3</span>, b = <span class="hljs-number">4</span></span>) =&gt;</span> a + b;</pre></code>
 <p>would translate to something like this:</p>
-<code class="language-undefined"><pre><span class="line">var x = function(a, b) {
-</span><span class="line">  //set default values
-</span><span class="line">  a = a || 3;
-</span><span class="line">  b = b || 4;
-</span><span class="line">  return a + b;
-</span><span class="line">};
-</span></pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> x = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">a, b</span>) </span>{
+  <span class="hljs-comment">//set default values</span>
+  a = a || <span class="hljs-number">3</span>;
+  b = b || <span class="hljs-number">4</span>;
+  <span class="hljs-keyword">return</span> a + b;
+};</pre></code>
 <p>To be specific, I'll be using the following ES2015 syntax additions for this book:</p>
 <ul>
 <li>Arrow functions (<var>=&gt;</var>)</li>
