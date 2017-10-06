@@ -16,6 +16,8 @@ ${lines.map(l => `<li>${l}</li>`).join("\n")}
 
 exports.subhead = (_, lines) => `<h2>${lines.join("\n").trim()}</h2>`;
 
+exports.subsubhead = (_, lines) => `<h3>${lines.join("\n").trim()}</h3>`;
+
 var escapeHTML = s => s.replace(/&/g, "&amp;").replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
 
 exports.codeblock = function(_, lines) {

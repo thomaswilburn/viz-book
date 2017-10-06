@@ -25,7 +25,7 @@
 <p>Let's imagine that we have an array containing a set of objects, each of which is the biographical details of a person in our story. How do we turn that data into web markup that people can actually see, just using the standard browser APIs? Usually, there are two methods we can pick from: generating HTML as a string, or creating actual element nodes. For either one, however, we'll want a placeholder element where our dynamic content will go:</p>
 <code><pre><span class="line">&lt;div class="rogues"&gt;&lt;/div&gt;
 </span></pre></code>
-<p>By setting the <var>innerHTML</var> property of this element, the browser will parse and generate elements for us. I like to do this using a single big string, to which we add the markup for each item, like so. Note that for this and all the other examples, we'll be using the selector functions from our <a href="js-jquery-html">Deconstructed jQuery</a> chapter.</p>
+<p>By setting the <var>innerHTML</var> property of this element, the browser will parse and generate elements for us. I like to do this using a single big string, to which we add the markup for each item, like so. Note that for this and all the other examples, we'll be using the selector functions from our <a href="js-jquery.html">Deconstructed jQuery</a> chapter.</p>
 <code><pre><span class="line">var container = $.one(".rogues");
 </span><span class="line">var html = "";
 </span><span class="line">

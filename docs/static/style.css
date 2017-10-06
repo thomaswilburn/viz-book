@@ -14,6 +14,10 @@ body {
   margin: 0;
 }
 
+img, svg, video {
+  max-width: 100%;
+}
+
 nav.chapter-links {
   background: var(--foreground);
   color: var(--background);

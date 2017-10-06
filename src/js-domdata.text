@@ -15,7 +15,7 @@ Let's imagine that we have an array containing a set of objects, each of which i
 <div class="rogues"></div>
 ...codeblock
 
-By setting the <var>innerHTML</var> property of this element, the browser will parse and generate elements for us. I like to do this using a single big string, to which we add the markup for each item, like so. Note that for this and all the other examples, we'll be using the selector functions from our <a href="js-jquery-html">Deconstructed jQuery</a> chapter.
+By setting the <var>innerHTML</var> property of this element, the browser will parse and generate elements for us. I like to do this using a single big string, to which we add the markup for each item, like so. Note that for this and all the other examples, we'll be using the selector functions from our <a href="js-jquery.html">Deconstructed jQuery</a> chapter.
 
 @codeblock...
 var container = $.one(".rogues");

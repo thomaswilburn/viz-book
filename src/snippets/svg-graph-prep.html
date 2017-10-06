@@ -1,0 +1,84 @@
+<script>
+//prep for examples
+var data = {
+  a: [22, 11, 22, 55, 66, 44, 77, 99, 77, 88, 88, 55],
+  b: [55, 33, 44, 66, 22, 44, 77, 88, 99, 44, 77, 55]
+};
+
+var max = Math.max(Math.max(...data.a), Math.max(...data.b));
+
+var h = Math.max(
+  Math.max(...data.a),
+  Math.max(...data.b)
+);
+// find the proportional width
+var w = h / 480 * 640;
+
+// create horizontal scaling function
+var scaleX = v => v / (data.a.length - 1) * w;
+
+var padding = 20;
+
+const NS = "http://www.w3.org/2000/svg";
+
+var m = function(tagName, attrs, children) {
+  var element = document.createElementNS(NS, tagName);
+  if (attrs instanceof Array || typeof attrs == "string") {
+    children = attrs;
+    attrs = {};
+  }
+  if (attrs) for (var a in attrs) {
+    element.setAttribute(a, attrs[a]);
+  }
+  if (children instanceof Array) {
+    children.forEach(function(c) {
+      element.appendChild(c);
+    });
+  } else if (typeof children == "string") {
+    element.textContent = children;
+  }
+  return element;
+};
+</script>
+<style>
+.svg-container {
+  position: relative;
+  outline: 1px dotted #EEE;
+}
+
+.svg-container::before {
+  content: "";
+  display: block;
+  padding-bottom: 75%;
+}
+
+.svg-container svg {
+  position: absolute;
+  top: 0;
+  left; 0;
+  width: 100%;
+  height: 100%;
+}
+
+.backdrop {
+  fill: white;
+}
+
+.axis {
+  stroke: black
+}
+
+.series {
+  stroke-width: 4px;
+  stroke: black;
+  fill: none;
+}
+
+.series.a {
+  stroke: salmon;
+}
+
+.series.b {
+  stroke: rebeccapurple;
+}
+</style>

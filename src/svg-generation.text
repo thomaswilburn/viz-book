@@ -1,0 +1,372 @@
+@metadata...
+title:Generating SVG from code
+type:chapter
+summary:Creating elements | Common shapes and coordinates | Paving the paths
+...metadata
+
+Although they can be written into HTML5 source code the same way as other elements, SVG elements are not HTML elements, and they don't act like it. In another chapter, we'll talk about the common pitfalls where this may catch you off guard. But for now, let's talk about how to generate SVG dynamically without wanting to chop off a finger.
+
+@subhead <var>makeDOM</var> revisited
+
+In our chapter on <a href="js-domdata.html">working with DOM and data</a>, we wrote a function called <var>makeDOM</var> that generates HTML programmatically in a similar way to React's <var>createElement</var> function. When working with raw SVG, a similar function is a good thing to have, especially because there actually isn't an easy way to just hand the browser an SVG string for rendering the same way as <var>innerHTML</var>. Elements must be created and appended using DOM function calls.
+
+To adapt our HTML generator to SVG, we'll need to make two changes. First, SVG elements have to be created with a "namespace" that identifies them as SVG, or they won't do anything when you insert them into the page. Second, if you want to set the contents of a <var>text</var> element, you have to use the <var>textContent</var> property instead of <var>innerText</var> or <var>innerHTML</var>.
+
+@codeblock...
+const NS = "http://www.w3.org/2000/svg";
+
+var makeSVG = function(tagName, attrs, children) {
+  var element = document.createElementNS(NS, tagName);
+  if (attrs instanceof Array || typeof attrs == "string") {
+    children = attrs;
+    attrs = {};
+  }
+  if (attrs) for (var a in attrs) {
+    element.setAttribute(a, attrs[a]);
+  }
+  if (children instanceof Array) {
+    children.forEach(function(c) {
+      element.appendChild(c);
+    });
+  } else if (typeof children == "string") {
+    element.textContent = children;
+  }
+  return element;
+};
+...codeblock
+
+To use this function, you have to at least give it a tag name. The other two arguments are optional: an object containing attributes you want to set, and either an array of child elements, or a string for the text content. So to generate some simple SVG shapes, we might write the following:
+
+@codeblock...
+var m = makeSVG;
+var group = m("g", [
+  m("rect", { x: 10, y: 10, width: 20, height: 40 }),
+  m("circle", { cx: 30, cy: 30, r: 40 })
+]);
+...codeblock
+
+@subhead We have to go deeper
+
+@include snippets/svg-graph-prep.html
+
+Now that we have an easy way to generate SVG elements, let's create a graphic with it: a simple line chart. Adding scale lines and labels will be left as an exercise for the reader&mdash;this is just two data series in a rectangle for demonstration purposes.
+
+Most of the time when I see people build a chart in an SVG, probably using something like D3, they set the width and the height of the element (but not the view box), and then figure out the amount of padding that they want on each side of the actual graph. By subtracting the padding from the SVG's dimensions, they get the width and height of the drawing area. All coordinates are scaled to that area, and then offset by the padding, so that the line is placed in the right location.
+
+However, there's an easier way to do this, rather than mucking around with all the offset math and working within an arbitrary graph area using pixels for measurement. We can take advantage of an interesting property of SVG tags, which is that they can be nested within each other. The inner image can have its own x/y position, its own width and height, and its own view box (meaning, <a href="https://www.sarasoueidan.com/blog/mimic-relative-positioning-in-svg/">its own internal coordinate space</a>). Instead of working with pixels, we can actually draw things just by projecting the data values directly into the graphic.
+
+Let's take a look at how to make this SVG inception happen. We'll start with our outer SVG, which is sized to a standard 640x480 canvas with a matching view box. These coordinates are arbitrary but chosen because within the outer image, we <em>do</em> want to work in pixels&mdash;it's easier to set visual padding that way.
+
+@codeblock...
+<svg class="graph-container" width="640" height="480" viewBox="0 0 640 480"></svg>
+...codeblock
+
+Inside, we can add some "chart junk" to establish the space: a group containing a background rectangle with some color, and two lines to show the left and bottom axes. We'll put 20 pixels of padding on either side.
+
+@codeblock...
+// shorten the makeSVG function for readability
+var m = makeSVG;
+
+var padding = 20;
+
+var backdrop = m("g", [
+  m("rect", {
+    x: padding, y: padding,
+    width: 640 - padding * 2,
+    height: 480 - padding * 2,
+    fill: "#EEE"
+  }),
+  m("line", {
+    x1: padding, y1: padding,
+    x2: padding, y2: 480 - padding,
+    stroke: "#CCC"
+  }),
+  m("line", {
+    x1: padding, y1: 480 - padding,
+    x2: 640 - padding, y2: 480 - padding,
+    stroke: "#CCC"
+  })
+]);
+
+var container = document.querySelector(".graph-container");
+container.appendChild(backdrop);
+...codeblock
+
+@html...
+<div class="svg-container">
+<svg class="graph-backdrop" width="640" height="640" viewBox="0 0 640 480"></svg>
+</div>
+<script>
+(function() {
+var backdrop = m("g", [
+  m("rect", {
+    x: padding, y: padding,
+    width: 640 - padding * 2,
+    height: 480 - padding * 2,
+    fill: "#EEE"
+  }),
+  m("line", {
+    x1: padding, y1: padding,
+    x2: padding, y2: 480 - padding,
+    stroke: "#CCC"
+  }),
+  m("line", {
+    x1: padding, y1: 480 - padding,
+    x2: 640 - padding, y2: 480 - padding,
+    stroke: "#CCC"
+  })
+]);
+
+var container = document.querySelector(".graph-backdrop");
+container.appendChild(backdrop);
+})();
+</script>
+...html
+
+Now we'll define our inner SVG. From the outside, it'll be the same size as the backing rectangle, but from the inside, its coordinate system's height will be scaled to match our data, which goes from zero to 100. From the height, we'll figure the width from the chart's aspect ratio, so that our internal space doesn't get distorted (although we could always use the "preserveAspectRatio" attribute to center it, it wouldn't fill the space that way, and our goal is to be more visually precise).
+
+@codeblock...
+// 12 "months" of data
+var data = {
+  a: [22, 11, 22, 55, 66, 44, 77, 99, 77, 88, 88, 55],
+  b: [55, 33, 44, 66, 22, 44, 77, 88, 99, 44, 77, 55]
+};
+
+var h = Math.max(
+  Math.max(...data.a),
+  Math.max(...data.b)
+);
+// find the proportional width
+var w = h / 480 * 640;
+
+// create horizontal scaling function
+var scaleX = v => v / (data.length - 1) * w;
+
+// place our SVG on top of the backdrop
+var bounds = backdrop.getBBox();
+
+var inner = m("svg", {
+  x: bounds.x, y: bounds.y,
+  width: bounds.width, height: bounds.height,
+  viewBox: `0 0 ${w} ${h}`,
+  preserveAspectRatio: "none"
+});
+
+svg.appendChild(inner);
+
+...codeblock
+
+Inside of this inner SVG, our coordinate space is much simpler to deal with. The Y coordinates for a data point are just that data point's value (albeit inverted by subtracting it from the height). The X coordinates go through our scaling function. And we can create those as points in a polyline by mapping the data through a very simple function:
+
+@codeblock...
+
+for (var key in data) {
+  svg.appendChild(m("polyline", {
+    // polyline points look like "x,y x,y x,y"
+    points: data[key].map((v, i) => `${scaleX(i)},${h - v}`).join(" "),
+    fill: "none",
+    stroke: "black"
+  }));
+}
+
+...codeblock
+
+@html...
+<div class="svg-container">
+  <svg class="graph-traditional" width="640" height="480" viewBox="0 0 640 480">
+</div>
+<script>
+(function() {
+var svg = document.querySelector("svg.graph-traditional");
+
+var backdrop = m("g", [
+  m("rect", {
+    x: padding, y: padding,
+    width: 640 - padding * 2,
+    height: 480 - padding * 2,
+    fill: "#EEE"
+  }),
+  m("line", {
+    x1: padding, y1: padding,
+    x2: padding, y2: 480 - padding,
+    stroke: "#DDD"
+  }),
+  m("line", {
+    x1: padding, y1: 480 - padding,
+    x2: 640 - padding, y2: 480 - padding
+  })
+]);
+
+svg.appendChild(backdrop);
+
+// place our SVG on top of the backdrop
+var bounds = backdrop.getBBox();
+
+var inner = m("svg", {
+  x: bounds.x, y: bounds.y,
+  width: bounds.width, height: bounds.height,
+  viewBox: `0 0 ${w} ${h}`,
+  preserveAspectRatio: "none"
+});
+
+svg.appendChild(inner);
+
+for (var key in data) {
+  inner.appendChild(m("polyline", {
+    points: data[key].map((v, i) => `${scaleX(i)},${h - v}`).join(" "),
+    fill: "none",
+    stroke: "black"
+    // class: "series " + key
+    //"vector-effect": "non-scaling-stroke"
+  }));
+}
+
+})();
+</script>
+...html
+
+All in all, this is a pretty easy way to make a chart. Using an SVG view box to map our data domain to visual coordinates works pretty well. But what if we make it even easier? What if, in addition to mapping our data values directly to y-axis position, we also mapped the data's index and length to the x-axis? In that case, we don't need to scale at all: the SVG renderer will do it for us.
+
+Unfortunately, it's not possible to invert an SVG viewbox so that the coordinates go up from the bottom, because negative width/height values are disallowed. But we can set a viewbox that starts negative and ends at zero, and just flip our values by adding a negative sign, and that'll accomplish the same goal. Here's how we'd write that graph:
+
+@codeblock...
+var inner = m("svg", {
+  x: bounds.x, y: bounds.y,
+  width: bounds.width, height: bounds.height,
+  // start at -height, and finish at 0
+  viewBox: `0 ${-h} ${data.a.length - 1} ${h}`,
+  preserveAspectRatio: "none"
+});
+
+for (var key in data) {
+  inner.appendChild(m("polyline", {
+    // no scaling needed, only inverted Y
+    points: data[key].map((v, i) => `${i},${-v}`).join(" "),
+    fill: "none",
+    stroke: "black"
+  }));
+}
+
+svg.appendChild(inner);
+...codeblock
+
+@html...
+<div class="svg-container">
+  <svg width="640" height="480" viewBox="0 0 640 480" class="graph-distorted" preserveAspectRatio="none"></svg>
+</div>
+<script>
+var svg = document.querySelector("svg.graph-distorted");
+
+var backdrop = m("g", [
+  m("rect", {
+    x: padding, y: padding,
+    width: 640 - padding * 2,
+    height: 480 - padding * 2,
+    fill: "#EEE"
+  }),
+  m("line", {
+    x1: padding, y1: padding,
+    x2: padding, y2: 480 - padding,
+    stroke: "#DDD"
+  }),
+  m("line", {
+    x1: padding, y1: 480 - padding,
+    x2: 640 - padding, y2: 480 - padding
+  })
+]);
+
+svg.appendChild(backdrop);
+
+// place our SVG on top of the backdrop
+var bounds = backdrop.getBBox();
+
+var inner = m("svg", {
+  x: bounds.x, y: bounds.y,
+  width: bounds.width, height: bounds.height,
+  viewBox: `0 ${-h} ${data.a.length - 1} ${h}`,
+  preserveAspectRatio: "none"
+});
+
+svg.appendChild(inner);
+
+for (var key in data) {
+  inner.appendChild(m("polyline", {
+    points: data[key].map((v, i) => `${i},${0 - v}`).join(" "),
+    fill: "none",
+    stroke: "black"
+    // class: "series " + key
+    //"vector-effect": "non-scaling-stroke"
+  }));
+}
+
+</script>
+...html
+
+Oops: because our internal coordinate system is now very small and also very distorted, our lines (and any other shape we put inside) are too big and skewed. Rather than scale down our stroke to something tiny and hope that the distortion isn't visible, we can take advantage of a new SVG property called "vector-effect" to tell the stroke that it should be drawn in screen pixels, not in SVG pixels.
+
+@codeblock...
+
+for (var key in data) {
+  inner.appendChild(m("polyline", {
+    points: data[key].map((v, i) => `${i},${0 - v}`).join(" "),
+    fill: "none",
+    stroke: "black",
+    // draw strokes via screen coordinates, not SVG coordinates
+    "vector-effect": "non-scaling-stroke"
+  }));
+}
+
+...codeblock
+
+@html...
+<div class="svg-container">
+  <svg width="640" height="480" viewBox="0 0 640 480" class="graph-vector-effect" preserveAspectRatio="none"></svg>
+</div>
+<script>
+var svg = document.querySelector("svg.graph-vector-effect");
+
+var backdrop = m("g", [
+  m("rect", {
+    x: padding, y: padding,
+    width: 640 - padding * 2,
+    height: 480 - padding * 2,
+    fill: "#EEE"
+  }),
+  m("line", {
+    x1: padding, y1: padding,
+    x2: padding, y2: 480 - padding,
+    stroke: "#DDD"
+  }),
+  m("line", {
+    x1: padding, y1: 480 - padding,
+    x2: 640 - padding, y2: 480 - padding
+  })
+]);
+
+svg.appendChild(backdrop);
+
+// place our SVG on top of the backdrop
+var bounds = backdrop.getBBox();
+
+var inner = m("svg", {
+  x: bounds.x, y: bounds.y,
+  width: bounds.width, height: bounds.height,
+  viewBox: `0 ${-h} ${data.a.length - 1} ${h}`,
+  preserveAspectRatio: "none"
+});
+
+svg.appendChild(inner);
+
+for (var key in data) {
+  inner.appendChild(m("polyline", {
+    points: data[key].map((v, i) => `${i},${0 - v}`).join(" "),
+    fill: "none",
+    stroke: "black",
+    "vector-effect": "non-scaling-stroke"
+  }));
+}
+
+</script>
+...html
+
+Vector effects are not available in old Internet Explorer versions or Edge, but they're part of the SVG2 spec and are already in all other modern browsers. Of course, you can also set up your graph as a non-data view box, and just write a couple of scaling functions too. But what would be the fun in that?
