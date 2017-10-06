@@ -21,7 +21,7 @@
   </aside>
   <h1>Art direction with viewBox</h1>
 <p>An SVG image, whether included inline or loaded via an image tag, is just an XML file. Here, for example, is a typical SVG graphic with a few shapes:</p>
-<code><pre><span class="line">&lt;svg width=100 height=100&gt;
+<code class="language-html"><pre><span class="line">&lt;svg width=100 height=100&gt;
 </span><span class="line">  &lt;rect x=20 y=20 width=40 height=60 style="fill: blue"&gt;&lt;/rect&gt;
 </span><span class="line">  &lt;circle cx=60 cy=60 r=30 style="fill: purple"&gt;&lt;/circle&gt;
 </span><span class="line">&lt;/svg&gt;
@@ -146,7 +146,7 @@ update();
 <p>There are probably cases where "slice" makes sense, but for our purposes, "meet" is usually a better choice. By setting a view box around a given element, and using a "meet" value, you'll make sure that whole element is always in view. This is a great technique to use when creating SVG images that "re-frame" themselves on mobile, or in response to interaction. It's also especially handy when we take the next step: animating the view box to move around the image.</p>
 <h2>Ready for your closeup?</h2>
 <p>Unfortunately, although it is a regular request from people who use SVG regularly, it's not possible to define the view box from CSS, which means that we can't use CSS transitions to alter its value smoothly. Instead, we're going to have to use JavaScript to split the attribute into its four component values, then interpolate between them. We'll first declare a function that we can call, passing in the SVG and an object containing the desired view box values:</p>
-<code><pre><span class="line">var pan = function(svg, final, duration = 1000) {
+<code class="language-js"><pre><span class="line">var pan = function(svg, final, duration = 1000) {
 </span><span class="line">  //Get the current viewBox value and convert to numbers
 </span><span class="line">  var [x, y, w, h] = svg.getAttribute("viewBox").split(" ").map(Number);
 </span><span class="line">  //current timestamp, same format as requestAnimationFrame
@@ -154,7 +154,7 @@ update();
 </span><span class="line">}
 </span></pre></code>
 <p>Inside of that function, we'll define a function that can be called each frame, figure out where we are along the elapsed time (from 0 to 1) and then scale the values to match. The details of this kind of animation are covered in more detail in <a href="">this chapter [[TODO: ADD REAL CHAPTER LINK]]</a>.</p>
-<code><pre><span class="line">var frame = function(t) {
+<code class="language-js"><pre><span class="line">var frame = function(t) {
 </span><span class="line">  var elapsed = t - start;
 </span><span class="line">  var dt = elapsed / duration;
 </span><span class="line">  if (dt &gt; 1) dt = 1;
@@ -169,7 +169,7 @@ update();
 </span><span class="line">};
 </span></pre></code>
 <p>Then, all that's left is to call the function in the next frame:</p>
-<code><pre><span class="line">requestAnimationFrame(frame);
+<code class="language-js"><pre><span class="line">requestAnimationFrame(frame);
 </span></pre></code>
 <p>And our transition should work. Try it out by clicking the buttons below to toggle between a couple of camera positions:</p>
 <svg width=100 height=100 class="camera-example" viewBox="0 0 100 100">
@@ -222,7 +222,7 @@ button.addEventListener("click", function() {
 })();
 </script>
 <p>To really get the most use out of this, we might need a way to get the coordinates (in view box space) of a given shape. Then we can tell our camera to zoom in on that particular item, whether a particular shape or (more likely) a layer group defined by the artist in Illustrator or their tool of choice. Luckily, SVG elements provide a helpful method for doing just that: calling any SVG element's <var>getBBox()</var> method will tell you how big it is, including all its child elements if it's a group element.</p>
-<code><pre><span class="line">var circle = $.one(".camera-example");
+<code class="language-js"><pre><span class="line">var circle = $.one(".camera-example");
 </span><span class="line">var bounds = circle.getBBox();
 </span><span class="line">//pan to fit the circle
 </span><span class="line">pan(svg, bounds);

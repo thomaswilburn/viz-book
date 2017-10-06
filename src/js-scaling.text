@@ -10,13 +10,13 @@ A universal feature of data visualizations, therefore, is figuring out the scali
 
 The formula for a normalized linear scale is <strong>(value - minimum) / (maximum - minimum)</strong>. For example, let's imagine that we're charting the murder rate for a given city over time. At its highest, the murder rate was 12.5 homicides per 100,000 people, and the lowest point was 3.6. If we set those as the bounds for our scale, the function to give us our scaled value is:
 
-@codeblock...
+@codeblock(js)...
 var scaleMurders = value => (value - 3.6) / (12.5 - 3.6);
 ...codeblock
 
 Essentially, we're writing a function to answer the question "given a number line stretching from the minimum to the maximum, where do we find this value?" Of course, writing individual scaling functions by hand can be frustrating, especially if our visualization has more than one axis. We might be better off writing a factory, which takes in a high and low value and returns a custom scaling function:
 
-@codeblock...
+@codeblock(js)...
 var scaleFactory = function(low, high) {
   return function(value) {
     return (value - low) / (high - low);
@@ -35,14 +35,14 @@ But how do we figure out the min and the max of the data in the first place? One
 
 First, let's use the <var>map()</var> function to convert an array of objects into an array of values. A map is just a transformation from one list to another, based on a function you pass in. The following function takes an array of objects with many properties and converts it to just the values for the <var>murder</var> property:
 
-@codeblock...
+@codeblock(js)...
 //cityData is an array of row objects
 var values = cityData.map(d => d.murder);
 ...codeblock
 
 If we need to change the field that we're using for our chart values, we can change the code a little bit so that it's a reusable function, getting a property via the array operator (<var>[]</var>) instead of a dot operator:
 
-@codeblock...
+@codeblock(js)...
 var getValues = function(mode) {
   return cityData.map(d => d[mode]);
 };
@@ -56,7 +56,7 @@ values = getValues("robbery");
 
 Now the clever part: instead of looping through those values and figuring out the minimum and maximum by hand, we'll use JavaScript's built-in math functions. <var>Math.min()</var> and <var>Math.max()</var> accept an arbitrary number of arguments, and will then tell you the lowest and highest value from those arguments. We can use the <var>apply()</var> function method to treat our array of values as individual arguments:
 
-@codeblock...
+@codeblock(js)...
 
 // apply() takes two arguments:
 // the "this" value, and an arguments array
@@ -73,7 +73,7 @@ var max = Math.max(...values);
 
 A sparkline is a tiny graphic that's intended to be displayed inline, and illustrate a trend. You might use it in a business story, for example, to visualize the stock price of a company next to its ticker symbol. Let's use our scaling function to dynamically create sparklines for a story. First, we'll start with some quarterly data for each company:
 
-@codeblock...
+@codeblock(js)...
 var stocks = {
   ACME: [20.4, 30.2, 25.5, 14.9, 7.2],
   BRDX: [14.1, 15.1, 16.3, 18.0, 17.7]
@@ -82,7 +82,7 @@ var stocks = {
 
 And in our markup, we'll create placeholders for our script to find, using spans with a "ticker" class:
 
-@codeblock...
+@codeblock(html)...
 <p>
   Meanwhile, Acme Products (<span class="ticker">ACME</span>) continues its plunge, due mostly to the loss of the valuable "coyote" market.
 </p>
@@ -90,7 +90,7 @@ And in our markup, we'll create placeholders for our script to find, using spans
 
 We'll also need to style our sparkline blocks, so that they're visible:
 
-@codeblock...
+@codeblock(css)...
 .sparkline {
   display: inline-block;
 }
@@ -105,7 +105,7 @@ We'll also need to style our sparkline blocks, so that they're visible:
 
 Finally, we'll look through the page (using our <a href="js-jquery.html">deconstructed jQuery</a>) for our ticker spans, create a scaling function, and then add a series of sparkline blocks to the span. The height of each block will be the normalized value multiplied by the maximum height. In this case, we're going to be using <var>2ex</var>&mdash; an "ex" is the height of an "x" character, so two of them is a decent stand-in for the total height of a line of text.
 
-@codeblock...
+@codeblock(js)...
 $(".ticker").forEach(function(span) {
   // get the ticker symbol
   var symbol = span.innerHTML.trim();
@@ -237,7 +237,7 @@ $(".trigger-tween").forEach(el => el.addEventListener("click", animate));
 
 To create this animation, we'll first define an outer <var>animate</var> function that gets called when you click a button, and records the current timestamp. We're going to get the time from the <var>performance</var> object, which gives us the number of milliseconds since the page was loaded. This is the same timestamp that's used by <var>requestAnimationFrame</var>, so we don't have to worry about any conversion mismatch. We'll also store a "mode" to figure out which button you clicked.
 
-@codeblock...
+@codeblock(js)...
 var animate = function() {
   var start = performance.now();
   var mode = this.getAttribute("data-mode");
@@ -246,7 +246,7 @@ var animate = function() {
 
 Now, inside of animate, we'll add a "draw" function, which will be called during every frame of the animation. We're going to schedule it using the <var>requestAnimationFrame</var> function, so it'll be passed the current time as its argument. We can compare that time to the start time we recorded when <var>animate</var> was first called, to get the number of elapsed milliseconds:
 
-@codeblock...
+@codeblock(js)...
 var draw = function(t) {
   var elapsed = t - start;
   var dt = elapsed / 1000;
@@ -261,7 +261,7 @@ If the scaled value goes over 1, we'll "clamp" the value to that maximum&mdash;b
 
 Now we'll continue the function by converting the scaled time, <var>dt</var>, into an x coordinate that we can use to draw a circle. Just as with a chart, we can scale our position by multiplying the normalized <var>dt</var> by the maximum value in the animation (<var>canvas.width</var>).
 
-@codeblock...
+@codeblock(js)...
 var draw = function(t) {
   var elapsed = t - start;
   var dt = elapsed / 1000;
@@ -287,7 +287,7 @@ At the end of the function, we check our scaled time value. Remember, we clamped
 
 Did you notice the "swing" check in the middle there? That's a reference to an <em>easing function</em>, which tweaks our normalized value into an acceleration curve. Without it, <var>dt</var> moves linearly from 0 to 1, which tends to feel "robotic" in motion. The swing function is taken from jQuery, and uses cosine to make our circle move slower at the beginning and end.
 
-@codeblock...
+@codeblock(js)...
 var swing = p => 0.5 - Math.cos(p * Math.PI) / 2;
 ...codeblock
 
@@ -295,7 +295,7 @@ There are a lot of easing functions, and each of them has a different feel. Many
 
 All together, our animate function looks like this:
 
-@codeblock...
+@codeblock(js)...
 var animate = function() {
   var start = performance.now();
   var mode = this.getAttribute("data-mode");

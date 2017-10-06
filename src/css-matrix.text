@@ -24,7 +24,7 @@ However, I would go one step farther: for many common UI patterns, there may be 
 
 In this case, what we're going to leverage is the radio button, one of the several types available for the <var>input</var> tag. Radio buttons are basically checkboxes, but they're linked together in groups, and only one can be checked at a time. Checking a different radio button will uncheck the first. Each button in a group can have its own value, and the group itself is created by a common value for the "name" attribute. Here's a set of three radio buttons in a group, each with its own label:
 
-@codeblock...
+@codeblock(html)...
 <div class="radio-block">
   <input type="radio" name="size" value="S" id="size-S" checked="checked">
   <label for="size-S">Small</label>
@@ -39,7 +39,7 @@ By giving each input its own ID, and setting the "for" attribute of each label t
 
 Now, with a little CSS trickery, we can make actually hide the inputs themselves, and instead show the checked/unchecked state on the label. To do so, we'll use the <var>+</var> CSS operator, which selects an element's next sibling, and the <var>:checked</var> pseudoclass. Here's some style rules that will highlight the label for the selected item in red:
 
-@codeblock...
+@codeblock(css)...
 .radio-block input { opacity: 0; width: 0 }
 .radio-block input + label {
   display: inline-block;
@@ -95,7 +95,7 @@ It's worth experimenting with this technique, since it can also be generalized t
 
 Each dot in our matrix represents one person. Each person can have multiple category groups assigned, but only one within a group. So, for example, in our interactive, people can choose "big" or "small" in category A, and they can vote "yes" or "no" for category B. For this interactive, I'm creating 100 of them at random. Then I create the dots using a template string, and simply add classes that match the choices they've made for each category:
 
-@codeblock...
+@codeblock(js)...
 var html = "";
 dots.forEach(function(d) {
   html += `<div class="dot ${d.a} ${d.b}"></div>`;
@@ -105,7 +105,7 @@ grid.innerHTML = html;
 
 Our dots are styled to be 30px by 30px inline blocks, and setting the border radius to 50% or more makes them circular. But where do they get their colors? For that, we set an attribute on the container element, and then use an attribute selector to match:
 
-@codeblock...
+@codeblock(css)...
 [data-category="a"] .big { background: green }
 [data-category="a"] .small { background: red }
 [data-category="b"] .yes { background: orange }
@@ -125,7 +125,7 @@ A little experimentation creates all kinds of useful applications for these sele
 
 To look back at our chart, however, we're simply allowing each dot to color itself based on the current "filter" of the container, as expressed by its "data-category" attribute. We don't need to set each element's color individually&mdash;they can have as many category classes as they want, but only one will be expressed at any time. And because the parent element is controlled using an attribute value instead of a class, we don't have to worry about removing old state when we switch filters. We can just clobber the attribute value with the new setting, and watch the colors adjust:
 
-@codeblock...
+@codeblock(js)...
 controls.addEventListener("change", function() {
   //find the radio button that's currently checked
   var value = $.one(`input[name="dot-category"]:checked`).value;

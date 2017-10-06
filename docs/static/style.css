@@ -122,3 +122,7 @@ aside.sidebar {
   color: #333;
   content: " (TK)"
 }
+
+.language-undefined pre {
+  background: red !important;
+}

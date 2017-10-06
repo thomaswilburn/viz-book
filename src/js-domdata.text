@@ -11,13 +11,13 @@ At the end of the day, as a news developer, the technical part of our job boils 
 
 Let's imagine that we have an array containing a set of objects, each of which is the biographical details of a person in our story. How do we turn that data into web markup that people can actually see, just using the standard browser APIs? Usually, there are two methods we can pick from: generating HTML as a string, or creating actual element nodes. For either one, however, we'll want a placeholder element where our dynamic content will go:
 
-@codeblock...
+@codeblock(html)...
 <div class="rogues"></div>
 ...codeblock
 
 By setting the <var>innerHTML</var> property of this element, the browser will parse and generate elements for us. I like to do this using a single big string, to which we add the markup for each item, like so. Note that for this and all the other examples, we'll be using the selector functions from our <a href="js-jquery.html">Deconstructed jQuery</a> chapter.
 
-@codeblock...
+@codeblock(js)...
 var container = $.one(".rogues");
 var html = "";
 
@@ -38,7 +38,7 @@ You can also add the markup to the <var>innerHTML</var> property one unit at a t
 
 Creating markup this way is fast and easy, but it does have a flaw: because the elements don't exist until the string is handed over to the browser, we can't add event listeners or retain references right away. Instead, we have to generate a big string, use that to create the container's contents, and then query the newly-created elements in order to manipulate them. It's not very convenient, it's slower (since we have to query for all the elements), and we have to write a second loop:
 
-@codeblock...
+@codeblock(js)...
 /* generate elements as a string, then... */
 $(".person", container).forEach(el => el.addEventListener("click", function() {
   console.log("You've clicked on:", el);
@@ -47,7 +47,7 @@ $(".person", container).forEach(el => el.addEventListener("click", function() {
 
 That's why I would argue that it's nicer to actually just create HTML using the DOM APIs, which return "live" elements, and then append them to each other. Unfortunately, creating elements this way is way too verbose (a common problem for built-in browser functions):
 
-@codeblock...
+@codeblock(js)...
 people.forEach(function(person) {
   var div = document.createElement("div");
   div.className = "person";
@@ -71,7 +71,7 @@ React uses an embedded language called JSX, which puts HTML templates directly i
 
 In practice, it doesn't look that much different from HTML itself:
 
-@codeblock...
+@codeblock(js)...
 // <div class="container">
 makeDOM("div", { class: "container" }, [
   // <figure>
@@ -88,7 +88,7 @@ makeDOM("div", { class: "container" }, [
 
 Here's the actual code to implement <var>makeDOM</var>. Most of the complication here is the code to support different argument combinations (attributes but no children, no attributes and string contents, no attributes and child elements, both attributes and text or child elements), but the ergonomics are much better that way.
 
-@codeblock...
+@codeblock(js)...
 var makeDOM = function(tagName, attributes = {}, children = []) {
   // generate the element
   var element = document.createElement(tagName);
@@ -116,7 +116,7 @@ var makeDOM = function(tagName, attributes = {}, children = []) {
 
 As above, because <var>makeDOM</var> accepts an array of elements to be children, we can nest multiple calls to this inside the arguments, and build a whole subtree on the spot. Here's our loop through the bio data using this function instead of manually calling the DOM API, which is much more readable:
 
-@codeblock...
+@codeblock(js)...
 people.forEach(function(person) {
   //shorten the function name for readability
   var m = makeDOM;
@@ -139,7 +139,7 @@ Making HTML from our data is only half the challenge, and it's the easier half. 
 
 As mentioned above, one way to do this is by associating the data directly with the event listener for the element, using a closure inside of our loop. A "closure" is a function that incorporates outside variables from the context in which it was created. For example, the following loop has an event listener that "closes over" the <var>person</var> value.
 
-@codeblock...
+@codeblock(js)...
 people.forEach(function(person) {
   var m = makeDOM;
   var element = m("div", { class: "person", "data-person": person.id }, [
@@ -158,7 +158,7 @@ Unfortuantely, by using individual listener functions for each element, you're a
 
 It's preferable instead to share a single listener function between all of your elements. By defining it outside the loop, you'll create the function once, and then it can use the <var>this</var> value to determine which specific element was clicked.
 
-@codeblock...
+@codeblock(js)...
 var clickedPerson = function() {
   console.log("You clicked this element:", this);
 };
@@ -178,7 +178,7 @@ Now, however, we have a problem: we're sharing a single function across all our 
 
 Let's build a lookup table using a JavaScript object. During element creation, we'll add references to the object, with the keys being the person IDs and the values being the source data itself. Then, inside our listener, we can get the attribute value from <var>this</var> and ask the lookup table for the matching array object.
 
-@codeblock...
+@codeblock(js)...
 var lookup = {};
 
 var clickedPerson = function() {

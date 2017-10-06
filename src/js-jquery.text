@@ -33,7 +33,7 @@ Let's start by making some selections. After jQuery's popularity skyrocketed, br
 
 Luckily, it's pretty easy to convert a NodeList into a JavaScript array. In newer browsers, you can use <var>Array.from()</var>, but for broader compatibility we can "borrow" the Array prototype's <var>slice</var> method to make a copy, which even works on array-likes. Here's the code for a jQuery-like <var>$()</var> function that can search within either the document or a chosen child node:
 
-@codeblock...
+@codeblock(js)...
 var $ = (selector, d = document) => Array.prototype.slice.call(d.querySelectorAll(selector));
 ...codeblock
 
@@ -41,13 +41,13 @@ This function returns an array containing all the selected nodes. If you call it
 
 In jQuery, once you made a selection, any methods you called on the object would be applied to everything in it. Our function isn't quite as powerful, but since it returns an array, we can use the <var>forEach()</var> method to iterate through it with an arrow function. For example, to change the style of every link on the page, we might do this:
 
-@codeblock...
+@codeblock(js)...
 $("a").forEach(a => a.style.color = "red");
 ...codeblock
 
 Let's try a more realistic example. jQuery make it easy to add or remove classes from a group of elements. Browser developers knew that manually manipulating the <var>className</var> property of an element was too cumbersome, so they added the <var>classList</var> property, which supports operations for <var>add</var>, <var>remove</var>, <var>contains</var>, and <var>toggle</var> operations. So, for example, to update a few classes on the page:
 
-@codeblock...
+@codeblock(js)...
 //jQuery version
 $("tab.selected").removeClass("hidden");
 $("tab.disabled").addClass("hidden");
@@ -61,7 +61,7 @@ It's a little more verbose, sure. But I would argue that the meaning is more cle
 
 Of course, sometimes, you just want one element, and then iterating over an array with just one item doesn't make a lot of sense. So let's add a method to our <var>$()</var> function that grabs just one item from the page:
 
-@codeblock...
+@codeblock(js)...
 $.one = (s, d = document) => d.querySelector(s);
 
 //changing just one item is easy
@@ -74,7 +74,7 @@ Another traditional use for jQuery is to register for events. Event handling use
 
 These days, however, pretty much everything supports the standard <var>addEventListener</var> function, and jQuery's habit of "normalizing" properties on the event object can actually backfire when we want to pay attention to non-input events, like media playback or file drag/drop. Binding an event listener to a selection of elements using our new <var>$</var> function turns out to be pretty easy:
 
-@codeblock...
+@codeblock(js)...
 //Arrow functions inherit this, which we don't want
 var listener = function(e) {
   console.log(this, e);
@@ -89,7 +89,7 @@ When you click on the elements that we selected, the browser should log out the 
 
 A wrapper for <var>querySelectorAll()</var> is fine for searching down into a tree, but what if we want to search upward instead? That's the functionality of jQuery's <var>closest()</var> method, and we'll want some sort of equivalent in our deconstructed library. Luckily, it's easy to check if an element matches a given selector using the <var>matches</var> method (implemented in IE as <var>matchesSelector</var>). So to duplicate <var>closest</var>, we'll write a function that starts at a given element, and walks up the tree checking each parent, until it hits a root element (usually the document's <var>html</var> tag).
 
-@codeblock...
+@codeblock(js)...
 //shim for IE
 var matches = document.body.matchesSelector ? "matchesSelector" : "matches";
 
@@ -106,7 +106,7 @@ var closest = function(element, selector, root = document) {
 
 Now we can start at any given spot in the tree, and find the nearest element (including the original) that matches a given class or attribute. This is very useful for setting a class on a container in response to an event:
 
-@codeblock...
+@codeblock(js)...
 //define our listener once
 var onClick = function() {
   //find the .list-item that contains this
@@ -126,7 +126,7 @@ Let's put all of this code together to duplicate one of jQuery's most useful fea
 
 Imagine that you have the following HTML code:
 
-@codeblock...
+@codeblock(html)...
 <main class="story">
   <section class="primary">
     <div class="padding-box">
@@ -152,7 +152,7 @@ So for our delegation utility function, we need a few things to happen:
 
 Luckily, <var>closest()</var> takes care of the tricky part, which is testing the event's target against the selector. Here's our delegation function:
 
-@codeblock...
+@codeblock(js)...
 var delegate = function(container, selector, event, listener) {
   container.addEventListener(event, function(e) {
     // did this trigger on an element matching our selector?

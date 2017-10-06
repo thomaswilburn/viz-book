@@ -12,7 +12,7 @@ With that out of the way, let's have some fun.
 
 Introduced in ES2015, template strings are a new kind of JavaScript string. Instead of using single or double quotes, they're wrapped in backticks. Unlike previous kinds of strings, they're allowed to span multiple lines, which makes them great for writing little chunks of HTML:
 
-@codeblock...
+@codeblock(js)...
 var htmlText = `
 <div class="tooltip">
   Hello, world!
@@ -22,7 +22,7 @@ var htmlText = `
 
 If that were all we were getting out of a new string type, it'd be pretty good. But template literals also have a new trick: they can be <em>interpolated</em>, meaning that we can inject values into the string without having to concatenate them on either side. To do so, you use the <var>${ }</var> delimiters, with your intended value inside the curly braces. Those expressions are immediately evaluated and placed into the string when it's defined, which means you do need to have access to the variable (you should be able to <var>console.log()</var> it). 
 
-@codeblock...
+@codeblock(js)...
 var num = 2;
 var type = "people";
 
@@ -32,7 +32,7 @@ var slogan = `There are ${num + 1} kinds of ${type} in this ${"world"}.`;
 
 You can't write anything that's not a simple expression inside of a template literal, so no <var>if</var> statements or loops. You can use ternary expressions, however, if you need to make a choice:
 
-@codeblock...
+@codeblock(js)...
 var quantity = 14;
 
 var cart = `You have ordered ${quantity} ${quantity > 1 ? "wheels" : "wheel"} of cheese.`;
@@ -43,7 +43,7 @@ Template strings are therefore ideal for graphics where you just need to dump so
 
 They're also fantastic for building selectors, which is my favorite way to use a template string, if for no other reason than the fact that it makes inserting double-quotes (required for many attribute selectors) way, way easier.
 
-@codeblock...
+@codeblock(js)...
 // find all elements with an initial attribute value
 var search = searchElement.value;
 var found = $(`[data-value^="${search}"]`);
@@ -56,7 +56,7 @@ var featured = $(`[data-featured="true"]`);
 
 Note that although I did say that you can't write loops in a template literal, that's only true for the <var>for</var> loop syntax. You can, however, call functions that loop as a part of an expression, and if that function returns a value, it'll be injected into the string. What looping function with return values is generally available to us? That's right, it's our old friend <var>Array.map()</var>.
 
-@codeblock...
+@codeblock(js)...
 var values = ["a", "b", "c", "d"];
 
 // we can build a list using map()
@@ -92,7 +92,7 @@ It's also important to move text out into another file if it's in an actual lang
 
 Template literals have one more interesting feature: you can "tag" them by sticking a function onto the front. The browser then calls that function, and passes in the tagged string as an odd arrangement of arguments: first, an array containing all of the parts of the string that aren't interpolated, and then after that you get each evaluated expression inside the interpolation tags as individual values. It looks a bit like this:
 
-@codeblock...
+@codeblock(js)...
 var log = function(stringParts, a, b) {
   console.log(stringParts, a, b);
 };
@@ -111,7 +111,7 @@ logSpread`a ${1} b ${2} c ${3}`;
 
 This is a weird syntax choice. There's the empty string that you get after the final interpolation, for example. And why pass all of the values as arguments, instead of as a second array? That said, tagged strings can be very interesting, because the return value of the tag function can be anything, not just a string. For example, you could create a familiar-looking DOM search function that uses tags to save a couple of characters.
 
-@codeblock...
+@codeblock(js)...
 var $ = function(selectors) {
   return document.querySelectorAll(selectors.join());
 };
@@ -126,7 +126,7 @@ But if you wanted to make some very poor life choices, we could use it to emulat
 
 We'll start with a tag function, <var>HTML()</var>, that just concatenates its inputs together:
 
-@codeblock...
+@codeblock(js)...
 var HTML = function(parts, ...values) {
   var output = "";
   parts.forEach(function(str, i) {
@@ -139,7 +139,7 @@ var HTML = function(parts, ...values) {
 
 Then we can augment that function with additional methods, each of which emulates a kind of standard template functionality. These special methods will take functions as arguments, because that way we can evaluate them conditionally (i.e., if an "if" statement fails, it shouldn't run the code anyway in case it has side effects).
 
-@codeblock...
+@codeblock(js)...
 // "if" - condition, then "true" clause
 HTML.fi = function(condition, result) {
   return condition ? result() : "";
@@ -165,7 +165,7 @@ HTML.each = function(collection, iterator) {
 
 Put this together, and now we have a functioning&mdash;if hideous&mdash;templating language built out of ES2015's new primitives.
 
-@codeblock...
+@codeblock(js)...
 var title = "Hello, world."
 var age = 35;
 var eclipses = [2022, 2043, 2077];

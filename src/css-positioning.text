@@ -129,7 +129,7 @@ There are two other position values that you might use, albeit more rarely than 
 
 Back to our scatter plot, we start with one element that will serve as our chart's background. It is positioned relative, so that our dots can be placed inside using absolute positioning. A negative margin of half the dot's height and width will "center" it on the desired coordinate.
 
-@codeblock...
+@codeblock(css)...
 
 .scatter-area {
   position: relative;
@@ -157,7 +157,7 @@ Creating our dots is just a matter of looping through our data, generating an el
 
 It's useful to have our scaling functions as common infrastructure, because they're useful for drawing more than just dots. If this were a real graphic, I would want to add grid lines to it, and those are just 1px wide/tall elements positioned behind the dots, using the same scaling as the scatter plot.
 
-@codeblock...
+@codeblock(js)...
 
 var scaleX = v => v / bounds.x * 100;
 var scaleY = v => 100 - (v / bounds.y * 100);
@@ -174,7 +174,7 @@ data.forEach(function(d, i) {
 
 We can add tooltips to each dot by placing inserting HTML into the dot with a ".tooltip" class, but hiding it unless the dot matches the <var>:hover</var> pseudo-class. Because the tooltips are also positioned absolutely, they take their positioning cues from the dot that contain them, but they don't distort its size (since <var>position: absolute</var> removes an element from layout calculation). The <var>pointer-events: none</var> also stops them from being too "sticky" in browsers that support it.
 
-@codeblock...
+@codeblock(css)...
 
 .scatter-area .tooltip {
   position: absolute;
@@ -210,7 +210,7 @@ The trick, such as it is, comes from the "padding" property. In what seems like 
 
 Take the following markup:
 
-@codeblock...
+@codeblock(html)...
 
 <div class="aspect-container">
   <div class="aspect-inner">
@@ -222,7 +222,7 @@ Take the following markup:
 
 The iframe doesn't know how tall it wants to be, and if you set the width and height on it manually (as YouTube does by default), it'll either overflow small screens, or (if the max-width style is set) it won't resize the height when the width is restricted. However, setting the following styles will cause it to "lock" to 16:9, by positioning it absolutely within its container, and defining that container's height using its child's bottom padding.
 
-@codeblock...
+@codeblock(css)...
 
 .aspect-container { position: relative }
 
@@ -270,7 +270,7 @@ Here's the live demo:
 
 Even better, in the case of our scatter plot, we can use the <var>::before</var> pseudo-element to play the role of the inner padding, so that we don't need to add an additional tag to our markup just for some empty padding:
 
-@codeblock...
+@codeblock(css)...
 
 .scatter-area {
   position: relative;

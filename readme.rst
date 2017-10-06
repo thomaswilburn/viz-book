@@ -23,15 +23,15 @@ If you want to do something more special, you can use a ``@tag`` to trigger some
 
     @subhead Hello, this will produce a subhead
 
-Or they can be multiple lines, surrounded by ellipses::
+Or they can be multiple lines, with an argument in parentheses and content surrounded by ellipses::
 
-    @codeblock...
+    @codeblock(html)...
     <b>Outputs a block of code, with HTML characters escaped</b>
     ...codeblock
 
-It's easy to extend the tag system, since the directives are just JavaScript functions stored in ``scripts/directives.js``. Each function is passed three arguments: a ``context`` object that contains shared data for the page, an array of ``lines``, and a ``process`` function that you can call to parse sub-tags recursively. The function should return a string, which will be substituted for the directive during templating. For example, here's the code for the ``@sidebar`` directive::
+It's easy to extend the tag system, since the directives are just JavaScript functions stored in ``scripts/directives.js``. Each function is passed three arguments: a ``context`` object that contains shared data for the page, a content object with ``lines`` and ``arg`` values, and a ``process`` function that you can call to parse sub-tags recursively. The function should return a string, which will be substituted for the directive during templating. For example, here's the code for the ``@sidebar`` directive::
 
-    exports.sidebar = (context, lines, process) => `<aside class="sidebar">
+    exports.sidebar = (context, { lines }, process) => `<aside class="sidebar">
       ${process(lines).join("\n")}
     </aside>`;
 

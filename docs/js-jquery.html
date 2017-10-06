@@ -38,14 +38,14 @@
 <h2>Making selections</h2>
 <p>Let's start by making some selections. After jQuery's popularity skyrocketed, browsers added a similar <var>querySelectorAll</var> function for searching the document. Unfortunately, this function wasn't as useful as a regular jQuery search was, because the object wasn't an array that you could loop through. Instead, it was a NodeList, an array-<em>like</em> object that had numbered items and a length, but lacked important methods like <var>forEach</var> or <var>map</var>.</p>
 <p>Luckily, it's pretty easy to convert a NodeList into a JavaScript array. In newer browsers, you can use <var>Array.from()</var>, but for broader compatibility we can "borrow" the Array prototype's <var>slice</var> method to make a copy, which even works on array-likes. Here's the code for a jQuery-like <var>$()</var> function that can search within either the document or a chosen child node:</p>
-<code><pre><span class="line">var $ = (selector, d = document) =&gt; Array.prototype.slice.call(d.querySelectorAll(selector));
+<code class="language-js"><pre><span class="line">var $ = (selector, d = document) =&gt; Array.prototype.slice.call(d.querySelectorAll(selector));
 </span></pre></code>
 <p>This function returns an array containing all the selected nodes. If you call it with a different node as the second argument, it'll use that as the root of the search, instead of looking through the entire document. Pretty handy!</p>
 <p>In jQuery, once you made a selection, any methods you called on the object would be applied to everything in it. Our function isn't quite as powerful, but since it returns an array, we can use the <var>forEach()</var> method to iterate through it with an arrow function. For example, to change the style of every link on the page, we might do this:</p>
-<code><pre><span class="line">$("a").forEach(a =&gt; a.style.color = "red");
+<code class="language-js"><pre><span class="line">$("a").forEach(a =&gt; a.style.color = "red");
 </span></pre></code>
 <p>Let's try a more realistic example. jQuery make it easy to add or remove classes from a group of elements. Browser developers knew that manually manipulating the <var>className</var> property of an element was too cumbersome, so they added the <var>classList</var> property, which supports operations for <var>add</var>, <var>remove</var>, <var>contains</var>, and <var>toggle</var> operations. So, for example, to update a few classes on the page:</p>
-<code><pre><span class="line">//jQuery version
+<code class="language-js"><pre><span class="line">//jQuery version
 </span><span class="line">$("tab.selected").removeClass("hidden");
 </span><span class="line">$("tab.disabled").addClass("hidden");
 </span><span class="line">
@@ -55,7 +55,7 @@
 </span></pre></code>
 <p>It's a little more verbose, sure. But I would argue that the meaning is more clear, and that it's easier to think about what you can "do" to our version of the object, since the answer is "anything I can do to an array."</p>
 <p>Of course, sometimes, you just want one element, and then iterating over an array with just one item doesn't make a lot of sense. So let's add a method to our <var>$()</var> function that grabs just one item from the page:</p>
-<code><pre><span class="line">$.one = (s, d = document) =&gt; d.querySelector(s);
+<code class="language-js"><pre><span class="line">$.one = (s, d = document) =&gt; d.querySelector(s);
 </span><span class="line">
 </span><span class="line">//changing just one item is easy
 </span><span class="line">$.one("tab.active").classList.toggle("active");
@@ -63,7 +63,7 @@
 <h2>Listening for events</h2>
 <p>Another traditional use for jQuery is to register for events. Event handling used to be very inconsistent between browsers, with some passing an event into the listener function, and others (well, just IE) setting a <var>window.event</var> property instead (this worked, because JS is single-threaded, but it's an ugly way to write code).</p>
 <p>These days, however, pretty much everything supports the standard <var>addEventListener</var> function, and jQuery's habit of "normalizing" properties on the event object can actually backfire when we want to pay attention to non-input events, like media playback or file drag/drop. Binding an event listener to a selection of elements using our new <var>$</var> function turns out to be pretty easy:</p>
-<code><pre><span class="line">//Arrow functions inherit this, which we don't want
+<code class="language-js"><pre><span class="line">//Arrow functions inherit this, which we don't want
 </span><span class="line">var listener = function(e) {
 </span><span class="line">  console.log(this, e);
 </span><span class="line">};
@@ -73,7 +73,7 @@
 <p>When you click on the elements that we selected, the browser should log out the specific element clicked (that's the <var>this</var> value) and an event with additional details (mouse position, event type, and so on). I like to define the listener as a separate variable outside of the loop: if you define it inline, you're technically creating a new function for each individual element, which wastes memory. Defined separately, each element shares the same listener, but we can still react to the specific item by using <var>this</var>.</p>
 <h2>Walking up the tree</h2>
 <p>A wrapper for <var>querySelectorAll()</var> is fine for searching down into a tree, but what if we want to search upward instead? That's the functionality of jQuery's <var>closest()</var> method, and we'll want some sort of equivalent in our deconstructed library. Luckily, it's easy to check if an element matches a given selector using the <var>matches</var> method (implemented in IE as <var>matchesSelector</var>). So to duplicate <var>closest</var>, we'll write a function that starts at a given element, and walks up the tree checking each parent, until it hits a root element (usually the document's <var>html</var> tag).</p>
-<code><pre><span class="line">//shim for IE
+<code class="language-js"><pre><span class="line">//shim for IE
 </span><span class="line">var matches = document.body.matchesSelector ? "matchesSelector" : "matches";
 </span><span class="line">
 </span><span class="line">var closest = function(element, selector, root = document) {
@@ -87,7 +87,7 @@
 </span><span class="line">};
 </span></pre></code>
 <p>Now we can start at any given spot in the tree, and find the nearest element (including the original) that matches a given class or attribute. This is very useful for setting a class on a container in response to an event:</p>
-<code><pre><span class="line">//define our listener once
+<code class="language-js"><pre><span class="line">//define our listener once
 </span><span class="line">var onClick = function() {
 </span><span class="line">  //find the .list-item that contains this
 </span><span class="line">  var container = closest(this, ".list-item");
@@ -101,7 +101,7 @@
 <h2>Delegating events</h2>
 <p>Let's put all of this code together to duplicate one of jQuery's most useful features, event delegation. Of course, to understand delegation, we have to understand how events work.</p>
 <p>Imagine that you have the following HTML code:</p>
-<code><pre><span class="line">&lt;main class="story"&gt;
+<code class="language-html"><pre><span class="line">&lt;main class="story"&gt;
 </span><span class="line">  &lt;section class="primary"&gt;
 </span><span class="line">    &lt;div class="padding-box"&gt;
 </span><span class="line">      &lt;button class="event-target"&gt;
@@ -121,7 +121,7 @@
 <li>We call the event listener in the context of those elements instead of where we registered the listener</li>
 </ul>
 <p>Luckily, <var>closest()</var> takes care of the tricky part, which is testing the event's target against the selector. Here's our delegation function:</p>
-<code><pre><span class="line">var delegate = function(container, selector, event, listener) {
+<code class="language-js"><pre><span class="line">var delegate = function(container, selector, event, listener) {
 </span><span class="line">  container.addEventListener(event, function(e) {
 </span><span class="line">    // did this trigger on an element matching our selector?
 </span><span class="line">    var matched = closest(e.target, selector);

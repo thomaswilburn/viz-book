@@ -6,7 +6,7 @@ summary:The SVG coordinate system | Setting the camera bounds | Pan, zoom, and d
 
 An SVG image, whether included inline or loaded via an image tag, is just an XML file. Here, for example, is a typical SVG graphic with a few shapes:
 
-@codeblock...
+@codeblock(html)...
 <svg width=100 height=100>
   <rect x=20 y=20 width=40 height=60 style="fill: blue"></rect>
   <circle cx=60 cy=60 r=30 style="fill: purple"></circle>
@@ -85,7 +85,7 @@ There are probably cases where "slice" makes sense, but for our purposes, "meet"
 
 Unfortunately, although it is a regular request from people who use SVG regularly, it's not possible to define the view box from CSS, which means that we can't use CSS transitions to alter its value smoothly. Instead, we're going to have to use JavaScript to split the attribute into its four component values, then interpolate between them. We'll first declare a function that we can call, passing in the SVG and an object containing the desired view box values:
 
-@codeblock...
+@codeblock(js)...
 var pan = function(svg, final, duration = 1000) {
   //Get the current viewBox value and convert to numbers
   var [x, y, w, h] = svg.getAttribute("viewBox").split(" ").map(Number);
@@ -96,7 +96,7 @@ var pan = function(svg, final, duration = 1000) {
 
 Inside of that function, we'll define a function that can be called each frame, figure out where we are along the elapsed time (from 0 to 1) and then scale the values to match. The details of this kind of animation are covered in more detail in <a href="">this chapter [[TODO: ADD REAL CHAPTER LINK]]</a>.
 
-@codeblock...
+@codeblock(js)...
 var frame = function(t) {
   var elapsed = t - start;
   var dt = elapsed / duration;
@@ -114,7 +114,7 @@ var frame = function(t) {
 
 Then, all that's left is to call the function in the next frame:
 
-@codeblock...
+@codeblock(js)...
 requestAnimationFrame(frame);
 ...codeblock
 
@@ -174,7 +174,7 @@ button.addEventListener("click", function() {
 
 To really get the most use out of this, we might need a way to get the coordinates (in view box space) of a given shape. Then we can tell our camera to zoom in on that particular item, whether a particular shape or (more likely) a layer group defined by the artist in Illustrator or their tool of choice. Luckily, SVG elements provide a helpful method for doing just that: calling any SVG element's <var>getBBox()</var> method will tell you how big it is, including all its child elements if it's a group element.
 
-@codeblock...
+@codeblock(js)...
 
 var circle = $.one(".camera-example");
 var bounds = circle.getBBox();

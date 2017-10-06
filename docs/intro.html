@@ -43,10 +43,10 @@
 <p>In the chapters ahead, I assume that you're familiar with the web, and have built at least a few pages. I won't be covering how to add a stylesheet to your HTML file, or what JavaScript is. You should know the fundamentals of the JavaScript language, such as loops and functions, and be able to use jQuery without looking at the docs for the easy stuff. And if a chapter seems confusing, feel free to skip it and come back later: although they're arranged in a rough reading order, most chapters are independent of each other.</p>
 <h2>About the code</h2>
 <p>For this book, I'm going to be writing in ES2015, a new version of JavaScript that's supported by most modern browsers. However, I won't be using any features that can't be compiled back down to the well-supported ES5 standard using tools like Babel. It's also not hard to translate in your head. For example, the following ES2015 function definition:</p>
-<code><pre><span class="line">var x = (a = 3, b = 4) =&gt; a + b;
+<code class="language-undefined"><pre><span class="line">var x = (a = 3, b = 4) =&gt; a + b;
 </span></pre></code>
 <p>would translate to something like this:</p>
-<code><pre><span class="line">var x = function(a, b) {
+<code class="language-undefined"><pre><span class="line">var x = function(a, b) {
 </span><span class="line">  //set default values
 </span><span class="line">  a = a || 3;
 </span><span class="line">  b = b || 4;

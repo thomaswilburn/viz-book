@@ -1,4 +1,4 @@
-exports.metadata = function(context, lines) {
+exports.metadata = function(context, { lines }) {
   lines.forEach(function(l) {
     var [key, val] = l.split(":");
     context[key] = val.trim();
@@ -8,21 +8,22 @@ exports.metadata = function(context, lines) {
 //paragraph is special-cased
 exports.paragraph = (_, line) => `<p>${line}</p>`;
 
-exports.html = (_, lines) => lines.join("\n");
+exports.html = (_, { lines }) => lines.join("\n");
 
-exports.ul = (_, lines) => `<ul>
+exports.ul = (_, { lines }) => `<ul>
 ${lines.map(l => `<li>${l}</li>`).join("\n")}
 </ul>`;
 
-exports.subhead = (_, lines) => `<h2>${lines.join("\n").trim()}</h2>`;
+exports.subhead = (_, { lines }) => `<h2>${lines.join("\n").trim()}</h2>`;
 
-exports.subsubhead = (_, lines) => `<h3>${lines.join("\n").trim()}</h3>`;
+exports.subsubhead = (_, { lines }) => `<h3>${lines.join("\n").trim()}</h3>`;
 
 var escapeHTML = s => s.replace(/&/g, "&amp;").replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
 
-exports.codeblock = function(_, lines) {
+exports.codeblock = function(_, def) {
   var start = -1;
   var end = 0;
+  var { lines, arg } = def;
   //trim starting and ending blank lines
   for (var i = 0; i < lines.length; i++) {
     var l = lines[i].trim();
@@ -31,10 +32,10 @@ exports.codeblock = function(_, lines) {
   }
   lines = lines.slice(start, end);
   var contents = lines.map(l => `<span class="line">${escapeHTML(l)}\n</span>`);
-  return `<code><pre>${contents.join("")}</pre></code>`
+  return `<code class="language-${def.arg}"><pre>${contents.join("")}</pre></code>`
 };
 
-exports.sidebar = (_, lines, process) => `<aside class="sidebar">
+exports.sidebar = (_, { lines }, process) => `<aside class="sidebar">
 ${process(lines).join("\n")}
 </aside>`;
 
@@ -42,6 +43,7 @@ var fs = require("fs");
 var path = require("path");
 var src = path.resolve(__dirname, "../src");
 
-exports.include = function(_, [filename]) {
+exports.include = function(_, def) {
+  var filename = def.arg || def.lines[0];
   return fs.readFileSync(path.resolve(src, filename), "utf-8");
 };
