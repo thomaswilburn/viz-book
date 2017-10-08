@@ -1,7 +1,7 @@
 @metadata...
-title:Making scatter plots with CSS positioning
+title:CSS-based scatter plots
 type:chapter
-summary:An origin story | Transforms, by comparison | Padding WTF
+summary:How positioning works | Aspect ratio rules | WTF, padding
 prereqs:js-scaling
 ...metadata
 

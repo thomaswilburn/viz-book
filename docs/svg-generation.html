@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
   <title>Generating SVG from code</title>
-  <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans|Manuale" rel="stylesheet">
   <link rel="stylesheet" href="static/style.css">
   <link rel="stylesheet" href="static/highlight/hybrid.css">
 </head>
@@ -18,7 +18,7 @@
   </nav>
   <main>
   <aside class="summary">
-    Creating elements | Common shapes and coordinates | Paving the paths
+    Creating elements | Nesting SVG | We have to go deeper
   </aside>
   <h1>Generating SVG from code</h1>
 <p>Although they can be written into HTML5 source code the same way as other elements, SVG elements are not HTML elements, and they don't act like it. In another chapter, we'll talk about the common pitfalls where this may catch you off guard. But for now, let's talk about how to generate SVG dynamically without wanting to chop off a finger.</p>
@@ -44,14 +44,14 @@
     element.textContent = children;
   }
   <span class="hljs-keyword">return</span> element;
-};</pre></code>
+};</pre></code>
 <p>To use this function, you have to at least give it a tag name. The other two arguments are optional: an object containing attributes you want to set, and either an array of child elements, or a string for the text content. So to generate some simple SVG shapes, we might write the following:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> m = makeSVG;
 <span class="hljs-keyword">var</span> group = m(<span class="hljs-string">"g"</span>, [
   m(<span class="hljs-string">"rect"</span>, { <span class="hljs-attr">x</span>: <span class="hljs-number">10</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">10</span>, <span class="hljs-attr">width</span>: <span class="hljs-number">20</span>, <span class="hljs-attr">height</span>: <span class="hljs-number">40</span> }),
   m(<span class="hljs-string">"circle"</span>, { <span class="hljs-attr">cx</span>: <span class="hljs-number">30</span>, <span class="hljs-attr">cy</span>: <span class="hljs-number">30</span>, <span class="hljs-attr">r</span>: <span class="hljs-number">40</span> })
-]);</pre></code>
-<h2>We have to go deeper</h2>
+]);</pre></code>
+<h2>I heard you like SVG</h2>
 <script>
 //prep for examples
 var data = {
@@ -140,7 +140,7 @@ var m = function(tagName, attrs, children) {
 <p>Most of the time when I see people build a chart in an SVG, probably using something like D3, they set the width and the height of the element (but not the view box), and then figure out the amount of padding that they want on each side of the actual graph. By subtracting the padding from the SVG's dimensions, they get the width and height of the drawing area. All coordinates are scaled to that area, and then offset by the padding, so that the line is placed in the right location.</p>
 <p>However, there's an easier way to do this, rather than mucking around with all the offset math and working within an arbitrary graph area using pixels for measurement. We can take advantage of an interesting property of SVG tags, which is that they can be nested within each other. The inner image can have its own x/y position, its own width and height, and its own view box (meaning, <a href="https://www.sarasoueidan.com/blog/mimic-relative-positioning-in-svg/">its own internal coordinate space</a>). Instead of working with pixels, we can actually draw things just by projecting the data values directly into the graphic.</p>
 <p>Let's take a look at how to make this SVG inception happen. We'll start with our outer SVG, which is sized to a standard 640x480 canvas with a matching view box. These coordinates are arbitrary but chosen because within the outer image, we <em>do</em> want to work in pixels&mdash;it's easier to set visual padding that way.</p>
-<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"graph-container"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"640"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"480"</span> <span class="hljs-attr">viewBox</span>=<span class="hljs-string">"0 0 640 480"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">svg</span>&gt;</span></pre></code>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"graph-container"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"640"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"480"</span> <span class="hljs-attr">viewBox</span>=<span class="hljs-string">"0 0 640 480"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">svg</span>&gt;</span></pre></code>
 <p>Inside, we can add some "chart junk" to establish the space: a group containing a background rectangle with some color, and two lines to show the left and bottom axes. We'll put 20 pixels of padding on either side.</p>
 <code class="language-js"><pre><span class="hljs-comment">// shorten the makeSVG function for readability</span>
 <span class="hljs-keyword">var</span> m = makeSVG;
@@ -167,7 +167,7 @@ var m = function(tagName, attrs, children) {
 ]);
 
 <span class="hljs-keyword">var</span> container = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">".graph-container"</span>);
-container.appendChild(backdrop);</pre></code>
+container.appendChild(backdrop);</pre></code>
 <div class="svg-container">
 <svg class="graph-backdrop" width="640" height="640" viewBox="0 0 640 480"></svg>
 </div>
@@ -223,7 +223,7 @@ container.appendChild(backdrop);
   <span class="hljs-attr">preserveAspectRatio</span>: <span class="hljs-string">"none"</span>
 });
 
-svg.appendChild(inner);</pre></code>
+svg.appendChild(inner);</pre></code>
 <p>Inside of this inner SVG, our coordinate space is much simpler to deal with. The Y coordinates for a data point are just that data point's value (albeit inverted by subtracting it from the height). The X coordinates go through our scaling function. And we can create those as points in a polyline by mapping the data through a very simple function:</p>
 <code class="language-js"><pre><span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> data) {
   svg.appendChild(m(<span class="hljs-string">"polyline"</span>, {
@@ -232,7 +232,7 @@ svg.appendChild(inner);</pre></code>
     <span class="hljs-attr">fill</span>: <span class="hljs-string">"none"</span>,
     <span class="hljs-attr">stroke</span>: <span class="hljs-string">"black"</span>
   }));
-}</pre></code>
+}</pre></code>
 <div class="svg-container">
   <svg class="graph-traditional" width="640" height="480" viewBox="0 0 640 480">
 </div>
@@ -303,7 +303,7 @@ for (var key in data) {
   }));
 }
 
-svg.appendChild(inner);</pre></code>
+svg.appendChild(inner);</pre></code>
 <div class="svg-container">
   <svg width="640" height="480" viewBox="0 0 640 480" class="graph-distorted" preserveAspectRatio="none"></svg>
 </div>
@@ -362,7 +362,7 @@ for (var key in data) {
     <span class="hljs-comment">// draw strokes via screen coordinates, not SVG coordinates</span>
     <span class="hljs-string">"vector-effect"</span>: <span class="hljs-string">"non-scaling-stroke"</span>
   }));
-}</pre></code>
+}</pre></code>
 <div class="svg-container">
   <svg width="640" height="480" viewBox="0 0 640 480" class="graph-vector-effect" preserveAspectRatio="none"></svg>
 </div>

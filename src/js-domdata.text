@@ -1,7 +1,7 @@
 @metadata...
-title:Attaching data to the DOM
+title:Combining data with the DOM
 type:chapter
-Summary:Transforming data into HTML | Getting your data back | That new page smell
+summary:Transforming data into HTML | Closures for storage | Used to call me on my el phone
 prereqs:js-jquery js-templates
 ...metadata
 

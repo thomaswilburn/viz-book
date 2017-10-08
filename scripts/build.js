@@ -37,7 +37,9 @@ toc.forEach(function(item) {
 
 var listify = function(slug) {
   var p = data[slug] || { filename: "", title: slug };
-  return `<li> <a href="${p.filename}">${p.title}</a>\n`;
+  return `<li>
+    <a class="chapter-link" href="${p.filename}">${p.title}</a>
+    <div class="summary">${p.summary || ""}</div>\n`;
 };
 
 for (var slug in data) {
@@ -62,7 +64,7 @@ var list = "";
 toc.forEach(function(item) {
   if (item.section) {
     list += listify(item.section);
-    list += `<ol>${item.chapters.map(listify).join("\n")}</ol>`
+    list += `<ol class="section">${item.chapters.map(listify).join("\n")}</ol>`
   } else {
     list += listify(item);
   }

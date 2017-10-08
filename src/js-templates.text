@@ -1,7 +1,7 @@
 @metadata...
 title:Inadvisable template literal tricks
 type:chapter
-summary:Substitutions and maps | Tagging templates | Just use Dot.js, honestly
+summary:Substitutions and maps | Tagging templates | This was all a bad idea
 ...metadata
 
 I want to start this chapter by pointing out that templating libraries are a genuinely good thing that you should use. Switching to a real templating system, like ICanHaz or Dot, instead of building strings via jQuery and manual concatenation, was one of the biggest paradigm shifts in my early career. And although this is a book about how to write smaller, browser-centric code, there are plenty of templating microlibraries available to you, and you should use them.

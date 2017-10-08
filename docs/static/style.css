@@ -4,6 +4,7 @@
   --primary: #808;
   --sans-serif: "Noto Sans", sans-serif;
   --mono: "Fira Mono", monospace;
+  --serif: "Manuale", serif;
 }
 
 * {
@@ -104,8 +105,40 @@ aside.sidebar {
 }
 
 /* table of contents */
-.table-of-contents ol.listing {
+.table-of-contents ol.chapters {
   list-style-type: upper-roman;
+  list-style-position: inside;
+  padding: 0;
+}
+
+.table-of-contents ol.chapters > li {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 24px;
+}
+
+.table-of-contents ol.section {
+  border-top: 1px solid black;
+  padding-top: 24px;
+  padding-left: 36px;
+  font-size: 20px;
+  font-weight: normal;
+  list-style-type: lower-roman;
+  list-style-position: outside;
+}
+
+.table-of-contents .summary {
+  font-style: italic;
+  font-size: 16px;
+  font-family: var(--serif);
+}
+
+.table-of-contents ol.section > li {
+  padding-bottom: 16px;
+}
+
+.table-of-contents a {
+  text-decoration: none;
 }
 
 .table-of-contents a[href=""] {

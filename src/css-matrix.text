@@ -1,7 +1,7 @@
 @metadata...
-title:A well-attributed matrix chart
+title:Dot matrix chart via CSS attributes
 type:chapter
-summary:Radio buttons and their labels | Styling via attributes | Deep UI pattern thoughts
+summary:Tab UI with radio buttons | Attribute selectors | Deep pattern thoughts
 prereqs:js-templates
 ...metadata
 
