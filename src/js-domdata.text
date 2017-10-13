@@ -45,7 +45,7 @@ $(".person", container).forEach(el => el.addEventListener("click", function() {
 }));
 ...codeblock
 
-That's why I would argue that it's nicer to actually just create HTML using the DOM APIs, which return "live" elements, and then append them to each other. Unfortunately, creating elements this way is way too verbose (a common problem for built-in browser functions):
+If you want a live reference to elements, so that you can immediately manipulate them, you'll need to use the DOM APIs and then append the resulting elements to the document tree. Unfortunately, creating elements this way is way too verbose (a common problem for built-in browser functions):
 
 @codeblock(js)...
 people.forEach(function(person) {
@@ -204,4 +204,6 @@ people.forEach(function(person) {
 
 As a rule of thumb, remember that when you're writing markup, you're leaving clues for your future self. Be generous! HTML generated via JavaScript doesn't cost the user in terms of download time or (barring extreme cases) parse time, so make sure that you place classes and attributes throughout to be helpful for yourself, instead of just using bare tags. You never know when you might need those hooks later.
 
-Thus is the circle complete: we generate markup from the data, track the IDs that we've left on our elements, and then use those IDs to get the data back when events occur in the generated markup. This architecture is pretty consistent across every interactive I've ever created, with the real differences only being in where I get the data, and what I do in response to events. Learn to adapt these patterns, and they'll serve you well.
+Of course, if you're using the <var>this</var> value and a lookup object, you can probably use <a href="js-jquery.html">event delegation</a>, which gives you the best of both worlds: easier-to-write string templating, low memory usage, and simple code. This is our most common methodology at the Seattle Times for its simplicity and speed under deadline.
+
+Either way, the circle is now complete: we generate markup from the data, track the IDs that we've left on our elements, and then use those IDs to get the data back when events occur in the generated markup. This architecture is pretty consistent across every interactive I've ever created, with the real differences only being in where I get the data, and what I do in response to events. Learn to adapt these patterns, and they'll serve you well.
