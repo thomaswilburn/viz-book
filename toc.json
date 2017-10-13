@@ -15,8 +15,8 @@
   {
     "section": "section-css",
     "chapters": [
+      "css-floats",
       "css-positioning",
-      "Floats without confusion",
       "css-matrix",
       "Building stacked graphs with flex",
       "hue() and cry"

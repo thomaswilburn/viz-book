@@ -1,7 +1,7 @@
 @metadata...
 title:Scaling time and space
 type:chapter
-summary:Normalizing space | Timing and easing | The new face of zero and one
+summary:Sparklines from normal data | Timing and easing | The new face of zero and one
 ...metadata
 
 Almost all data visualizations are about expressing change or difference over one or more dimensions. The distinguishing factor of each visualization is what those dimensions are, and the units used. Are they a literal conversion of world space to display space? That's a map. Add another dimension, via color space, and now you have a cloropleth. Change the units to electoral votes instead of geographic area, and now you have a tile grid map.

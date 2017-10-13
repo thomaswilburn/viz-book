@@ -11,7 +11,7 @@
 <body class="css-matrix chapter">
   <nav class="chapter-links top">
     <ul>
-      <li class="previous"> <a href=""> &laquo; Floats without confusion</a>
+      <li class="previous"> <a href="css-positioning.html"> &laquo; CSS-based scatter plots</a>
       <li> <a href="index.html">&bigstar;</a>
       <li class="next"> <a href=""> Building stacked graphs with flex &raquo;</a>
     </ul>
@@ -104,7 +104,7 @@ controls.addEventListener("change", function() {
   <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">"size-M"</span>&gt;</span>Medium<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">type</span>=<span class="hljs-string">"radio"</span> <span class="hljs-attr">name</span>=<span class="hljs-string">"size"</span> <span class="hljs-attr">value</span>=<span class="hljs-string">"L"</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"size-L"</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">"size-L"</span>&gt;</span>Large<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
-<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
 <p>By giving each input its own ID, and setting the "for" attribute of each label to match, the browser hooks up each label to the corresponding input: clicking on the label text will select that radio button from the group. Essentially, it makes the label a part of the input.</p>
 <p>Now, with a little CSS trickery, we can make actually hide the inputs themselves, and instead show the checked/unchecked state on the label. To do so, we'll use the <var>+</var> CSS operator, which selects an element's next sibling, and the <var>:checked</var> pseudoclass. Here's some style rules that will highlight the label for the selected item in red:</p>
 <code class="language-css"><pre><span class="hljs-selector-class">.radio-block</span> <span class="hljs-selector-tag">input</span> { <span class="hljs-attribute">opacity</span>: <span class="hljs-number">0</span>; <span class="hljs-attribute">width</span>: <span class="hljs-number">0</span> }
@@ -121,7 +121,7 @@ controls.addEventListener("change", function() {
 <span class="hljs-selector-class">.radio-block</span> <span class="hljs-selector-tag">input</span><span class="hljs-selector-pseudo">:checked</span> + <span class="hljs-selector-tag">label</span> {
   <span class="hljs-attribute">background</span>: red;
   <span class="hljs-attribute">color</span>: white;
-}</pre></code>
+}</pre></code>
 <p>And here it is in action:</p>
 <div class="radio-block">
   <input type="radio" name="size" value="S" id="size-S" checked="checked">
@@ -156,12 +156,12 @@ controls.addEventListener("change", function() {
 dots.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d</span>) </span>{
   html += <span class="hljs-string">`&lt;div class="dot <span class="hljs-subst">${d.a}</span> <span class="hljs-subst">${d.b}</span>"&gt;&lt;/div&gt;`</span>;
 });
-grid.innerHTML = html;</pre></code>
+grid.innerHTML = html;</pre></code>
 <p>Our dots are styled to be 30px by 30px inline blocks, and setting the border radius to 50% or more makes them circular. But where do they get their colors? For that, we set an attribute on the container element, and then use an attribute selector to match:</p>
 <code class="language-css"><pre><span class="hljs-selector-attr">[data-category="a"]</span> <span class="hljs-selector-class">.big</span> { <span class="hljs-attribute">background</span>: green }
 <span class="hljs-selector-attr">[data-category="a"]</span> <span class="hljs-selector-class">.small</span> { <span class="hljs-attribute">background</span>: red }
 <span class="hljs-selector-attr">[data-category="b"]</span> <span class="hljs-selector-class">.yes</span> { <span class="hljs-attribute">background</span>: orange }
-<span class="hljs-selector-attr">[data-category="b"]</span> <span class="hljs-selector-class">.no</span> { <span class="hljs-attribute">background</span>: purple }</pre></code>
+<span class="hljs-selector-attr">[data-category="b"]</span> <span class="hljs-selector-class">.no</span> { <span class="hljs-attribute">background</span>: purple }</pre></code>
 <p>Attribute selectors are written between square brackets, and are extremely flexible in how they match. These selectors check for the exact value of the attribute, but there are many other options available:</p>
 <ul>
 <li><var>[attr]</var> - simply matches an element that has the attribute, with any value (or no value).</li>
@@ -177,12 +177,12 @@ grid.innerHTML = html;</pre></code>
   <span class="hljs-comment">//find the radio button that's currently checked</span>
   <span class="hljs-keyword">var</span> value = $.one(<span class="hljs-string">`input[name="dot-category"]:checked`</span>).value;
   container.setAttribute(<span class="hljs-string">"data-category"</span>, value);
-});</pre></code>
+});</pre></code>
 <p>It's this modal nature that has made attributes one of the most useful tools in my CSS toolkit. Compared to re-coloring the dots via JavaScript, or trying to set only one category class, this code is clean, simple, and reliable in any number of other situations. Remember this technique whenever you need to add, remove, or update a large number of DOM elements in response to a single updated value, like a system mode or filter.</p>
   </main>
   <nav class="chapter-links bottom">
     <ul>
-      <li class="previous"> <a href=""> &laquo; Floats without confusion</a>
+      <li class="previous"> <a href="css-positioning.html"> &laquo; CSS-based scatter plots</a>
       <li> <a href="index.html">&bigstar;</a>
       <li class="next"> <a href=""> Building stacked graphs with flex &raquo;</a>
     </ul>

@@ -11,9 +11,9 @@
 <body class="css-positioning chapter">
   <nav class="chapter-links top">
     <ul>
-      <li class="previous"> <a href="section-css.html"> &laquo; Full-power CSS and HTML</a>
+      <li class="previous"> <a href="css-floats.html"> &laquo; Floats demystified</a>
       <li> <a href="index.html">&bigstar;</a>
-      <li class="next"> <a href=""> Floats without confusion &raquo;</a>
+      <li class="next"> <a href="css-matrix.html"> Dot matrix chart via CSS attributes &raquo;</a>
     </ul>
   </nav>
   <main>
@@ -150,7 +150,7 @@ data.forEach(function(d, i) {
   <span class="hljs-attribute">width</span>: <span class="hljs-number">20px</span>;
   <span class="hljs-attribute">height</span>: <span class="hljs-number">20px</span>;
   <span class="hljs-attribute">margin</span>: -<span class="hljs-number">10px</span>;
-}</pre></code>
+}</pre></code>
 <p>Creating our dots is just a matter of looping through our data, generating an element for each dot, and adding it to the ".scatter-area" container. The <var>scaleX</var> and <var>scaleY</var> used below should look familiar from <a href="js-scaling.html">the section on scaling functions</a>, with one change: <var>scaleY</var> has to flip its axis by subtracting the scaled value from 100%. That's because the Y value of CSS starts at zero and increases as we move down, but our scatter plot puts zero at the bottom and increases as values move up.</p>
 <p>It's useful to have our scaling functions as common infrastructure, because they're useful for drawing more than just dots. If this were a real graphic, I would want to add grid lines to it, and those are just 1px wide/tall elements positioned behind the dots, using the same scaling as the scatter plot.</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> scaleX = <span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> v / bounds.x * <span class="hljs-number">100</span>;
@@ -162,7 +162,7 @@ data.forEach(<span class="hljs-function"><span class="hljs-keyword">function</sp
   dot.style.left = scaleX(d.joy) + <span class="hljs-string">"%"</span>;
   dot.style.top = scaleY(d.dogs) + <span class="hljs-string">"%"</span>;
   grid.appendChild(dot);
-});</pre></code>
+});</pre></code>
 <p>We can add tooltips to each dot by placing inserting HTML into the dot with a ".tooltip" class, but hiding it unless the dot matches the <var>:hover</var> pseudo-class. Because the tooltips are also positioned absolutely, they take their positioning cues from the dot that contain them, but they don't distort its size (since <var>position: absolute</var> removes an element from layout calculation). The <var>pointer-events: none</var> also stops them from being too "sticky" in browsers that support it.</p>
 <code class="language-css"><pre><span class="hljs-selector-class">.scatter-area</span> <span class="hljs-selector-class">.tooltip</span> {
   <span class="hljs-attribute">position</span>: absolute;
@@ -180,7 +180,7 @@ data.forEach(<span class="hljs-function"><span class="hljs-keyword">function</sp
 
 <span class="hljs-selector-class">.scatter-area</span> <span class="hljs-selector-class">.dot</span><span class="hljs-selector-pseudo">:hover</span> <span class="hljs-selector-class">.tooltip</span> {
   <span class="hljs-attribute">display</span>: block;
-}</pre></code>
+}</pre></code>
 <p>The code shown above is not entirely complete, and you should use your developer tools to explore some of the other niceties (such as the tooltips that "flip" from left to right when they cross the x-axis). You can also adapt this technique any time that you need to place elements within a defined space&mdash;I like to use it, along with percentage-based widths and heights, to create "annotated" images, similar to the facial tagging seen on many social networks.</p>
 <p>Still, one more detail remains to be explained: because our dots are positioned using percentages, this graph is fully responsive, yet if you resize the window the example plot keeps its perfectly square shape no matter what. In the styles I've written above, it's defined as 400px high (which means it would distort on small screens), so clearly there's something else setting the graph's height. What's the change that makes a constant aspect ratio possible?</p>
 <h2>Defining an aspect ratio</h2>
@@ -192,7 +192,7 @@ data.forEach(<span class="hljs-function"><span class="hljs-keyword">function</sp
   <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"aspect-inner"</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">iframe</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://www.youtube.com/embed/a1Y73sPHKxw"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">iframe</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
 <p>The iframe doesn't know how tall it wants to be, and if you set the width and height on it manually (as YouTube does by default), it'll either overflow small screens, or (if the max-width style is set) it won't resize the height when the width is restricted. However, setting the following styles will cause it to "lock" to 16:9, by positioning it absolutely within its container, and defining that container's height using its child's bottom padding.</p>
 <code class="language-css"><pre><span class="hljs-selector-class">.aspect-container</span> { <span class="hljs-attribute">position</span>: relative }
 
@@ -205,7 +205,7 @@ data.forEach(<span class="hljs-function"><span class="hljs-keyword">function</sp
   <span class="hljs-attribute">left</span>: <span class="hljs-number">0</span>;
   <span class="hljs-attribute">width</span>: <span class="hljs-number">100%</span>;
   <span class="hljs-attribute">height</span>: <span class="hljs-number">100%</span>;
-}</pre></code>
+}</pre></code>
 <p>Here's the live demo:</p>
 <style>
 .aspect-container {
@@ -241,15 +241,15 @@ data.forEach(<span class="hljs-function"><span class="hljs-keyword">function</sp
   <span class="hljs-attribute">display</span>: block;
   <span class="hljs-attribute">content</span>: <span class="hljs-string">""</span>;
   <span class="hljs-attribute">padding-bottom</span>: <span class="hljs-number">100%</span>;
-}</pre></code>
+}</pre></code>
 <p>100% padding is 100% of the container's width, creating a perfectly square block no matter how big or small the page gets (up to the container's max-width of 400px, of course). Once you start using this technique, it's not just good for plots and videos, but also for maps, canvas elements, and SVG graphics.</p>
 <p>Finally, a great advantage of setting sizes this way is that padding can be overridden from a media query, based either on screen width or (a little-known property) on the window's own aspect ratio. So small portrait screens can get a taller scatter plot, while big and wide screens get one that uses more horizontal space, all just by adjusting a single CSS property. So while it's a bizarre choice to match padding and parent width this way, it works out well for us in the end.</p>
   </main>
   <nav class="chapter-links bottom">
     <ul>
-      <li class="previous"> <a href="section-css.html"> &laquo; Full-power CSS and HTML</a>
+      <li class="previous"> <a href="css-floats.html"> &laquo; Floats demystified</a>
       <li> <a href="index.html">&bigstar;</a>
-      <li class="next"> <a href=""> Floats without confusion &raquo;</a>
+      <li class="next"> <a href="css-matrix.html"> Dot matrix chart via CSS attributes &raquo;</a>
     </ul>
   </nav>
 </body>

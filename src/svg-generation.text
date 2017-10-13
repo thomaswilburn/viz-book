@@ -1,7 +1,7 @@
 @metadata...
 title:Generating SVG from code
 type:chapter
-summary:Creating elements | Nesting SVG | We have to go deeper
+summary:Creating elements | Nesting SVG | Line charts to scale
 ...metadata
 
 Although they can be written into HTML5 source code the same way as other elements, SVG elements are not HTML elements, and they don't act like it. In another chapter, we'll talk about the common pitfalls where this may catch you off guard. But for now, let's talk about how to generate SVG dynamically without wanting to chop off a finger.
