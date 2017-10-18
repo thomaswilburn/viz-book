@@ -30,7 +30,7 @@
 <li>It's difficult to re-use at a component level, because it has to be marked up on the parent element, and not on the child.</li>
 </ul>
 <p>To solve these problems, we turn to floats.</p>
-<h2>We all float down here</h2>
+<h2 id="undefined">We all float down here</h2>
 <p>A floated element doesn't play by the standard rules. It keeps the same vertical position that it would have had, but it leaves normal document flow, meaning that it's ignored by other block level elements: effectively, they stack up behind it. Inline elements do know about floats, and will wrap around them. Floats also don't use the full width of the browser, but are sized to their content (or to any width and max-width styles that are set). If two or more floats are less than 100% of their container's width, they also line up side by side, instead of stacking.</p>
 <p>This behavior&mdash;a kind of weird mix of inline alignment and absolute position&mdash;can be frustrating at first. For example, since floats don't count for layout, you may find that sidebars extend past the bottom of their section, leaving you with a broken layout. For example, in the illustration, the purple sidebar goes with the yellow section, but has escaped.</p>
 <svg width="300" height="200">
@@ -78,7 +78,7 @@
   <span class="hljs-attribute">clear</span>: both;
 }</pre></code>
 <p>There's also a counter-intuitive trick that affects containers: their overflow property causes them to pay attention to floats. Specifically, if you set <var>overflow: hidden</var> on the container, it will extend to contain any floated elements inside. Of course, this also means that you can't take advantage of visible overflow, for scenarios like absolutely-positioned design elements. But if you have a common class that's used with floats, such as the sections of your article, setting overflow on the class that you're already using can help clean up markup.</p>
-<h2>Well, maybe not all of us.</h2>
+<h2 id="undefined">Well, maybe not all of us.</h2>
 <p>Floats are a great tool for their intended purpose: creating variable-length boxes that can flexibly sit alongside&mdash;but not directly against&mdash;the main document content. And like inline-block elements, they have long been abused to create other layouts like grid systems. For years, they were the best option developers had, but they're still not great:</p>
 <ul>
 <li>When creating rows, you have to know how many items go into each row ahead of time, which is tougher to make responsive.</li>

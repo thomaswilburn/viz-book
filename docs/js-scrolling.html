@@ -24,7 +24,7 @@
 <p>Although it wasn't the first story to demonstrate the power of scrolling, the infamous <i>Snowfall</i> graphic remains the most notable of the genre for many journalists. The first time that readers scrolled the page and were suddenly immersed in a video of the landscape, rising up into the viewport, it was clear that this was a new storytelling tool that no newsroom could ignore. And it has only become more important as mobile has begun to dominate audiences.</p>
 <p>In video game design, it's common to talk about the "verbs" that are available to the player. A simple game of <i>Super Mario</i> contains only a few verbs: run, jump, duck. The more verbs you add to your game, the more complex and interesting it can become, but the harder it is for players to learn. A modern simulation might have tens or even hundreds of verbs, depending on the player and the situation, and they spend a corresponding amount of time on player "education."</p>
 <p>These principles are the same for interactive news design: readers have to learn the verbs for complex interactives, whether as simple as clicking a quiz button or complex as filling in a trend graph. There are many designers who argue that news graphics should be reduced, if at all possible, to as few verbs as possible&mdash;all the way to a static image, if necessary. But scroll, particularly on touchscreens, is one verb that we never have to teach. It's instinctive, and that makes it deeply useful for our purposes.</p>
-<h2>Registering efficient scroll listeners</h2>
+<h2 id="undefined">Registering efficient scroll listeners</h2>
 <p>Reacting to the page scroll is not hard to do. Both the window and various elements themselves will fire a scroll event, and so we can just listen for it:</p>
 <code class="language-js"><pre><span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"Scroll event fired!"</span>);
@@ -34,10 +34,20 @@
   <button class="add-delay">Add delay</button>
   <button class="remove-delay">Remove delay</button>
 </div>
+<style>
+.useless {
+  background: rgba(255, 255, 255, .9);
+}
+</style>
 <script>
 var delayScroll = function() {
   var now = Date.now();
-  while (Date.now() < now + 300);
+  while (Date.now() < now + 300) {
+    var _ = document.body.offsetWidth;
+    _ = document.querySelector(".interactive-section").getBoundingClientRect();
+    document.body.classList.toggle("useless");
+  }
+  console.log("Finished scroll loop");
 };
 
 document.querySelector(".add-delay").addEventListener("click", () => window.addEventListener("scroll", delayScroll));
@@ -45,9 +55,9 @@ document.querySelector(".add-delay").addEventListener("click", () => window.addE
 document.querySelector(".remove-delay").addEventListener("click", () => window.removeEventListener("scroll", delayScroll));
 
 </script>
-<p>Clicking the "Add delay" button will register a scroll listener that churns in a loop for about 300 milliseconds. That's not a very long time. But it's long enough to drop frames: scrolling through the page using the page up/down keys should be noticeably less smooth than with the delay removed. You won't be writing a pointless loop like this, of course, and your code probably won't take 100 milliseconds to do its work. But if you change the page on every scroll event (say, adding or removing a class from the body), you'll trigger the browser's layout process, and that can easily take enough time to become choppy.</p>
-<p>Browser developers are aware of this, and so they've taken some steps to mitigate the effect. It's too late to change the behavior of keyboard scrolling, for example. But you may notice that on phones, or on laptops with touchpad, scrolling remains smooth. <a href="https://blogs.windows.com/msedgedev/2017/03/08/scrolling-on-the-web/">This article</a> from Microsoft has more detail on how these events are handled across different browser engines.</p>
-<p>Regardless, you just don't need to take action on every single page scroll event. It's not only bad for your performance, but it also makes your effects feel overly-sensitive, and most of the time they just don't need to be that picky. To change this, we can throttle or debounce our scroll listener, so that it only actually runs a few times per second, no matter how often the scroll event fires. Utility functions to do this are included in many packages like Lodash, but a simple throttle is also easy to write:</p>
+<p>Clicking the "Add delay" button will register a scroll listener that churns in a loop for about 300 milliseconds, while triggering repeated page layouts. That's not a very long time. But it's long enough to drop frames: scrolling through the page using the page up/down keys should be noticeably less smooth than with the delay removed. You won't be writing a pointless loop like this, of course, and your code probably won't take 100 milliseconds to do its work. But if you change the page on every scroll event (say, adding or removing a class from the body), you'll trigger the browser's layout process, and that can easily take enough time to become choppy.</p>
+<p>Browser developers are aware of this, and so they've taken some steps to mitigate the effect. It's too late to change the behavior of keyboard scrolling, for example. But you may notice that on phones, or using a mouse or touchscreen, scrolling remains smooth, because those scroll listeners are triggered less frequently, without blocking viewport updates. <a href="https://blogs.windows.com/msedgedev/2017/03/08/scrolling-on-the-web/">This article</a> from Microsoft has more detail on how these events are handled across different browser engines.</p>
+<p>Regardless, you often don't need to take action on every single page scroll event. It's not only bad for your performance, but it also makes your effects feel overly-sensitive, and most of the time they just don't need to be that picky. To change this, we can throttle or debounce our scroll listener, so that it only actually runs a few times per second, no matter how often the scroll event fires. Utility functions to do this are included in many packages like Lodash, but a simple throttle is also easy to write:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> debounce = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">originalFn, delay = <span class="hljs-number">150</span></span>) </span>{
   <span class="hljs-keyword">var</span> timeout = <span class="hljs-literal">null</span>;
   <span class="hljs-comment">// return a new function that's throttled</span>
@@ -67,9 +77,75 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
 <span class="hljs-comment">// this will only log out every 150ms</span>
 <span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, throttled);</pre></code>
 <p>Our debounce function will run the submitted function on the initial call, but then it rejects further calls until the delay (defaulting to 150ms) expires.</p>
-<p>Debouncing is a great way to handle scroll listeners that trigger large, imprecise changes to the page, like adding a control class or triggering a CSS animation. Most of the time, that's the use case you should have in mind. But it's not good for some tasks, like fine-grained animations based on the scroll position. In that case, your listener function itself will need to dump out as early as possible to keep from interfering with scroll behavior. For example, in <a href="http://projects.seattletimes.com/2017/eastside-prostitution-bust/">this story on prostitution rings in Bellevue, WA</a>, the animated sections are linked directly to the scroll distance, so a 150ms delay would have resulted in jerky transitions. Instead, each listener checks for the visibility of its designated section, and exits early to keep from performing expensive animation work on offscreen sections.</p>
-<h2>The magic of <var>getBoundingClientRect</var></h2>
-<h2>Common scroll effects with JavaScript</h2>
+<p>Debouncing is a great way to handle scroll listeners that trigger large, imprecise changes to the page, like adding a control class or triggering a CSS animation. Most of the time, that's the use case you should have in mind. On many of our big projects, we may want to pan or zoom around a map in response to the user's position in the document. Since the pan itself is animated and takes most of a second, updating on every single scroll event is overkill, and the animation would stutter as it was constantly restarted.</p>
+<p>That said, debouncing is inappropriate for fine-grained animations based on the scroll position. In those cases, your listener function itself will need to dump out as early as possible to keep from interfering with scroll behavior. For example, in <a href="http://projects.seattletimes.com/2017/eastside-prostitution-bust/">this story on prostitution rings in Bellevue, WA</a>, the animated sections are linked directly to the scroll distance, so a 150ms delay would have resulted in jerky transitions. Instead, each listener checks for the visibility of its designated section, and exits early to keep from performing expensive animation work on offscreen sections.</p>
+<h2 id="undefined">The magic of <var>getBoundingClientRect</var></h2>
+<p>How do we figure out scroll position? It's tempting to do so using the <var>scrollTop</var> property of the document's containing element, and compare this to a range of offsets. At best, this will be slow. At worst, it's brittle and error-prone. A better method is to lean on the browser's layout engine, by defining scroll zones in your markup and checking their positions against the viewport.</p>
+<p>Let's say that we want to create a parallax background effect, where scrolling through the page causes the background image to change. We might define each zone using a common class, and force it to be 150% of the screen height in CSS, so that it feels like a reasonable distance regardless of device size:</p>
+<code class="language-css"><pre><span class="hljs-selector-class">.scroll-zone</span> {
+  <span class="hljs-attribute">height</span>: <span class="hljs-number">150vh</span>;
+}</pre></code>
+<p>Then, in our scroll listener, we're going to check the position of each zone relative to the screen, using a function called <var>getBoundingClientRect()</var>. This function, which is incredibly useful as an interactive developer, just tells you the location and size of a given element. If the top of the element is greater than zero, but less than the height of the screen, it must be somewhere in the viewport.</p>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> zones = $(<span class="hljs-string">".scroll-zone"</span>);
+
+<span class="hljs-keyword">var</span> listener = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  zones.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">zone</span>) </span>{
+    <span class="hljs-keyword">var</span> bounds = zone.getBoundingClientRect();
+    <span class="hljs-keyword">if</span> (bounds.top &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.top &lt; <span class="hljs-built_in">window</span>.innerHeight) {
+      <span class="hljs-keyword">var</span> bg = zone.getAttribute(<span class="hljs-string">"data-bg"</span>);
+      <span class="hljs-built_in">document</span>.body.style.background = <span class="hljs-string">`url(<span class="hljs-subst">${bg}</span>)`</span>;
+    }
+  });
+};
+
+<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, debounce(listener));</pre></code>
+<p>This code works for these empty elements, which are basically just "placeholders" for scrollable space. But it'll also work if there's variable-length article content inside the scroll zones&mdash;just add padding to top and bottom if you need to space those out. This is particularly important on mobile, which may need different spacing to give the page a good rhythm.</p>
+<p>One of the things that you'll notice with this code is that it has to check every single element, even if we've already found something in the viewport. Ideally, we should quit as soon as we locate an onscreen element. To do so, we'll switch from a functional loop, to a manual loop with a counter:</p>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> listener = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; zones.length; i++) {
+    <span class="hljs-keyword">var</span> zone = zones[i];
+    <span class="hljs-keyword">var</span> bounds = zone.getBoundingClientRect();
+    <span class="hljs-keyword">if</span> (bounds.top &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.top &lt; <span class="hljs-built_in">window</span>.innerHeight) {
+      <span class="hljs-keyword">var</span> bg = zone.getAttribute(<span class="hljs-string">"data-bg"</span>);
+      <span class="hljs-built_in">document</span>.body.style.background = <span class="hljs-string">`url(<span class="hljs-subst">${bg}</span>)`</span>;
+      <span class="hljs-comment">//exit our loop</span>
+      <span class="hljs-keyword">break</span>;
+    }
+  }
+  <span class="hljs-comment">// we can still run code every iteration here, if need be</span>
+};</pre></code>
+<p>Now our code is more efficient because it only checks as many positions as it needs to, but we'll still have a problem in any cases where there is more than one scroll zone in the viewport at a time. Our code exits after finding the top-most fully-visible element, but this means we're not technically checking for when elements become visible so much as when their predecessor leaves the viewport. The resulting interaction feels like it has a delay&mdash;users won't be able to predict where the line is for triggering a scroll effect.</p>
+<p>The most "natural" behavior for a browser is to react as an element comes into view at the bottom, even if there's another item onscreen. An easy solution is just to reverse the direction of our loop: instead of checking elements for visibility starting at the top and working down, we'll start at the bottom and work up. We'll also raise the bottom boundary for being considered visible, to a constant 80% of the viewport. This creates a consistent "visibility zone" for scroll effects, and makes sure we react instantly once they enter that zone from the bottom (which is, of course, the most common scroll direction).</p>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> listener = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-comment">// backward loop here</span>
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = zones.length - <span class="hljs-number">1</span>; i &gt;= <span class="hljs-number">0</span>; i--) {
+    <span class="hljs-keyword">var</span> zone = zones[i];
+    <span class="hljs-keyword">var</span> bounds = zone.getBoundingClientRect();
+    <span class="hljs-comment">// note the .8 - ignore the bottom 20% of the window</span>
+    <span class="hljs-keyword">if</span> (bounds.top &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.top &lt; <span class="hljs-built_in">window</span>.innerHeight * <span class="hljs-number">.8</span>) {
+      <span class="hljs-keyword">var</span> bg = zone.getAttribute(<span class="hljs-string">"data-bg"</span>);
+      <span class="hljs-built_in">document</span>.body.style.background = <span class="hljs-string">`url(<span class="hljs-subst">${bg}</span>)`</span>;
+      <span class="hljs-comment">//exit our loop</span>
+      <span class="hljs-keyword">break</span>;
+    }
+  }
+};</pre></code>
+<p>I should note that although this approach is battle-tested and reasonably-performant, it still involves an expensive layout check for multiple elements, and it doesn't work at all inside an embedded iframe like Pym.js. The future of visibility checks is with <a href="https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API">IntersectionObserver</a>, in which the browser will notify you for multiple observed elements as a whole batch, including a near-identical bounds object, following a single layout operation. I suspect that for many news applications, <var>getBoundingClientRect()</var> will remain useful, but if you're starting a new scroll project and don't mind abandoning some older browsers, it might be worth trying Intersection Observers instead.</p>
+<h2 id="undefined">Home: stuck</h2>
+<p>The fastest code is the code we never run, and nowhere is that more true than when it comes to reacting to page scroll. For some use cases, it's increasingly possible to create effects purely in CSS.</p>
+<p>Take the persistent menubar, for example. On many pages, you may want a menu to be a part of the normal page layout, but to adhere to the viewport as the page scrolls. It's tempting to do this as a JavaScript page effect, but doing so will often cause choppy scrolling, because it requires multiple layouts to check and update the position of the menu element:</p>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> onScroll = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> bounds = menuContainer.getBoundingClientRect();
+  <span class="hljs-comment">// is the menu's containing element offscreen?</span>
+  <span class="hljs-keyword">if</span> (menuContainerBounds.top &lt; <span class="hljs-number">0</span>) {
+    <span class="hljs-comment">// adhere to viewport</span>
+    menu.classList.add(<span class="hljs-string">"fixed-position"</span>);
+  } <span class="hljs-keyword">else</span> {
+    <span class="hljs-comment">// normal document flow</span>
+    menu.classList.remove(<span class="hljs-string">"fixed-position"</span>);
+  }
+};</pre></code>
+<p>A simpler solution is just to let the browser handle the fixed positioning by setting the menu's CSS to <var>position: sticky</var>. Supported in pretty much everything except for IE, this leaves the element in place until it hits the boundary defined by <var>top</var> or <var>bottom</var> styles, and then locks it as though it was <var>position: fixed</var>. In IE, the menu won't fix, which is unfortunate but does at least fulfill the principles of graceful degradation. Sticky elements are also limited to the bounds of their containers, which means they can easily slide offscreen once you scroll past a given point. It's a long overdue part of the CSS toolkit.</p>
   </main>
   <nav class="chapter-links bottom">
     <ul>

@@ -16,7 +16,7 @@ exports.ul = (_, { lines }) => `<ul>
 ${lines.map(l => `<li>${l}</li>`).join("\n")}
 </ul>`;
 
-exports.subhead = (_, { lines }) => `<h2>${lines.join("\n").trim()}</h2>`;
+exports.subhead = (_, { lines, arg }) => `<h2 id="${arg}">${lines.join("\n").trim()}</h2>`;
 
 exports.subsubhead = (_, { lines }) => `<h3>${lines.join("\n").trim()}</h3>`;
 

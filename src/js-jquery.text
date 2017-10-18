@@ -120,7 +120,7 @@ $(".list-item .select-button").forEach(el => el.addEventListener("click", onClic
 
 Now any time that a user clicks a ".select-button" in the list, the containing list item will have the "selected" class toggled, visually indicating its state.
 
-@subhead Delegating events
+@subhead(delegation) Delegating events
 
 Let's put all of this code together to duplicate one of jQuery's most useful features, event delegation. Of course, to understand delegation, we have to understand how events work.
 

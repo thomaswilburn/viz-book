@@ -35,7 +35,7 @@
 <span class="hljs-keyword">var</span> scaleMurders = scaleFactory(<span class="hljs-number">3.6</span>, <span class="hljs-number">12.5</span>);
 scaleMurders(<span class="hljs-number">9.2</span>); <span class="hljs-comment">//0.6292...</span></pre></code>
 <p>Why do we use 0 and 1 as the limits of our range? Basically, the math is convenient. Once your value is normalized, you can convert it to another range via the formula <strong>value * range + minimum</strong>. You might want to graph a value on a 600px wide canvas, but reserve the left 20px for drawing the axis. No problem: multiply your normalized value by 580 and add 20 to get the x coordinate in pixels. Normalization, therefore, creates useful intermediate values for going between "data space" and "screen space."</p>
-<h2>A brief digression into the <var>Math</var> object</h2>
+<h2 id="undefined">A brief digression into the <var>Math</var> object</h2>
 <p>But how do we figure out the min and the max of the data in the first place? One complication of data visualizations in the browser is that they're often fed with an array of objects&mdash;say, a series of rows from a spreadsheet, or a JSON dump from a database. We may also want to change the property that we use as the basis for our chart based on user input, like changing the display from murder rate to robberies. So here's a trick for getting the minimum and maximum quickly.</p>
 <p>First, let's use the <var>map()</var> function to convert an array of objects into an array of values. A map is just a transformation from one list to another, based on a function you pass in. The following function takes an array of objects with many properties and converts it to just the values for the <var>murder</var> property:</p>
 <code class="language-js"><pre><span class="hljs-comment">//cityData is an array of row objects</span>
@@ -59,7 +59,7 @@ values = getValues(<span class="hljs-string">"robbery"</span>);</pre></code>
 <span class="hljs-comment">// In ES2015, we can just use the spread operator</span>
 <span class="hljs-keyword">var</span> min = <span class="hljs-built_in">Math</span>.min(...values);
 <span class="hljs-keyword">var</span> max = <span class="hljs-built_in">Math</span>.max(...values);</pre></code>
-<h2>Sparklines in a flash</h2>
+<h2 id="undefined">Sparklines in a flash</h2>
 <p>A sparkline is a tiny graphic that's intended to be displayed inline, and illustrate a trend. You might use it in a business story, for example, to visualize the stock price of a company next to its ticker symbol. Let's use our scaling function to dynamically create sparklines for a story. First, we'll start with some quarterly data for each company:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> stocks = {
   <span class="hljs-attr">ACME</span>: [<span class="hljs-number">20.4</span>, <span class="hljs-number">30.2</span>, <span class="hljs-number">25.5</span>, <span class="hljs-number">14.9</span>, <span class="hljs-number">7.2</span>],
@@ -142,7 +142,7 @@ $(".ticker").forEach(function(span) {
 });
 </script>
 <p>You'll see scaling functions like this used again and again throughout the book, so you'll have plenty of practice using them. And in space, they're fairly intuitive, since they're basically just a position on a number line between two points. But what about using them to express change over time?</p>
-<h2>Tweens and easing</h2>
+<h2 id="undefined">Tweens and easing</h2>
 <p>Let's say that we wanted to animate between two values over time. Ideally, for visual changes, we should do that with a CSS transition, which will let the browser take care of it for maximum performance. But some values can't be transitioned in CSS, or we might be animating something in a canvas tag (which means there's no CSS to transition). In those cases, we'll write a "tween" to handle the animation (as in "between"). And at its core, a tween is just a scaling function that maps <em>time</em> to <em>space</em>.</p>
 <p>Let's demonstrate this with a simple canvas animation. When you click one of the buttons below, it'll animate a circle moving from left to right, either in a linear fashion or using a "swing" that accelerates and decelerates smoothly.</p>
 <div class="tween-demo">

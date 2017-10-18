@@ -27,10 +27,20 @@ That said, if you run this code in the console, you'll quickly find that dependi
   <button class="add-delay">Add delay</button>
   <button class="remove-delay">Remove delay</button>
 </div>
+<style>
+.useless {
+  background: rgba(255, 255, 255, .9);
+}
+</style>
 <script>
 var delayScroll = function() {
   var now = Date.now();
-  while (Date.now() < now + 300);
+  while (Date.now() < now + 300) {
+    var _ = document.body.offsetWidth;
+    _ = document.querySelector(".interactive-section").getBoundingClientRect();
+    document.body.classList.toggle("useless");
+  }
+  console.log("Finished scroll loop");
 };
 
 document.querySelector(".add-delay").addEventListener("click", () => window.addEventListener("scroll", delayScroll));
@@ -40,11 +50,11 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
 </script>
 ...html
 
-Clicking the "Add delay" button will register a scroll listener that churns in a loop for about 300 milliseconds. That's not a very long time. But it's long enough to drop frames: scrolling through the page using the page up/down keys should be noticeably less smooth than with the delay removed. You won't be writing a pointless loop like this, of course, and your code probably won't take 100 milliseconds to do its work. But if you change the page on every scroll event (say, adding or removing a class from the body), you'll trigger the browser's layout process, and that can easily take enough time to become choppy.
+Clicking the "Add delay" button will register a scroll listener that churns in a loop for about 300 milliseconds, while triggering repeated page layouts. That's not a very long time. But it's long enough to drop frames: scrolling through the page using the page up/down keys should be noticeably less smooth than with the delay removed. You won't be writing a pointless loop like this, of course, and your code probably won't take 100 milliseconds to do its work. But if you change the page on every scroll event (say, adding or removing a class from the body), you'll trigger the browser's layout process, and that can easily take enough time to become choppy.
 
-Browser developers are aware of this, and so they've taken some steps to mitigate the effect. It's too late to change the behavior of keyboard scrolling, for example. But you may notice that on phones, or on laptops with touchpad, scrolling remains smooth. <a href="https://blogs.windows.com/msedgedev/2017/03/08/scrolling-on-the-web/">This article</a> from Microsoft has more detail on how these events are handled across different browser engines.
+Browser developers are aware of this, and so they've taken some steps to mitigate the effect. It's too late to change the behavior of keyboard scrolling, for example. But you may notice that on phones, or using a mouse or touchscreen, scrolling remains smooth, because those scroll listeners are triggered less frequently, without blocking viewport updates. <a href="https://blogs.windows.com/msedgedev/2017/03/08/scrolling-on-the-web/">This article</a> from Microsoft has more detail on how these events are handled across different browser engines.
 
-Regardless, you just don't need to take action on every single page scroll event. It's not only bad for your performance, but it also makes your effects feel overly-sensitive, and most of the time they just don't need to be that picky. To change this, we can throttle or debounce our scroll listener, so that it only actually runs a few times per second, no matter how often the scroll event fires. Utility functions to do this are included in many packages like Lodash, but a simple throttle is also easy to write:
+Regardless, you often don't need to take action on every single page scroll event. It's not only bad for your performance, but it also makes your effects feel overly-sensitive, and most of the time they just don't need to be that picky. To change this, we can throttle or debounce our scroll listener, so that it only actually runs a few times per second, no matter how often the scroll event fires. Utility functions to do this are included in many packages like Lodash, but a simple throttle is also easy to write:
 
 @codeblock(js)...
 var debounce = function(originalFn, delay = 150) {
@@ -69,8 +79,101 @@ window.addEventListener("scroll", throttled);
 
 Our debounce function will run the submitted function on the initial call, but then it rejects further calls until the delay (defaulting to 150ms) expires.
 
-Debouncing is a great way to handle scroll listeners that trigger large, imprecise changes to the page, like adding a control class or triggering a CSS animation. Most of the time, that's the use case you should have in mind. But it's not good for some tasks, like fine-grained animations based on the scroll position. In that case, your listener function itself will need to dump out as early as possible to keep from interfering with scroll behavior. For example, in <a href="http://projects.seattletimes.com/2017/eastside-prostitution-bust/">this story on prostitution rings in Bellevue, WA</a>, the animated sections are linked directly to the scroll distance, so a 150ms delay would have resulted in jerky transitions. Instead, each listener checks for the visibility of its designated section, and exits early to keep from performing expensive animation work on offscreen sections.
+Debouncing is a great way to handle scroll listeners that trigger large, imprecise changes to the page, like adding a control class or triggering a CSS animation. Most of the time, that's the use case you should have in mind. On many of our big projects, we may want to pan or zoom around a map in response to the user's position in the document. Since the pan itself is animated and takes most of a second, updating on every single scroll event is overkill, and the animation would stutter as it was constantly restarted.
+
+That said, debouncing is inappropriate for fine-grained animations based on the scroll position. In those cases, your listener function itself will need to dump out as early as possible to keep from interfering with scroll behavior. For example, in <a href="http://projects.seattletimes.com/2017/eastside-prostitution-bust/">this story on prostitution rings in Bellevue, WA</a>, the animated sections are linked directly to the scroll distance, so a 150ms delay would have resulted in jerky transitions. Instead, each listener checks for the visibility of its designated section, and exits early to keep from performing expensive animation work on offscreen sections.
 
 @subhead The magic of <var>getBoundingClientRect</var>
 
-@subhead Common scroll effects with JavaScript
+How do we figure out scroll position? It's tempting to do so using the <var>scrollTop</var> property of the document's containing element, and compare this to a range of offsets. At best, this will be slow. At worst, it's brittle and error-prone. A better method is to lean on the browser's layout engine, by defining scroll zones in your markup and checking their positions against the viewport.
+
+Let's say that we want to create a parallax background effect, where scrolling through the page causes the background image to change. We might define each zone using a common class, and force it to be 150% of the screen height in CSS, so that it feels like a reasonable distance regardless of device size:
+
+@codeblock(css)...
+.scroll-zone {
+  height: 150vh;
+}
+...codeblock
+
+Then, in our scroll listener, we're going to check the position of each zone relative to the screen, using a function called <var>getBoundingClientRect()</var>. This function, which is incredibly useful as an interactive developer, just tells you the location and size of a given element. If the top of the element is greater than zero, but less than the height of the screen, it must be somewhere in the viewport.
+
+@codeblock(js)...
+var zones = $(".scroll-zone");
+
+var listener = function() {
+  zones.forEach(function(zone) {
+    var bounds = zone.getBoundingClientRect();
+    if (bounds.top > 0 && bounds.top < window.innerHeight) {
+      var bg = zone.getAttribute("data-bg");
+      document.body.style.background = `url(${bg})`;
+    }
+  });
+};
+
+window.addEventListener("scroll", debounce(listener));
+...codeblock
+
+This code works for these empty elements, which are basically just "placeholders" for scrollable space. But it'll also work if there's variable-length article content inside the scroll zones&mdash;just add padding to top and bottom if you need to space those out. This is particularly important on mobile, which may need different spacing to give the page a good rhythm.
+
+One of the things that you'll notice with this code is that it has to check every single element, even if we've already found something in the viewport. Ideally, we should quit as soon as we locate an onscreen element. To do so, we'll switch from a functional loop, to a manual loop with a counter:
+
+@codeblock(js)...
+var listener = function() {
+  for (var i = 0; i < zones.length; i++) {
+    var zone = zones[i];
+    var bounds = zone.getBoundingClientRect();
+    if (bounds.top > 0 && bounds.top < window.innerHeight) {
+      var bg = zone.getAttribute("data-bg");
+      document.body.style.background = `url(${bg})`;
+      //exit our loop
+      break;
+    }
+  }
+  // we can still run code every iteration here, if need be
+};
+...codeblock
+
+Now our code is more efficient because it only checks as many positions as it needs to, but we'll still have a problem in any cases where there is more than one scroll zone in the viewport at a time. Our code exits after finding the top-most fully-visible element, but this means we're not technically checking for when elements become visible so much as when their predecessor leaves the viewport. The resulting interaction feels like it has a delay&mdash;users won't be able to predict where the line is for triggering a scroll effect.
+
+The most "natural" behavior for a browser is to react as an element comes into view at the bottom, even if there's another item onscreen. An easy solution is just to reverse the direction of our loop: instead of checking elements for visibility starting at the top and working down, we'll start at the bottom and work up. We'll also raise the bottom boundary for being considered visible, to a constant 80% of the viewport. This creates a consistent "visibility zone" for scroll effects, and makes sure we react instantly once they enter that zone from the bottom (which is, of course, the most common scroll direction).
+
+@codeblock(js)...
+var listener = function() {
+  // backward loop here
+  for (var i = zones.length - 1; i >= 0; i--) {
+    var zone = zones[i];
+    var bounds = zone.getBoundingClientRect();
+    // note the .8 - ignore the bottom 20% of the window
+    if (bounds.top > 0 && bounds.top < window.innerHeight * .8) {
+      var bg = zone.getAttribute("data-bg");
+      document.body.style.background = `url(${bg})`;
+      //exit our loop
+      break;
+    }
+  }
+};
+...codeblock
+
+I should note that although this approach is battle-tested and reasonably-performant, it still involves an expensive layout check for multiple elements, and it doesn't work at all inside an embedded iframe like Pym.js. The future of visibility checks is with <a href="https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API">IntersectionObserver</a>, in which the browser will notify you for multiple observed elements as a whole batch, including a near-identical bounds object, following a single layout operation. I suspect that for many news applications, <var>getBoundingClientRect()</var> will remain useful, but if you're starting a new scroll project and don't mind abandoning some older browsers, it might be worth trying Intersection Observers instead.
+
+@subhead Home: stuck
+
+The fastest code is the code we never run, and nowhere is that more true than when it comes to reacting to page scroll. For some use cases, it's increasingly possible to create effects purely in CSS.
+
+Take the persistent menubar, for example. On many pages, you may want a menu to be a part of the normal page layout, but to adhere to the viewport as the page scrolls. It's tempting to do this as a JavaScript page effect, but doing so will often cause choppy scrolling, because it requires multiple layouts to check and update the position of the menu element:
+
+@codeblock(js)...
+var onScroll = function() {
+  var bounds = menuContainer.getBoundingClientRect();
+  // is the menu's containing element offscreen?
+  if (menuContainerBounds.top < 0) {
+    // adhere to viewport
+    menu.classList.add("fixed-position");
+  } else {
+    // normal document flow
+    menu.classList.remove("fixed-position");
+  }
+};
+...codeblock
+
+A simpler solution is just to let the browser handle the fixed positioning by setting the menu's CSS to <var>position: sticky</var>. Supported in pretty much everything except for IE, this leaves the element in place until it hits the boundary defined by <var>top</var> or <var>bottom</var> styles, and then locks it as though it was <var>position: fixed</var>. In IE, the menu won't fix, which is unfortunate but does at least fulfill the principles of graceful degradation. Sticky elements are also limited to the bounds of their containers, which means they can easily slide offscreen once you scroll past a given point. It's a long overdue part of the CSS toolkit.

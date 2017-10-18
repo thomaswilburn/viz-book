@@ -22,7 +22,7 @@
   </aside>
   <h1>Combining data with the DOM</h1>
 <p>At the end of the day, as a news developer, the technical part of our job boils down to having data on the one hand, a web page on the other, and trying to get the two of them to communicate. This is not as easy as it sounds, and it can be a daunting task when you're staring at a blank text editor on deadline. So in this chapter, we're going to talk about all the ways that you can transform data into markup, and how to reverse the process when a user interacts with the page.</p>
-<h2>Making markup</h2>
+<h2 id="undefined">Making markup</h2>
 <p>Let's imagine that we have an array containing a set of objects, each of which is the biographical details of a person in our story. How do we turn that data into web markup that people can actually see, just using the standard browser APIs? Usually, there are two methods we can pick from: generating HTML as a string, or creating actual element nodes. For either one, however, we'll want a placeholder element where our dynamic content will go:</p>
 <code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"rogues"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
 <p>By setting the <var>innerHTML</var> property of this element, the browser will parse and generate elements for us. I like to do this using a single big string, to which we add the markup for each item, like so. Note that for this and all the other examples, we'll be using the selector functions from our <a href="js-jquery.html">Deconstructed jQuery</a> chapter.</p>
@@ -115,7 +115,7 @@ makeDOM(<span class="hljs-string">"div"</span>, { <span class="hljs-attr">class<
   container.appendChild(element);
 });</pre></code>
 <p>Our JavaScript is now structured in a very similar way to our HTML markup, indentation and all, but it creates "live" DOM elements. Now it's time to associate those elements with data, by binding for events.</p>
-<h2>Matching DOM to data</h2>
+<h2 id="undefined">Matching DOM to data</h2>
 <p>Making HTML from our data is only half the challenge, and it's the easier half. We still have to be able to reverse that process whenever a user interacts with our page: for each element, we need to retrieve the corresponding data for display or manipulation.</p>
 <p>As mentioned above, one way to do this is by associating the data directly with the event listener for the element, using a closure inside of our loop. A "closure" is a function that incorporates outside variables from the context in which it was created. For example, the following loop has an event listener that "closes over" the <var>person</var> value.</p>
 <code class="language-js"><pre>people.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) </span>{
@@ -169,7 +169,7 @@ people.forEach(<span class="hljs-function"><span class="hljs-keyword">function</
   container.appendChild(element);
 });</pre></code>
 <p>As a rule of thumb, remember that when you're writing markup, you're leaving clues for your future self. Be generous! HTML generated via JavaScript doesn't cost the user in terms of download time or (barring extreme cases) parse time, so make sure that you place classes and attributes throughout to be helpful for yourself, instead of just using bare tags. You never know when you might need those hooks later.</p>
-<p>Of course, if you're using the <var>this</var> value and a lookup object, you can probably use <a href="js-jquery.html">event delegation</a>, which gives you the best of both worlds: easier-to-write string templating, low memory usage, and simple code. This is our most common methodology at the Seattle Times for its simplicity and speed under deadline.</p>
+<p>Of course, if you're using the <var>this</var> value and a lookup object, you can probably use <a href="js-jquery.html#delegation">event delegation</a>, which gives you the best of both worlds: easier-to-write string templating, low memory usage, and simple code. This is our most common methodology at the Seattle Times for its simplicity and speed under deadline.</p>
 <p>Either way, the circle is now complete: we generate markup from the data, track the IDs that we've left on our elements, and then use those IDs to get the data back when events occur in the generated markup. This architecture is pretty consistent across every interactive I've ever created, with the real differences only being in where I get the data, and what I do in response to events. Learn to adapt these patterns, and they'll serve you well.</p>
   </main>
   <nav class="chapter-links bottom">

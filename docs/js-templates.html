@@ -23,7 +23,7 @@
   <h1>Inadvisable template literal tricks</h1>
 <p>I want to start this chapter by pointing out that templating libraries are a genuinely good thing that you should use. Switching to a real templating system, like ICanHaz or Dot, instead of building strings via jQuery and manual concatenation, was one of the biggest paradigm shifts in my early career. And although this is a book about how to write smaller, browser-centric code, there are plenty of templating microlibraries available to you, and you should use them.</p>
 <p>With that out of the way, let's have some fun.</p>
-<h2>Template literal basics</h2>
+<h2 id="undefined">Template literal basics</h2>
 <p>Introduced in ES2015, template strings are a new kind of JavaScript string. Instead of using single or double quotes, they're wrapped in backticks. Unlike previous kinds of strings, they're allowed to span multiple lines, which makes them great for writing little chunks of HTML:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> htmlText = <span class="hljs-string">`
 &lt;div class="tooltip"&gt;
@@ -49,7 +49,7 @@
 
 <span class="hljs-comment">// I even just use them for quoted constants</span>
 <span class="hljs-keyword">var</span> featured = $(<span class="hljs-string">`[data-featured="true"]`</span>);</pre></code>
-<h2>More with maps</h2>
+<h2 id="undefined">More with maps</h2>
 <p>Note that although I did say that you can't write loops in a template literal, that's only true for the <var>for</var> loop syntax. You can, however, call functions that loop as a part of an expression, and if that function returns a value, it'll be injected into the string. What looping function with return values is generally available to us? That's right, it's our old friend <var>Array.map()</var>.</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> values = [<span class="hljs-string">"a"</span>, <span class="hljs-string">"b"</span>, <span class="hljs-string">"c"</span>, <span class="hljs-string">"d"</span>];
 
@@ -78,7 +78,7 @@
 `</span>;</pre></code>
 <p>So sure, it's possible to do a lot of basic HTML templating using these new kinds of strings. If you're trying to get something done quickly, they're a great prototyping tool. But it's not exactly ergonomic, especially compared to the kinds of user-friendly expressions available in Vue, React, Handlebars, or (my personal favorite) Dot. As soon as the content becomes more than a few lines long, you should move it out into its own file and import it using your build process or other tooling.</p>
 <p>It's also important to move text out into another file if it's in an actual language with a grammar, like HTML or WebGL shaders. For one thing, you don't get syntax highlighting and error checking inside template strings in most text editors, and you'll want that as the code gets bigger and more complicated.</p>
-<h2>Taking it too far with tagged strings</h2>
+<h2 id="undefined">Taking it too far with tagged strings</h2>
 <p>Template literals have one more interesting feature: you can "tag" them by sticking a function onto the front. The browser then calls that function, and passes in the tagged string as an odd arrangement of arguments: first, an array containing all of the parts of the string that aren't interpolated, and then after that you get each evaluated expression inside the interpolation tags as individual values. It looks a bit like this:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> log = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">stringParts, a, b</span>) </span>{
   <span class="hljs-built_in">console</span>.log(stringParts, a, b);

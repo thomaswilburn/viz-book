@@ -36,7 +36,7 @@
 <p>That said, for this case, it's not a big deal. Nolan's research was aimed at big applications loading hundreds, or even thousands, of individual modules. Whereas for most news graphics, you'll probably be loading far fewer. It's mostly important to keep the cost in mind, and be aware of how different module toolkits (like Rollup or Closure) can address the problem.</p>
 </aside>
 <p>To replace jQuery's core functionality, we need to handle a few basic tasks. We need to be able to select multiple elements and perform tasks on all of them. We need to be able to walk back up the DOM tree, given a child element and a selector. And we need to be able to add delegated event listeners, which are crucial for interactive apps that may replace big chunks of the page with new content. Luckily, each of these tasks combines with the next in a neat, composable way.</p>
-<h2>Making selections</h2>
+<h2 id="undefined">Making selections</h2>
 <p>Let's start by making some selections. After jQuery's popularity skyrocketed, browsers added a similar <var>querySelectorAll</var> function for searching the document. Unfortunately, this function wasn't as useful as a regular jQuery search was, because the object wasn't an array that you could loop through. Instead, it was a NodeList, an array-<em>like</em> object that had numbered items and a length, but lacked important methods like <var>forEach</var> or <var>map</var>.</p>
 <p>Luckily, it's pretty easy to convert a NodeList into a JavaScript array. In newer browsers, you can use <var>Array.from()</var>, but for broader compatibility we can "borrow" the Array prototype's <var>slice</var> method to make a copy, which even works on array-likes. Here's the code for a jQuery-like <var>$()</var> function that can search within either the document or a chosen child node:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> $ = <span class="hljs-function">(<span class="hljs-params">selector, d = <span class="hljs-built_in">document</span></span>) =&gt;</span> <span class="hljs-built_in">Array</span>.prototype.slice.call(d.querySelectorAll(selector));</pre></code>
@@ -57,7 +57,7 @@ $(<span class="hljs-string">"tab.disabled"</span>).forEach(<span class="hljs-fun
 
 <span class="hljs-comment">//changing just one item is easy</span>
 $.one(<span class="hljs-string">"tab.active"</span>).classList.toggle(<span class="hljs-string">"active"</span>);</pre></code>
-<h2>Listening for events</h2>
+<h2 id="undefined">Listening for events</h2>
 <p>Another traditional use for jQuery is to register for events. Event handling used to be very inconsistent between browsers, with some passing an event into the listener function, and others (well, just IE) setting a <var>window.event</var> property instead (this worked, because JS is single-threaded, but it's an ugly way to write code).</p>
 <p>These days, however, pretty much everything supports the standard <var>addEventListener</var> function, and jQuery's habit of "normalizing" properties on the event object can actually backfire when we want to pay attention to non-input events, like media playback or file drag/drop. Binding an event listener to a selection of elements using our new <var>$</var> function turns out to be pretty easy:</p>
 <code class="language-js"><pre><span class="hljs-comment">//Arrow functions inherit this, which we don't want</span>
@@ -67,7 +67,7 @@ $.one(<span class="hljs-string">"tab.active"</span>).classList.toggle(<span clas
 
 $(<span class="hljs-string">".event-handlers"</span>).forEach(<span class="hljs-function"><span class="hljs-params">el</span> =&gt;</span> el.addEventListener(<span class="hljs-string">"click"</span>, listener);</pre></code>
 <p>When you click on the elements that we selected, the browser should log out the specific element clicked (that's the <var>this</var> value) and an event with additional details (mouse position, event type, and so on). I like to define the listener as a separate variable outside of the loop: if you define it inline, you're technically creating a new function for each individual element, which wastes memory. Defined separately, each element shares the same listener, but we can still react to the specific item by using <var>this</var>.</p>
-<h2>Walking up the tree</h2>
+<h2 id="undefined">Walking up the tree</h2>
 <p>A wrapper for <var>querySelectorAll()</var> is fine for searching down into a tree, but what if we want to search upward instead? That's the functionality of jQuery's <var>closest()</var> method, and we'll want some sort of equivalent in our deconstructed library. Luckily, it's easy to check if an element matches a given selector using the <var>matches</var> method (implemented in IE as <var>matchesSelector</var>). So to duplicate <var>closest</var>, we'll write a function that starts at a given element, and walks up the tree checking each parent, until it hits a root element (usually the document's <var>html</var> tag).</p>
 <code class="language-js"><pre><span class="hljs-comment">//shim for IE</span>
 <span class="hljs-keyword">var</span> matches = <span class="hljs-built_in">document</span>.body.matchesSelector ? <span class="hljs-string">"matchesSelector"</span> : <span class="hljs-string">"matches"</span>;
@@ -92,7 +92,7 @@ $(<span class="hljs-string">".event-handlers"</span>).forEach(<span class="hljs-
 <span class="hljs-comment">//add the listener to all list buttons</span>
 $(<span class="hljs-string">".list-item .select-button"</span>).forEach(<span class="hljs-function"><span class="hljs-params">el</span> =&gt;</span> el.addEventListener(<span class="hljs-string">"click"</span>, onClick));</pre></code>
 <p>Now any time that a user clicks a ".select-button" in the list, the containing list item will have the "selected" class toggled, visually indicating its state.</p>
-<h2>Delegating events</h2>
+<h2 id="delegation">Delegating events</h2>
 <p>Let's put all of this code together to duplicate one of jQuery's most useful features, event delegation. Of course, to understand delegation, we have to understand how events work.</p>
 <p>Imagine that you have the following HTML code:</p>
 <code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">main</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"story"</span>&gt;</span>
@@ -132,7 +132,7 @@ delegate(container, <span class="hljs-string">"button.event-target"</span>, <spa
   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"clicked!"</span>, <span class="hljs-keyword">this</span>);
 });</pre></code>
 <p>Once this listener is registered, we can blow away the existing contents of the primary section, or add new buttons, and our listener will still work whenever a button with a class of "event-target" is clicked inside. If you've ever run into problems with "vanishing" event listeners, delegation is a powerful tool&mdash;and now it's ours, without having to load all of jQuery just for a few functions.</p>
-<h2>Wrapping up</h2>
+<h2 id="undefined">Wrapping up</h2>
 <p>All told, our jQuery replacement is about 20 lines of code, not all of which we'll need on every project, and yet we're able to find multiple elements (or just one), search up the tree for an arbitrary selector, and delegate event listeners with ease. For modifying classes or styles, registering events, and other basic DOM functions, we just use the browser's built-in functionality. It may be a little more verbose, but it's much lighter and faster.</p>
 <p>That said, are there times when we should use jQuery? Absolutely. Our goal isn't to get rid of big libraries, just to only use them when we really need them. My rule of thumb is that if there are three or more jQuery features that would make your project substantially easier, you should go ahead and include it. One of those features might also be the normalization that jQuery still does for cross-browser hiccups, like automatically using prefixed styles in browsers that need them. So if you were working on something that involves Promises, JSONP, and setting lots of newer CSS properties, jQuery might make sense. Use your judgement!</p>
 <p>At the Seattle Times, we keep these jQuery-lite functions in three or four small library files, and include them as needed for any given project. After a while, it becomes second-nature. But at first, using the <var>$()</var> variable name might be confusing if you're used to jQuery. If so, it might make sense to import that function as <var>qsa()</var> (for "querySelectorAll" instead). However, for the rest of this book, whenever you see a <var>$()</var>, it'll mean this function, and not the original jQuery. Keep an eye out!</p>

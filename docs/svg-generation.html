@@ -22,7 +22,7 @@
   </aside>
   <h1>Generating SVG from code</h1>
 <p>Although they can be written into HTML5 source code the same way as other elements, SVG elements are not HTML elements, and they don't act like it. In another chapter, we'll talk about the common pitfalls where this may catch you off guard. But for now, let's talk about how to generate SVG dynamically without wanting to chop off a finger.</p>
-<h2><var>makeDOM</var> revisited</h2>
+<h2 id="undefined"><var>makeDOM</var> revisited</h2>
 <p>In our chapter on <a href="js-domdata.html">working with DOM and data</a>, we wrote a function called <var>makeDOM</var> that generates HTML programmatically in a similar way to React's <var>createElement</var> function. When working with raw SVG, a similar function is a good thing to have, especially because there actually isn't an easy way to just hand the browser an SVG string for rendering the same way as <var>innerHTML</var>. Elements must be created and appended using DOM function calls.</p>
 <p>To adapt our HTML generator to SVG, we'll need to make two changes. First, SVG elements have to be created with a "namespace" that identifies them as SVG, or they won't do anything when you insert them into the page. Second, if you want to set the contents of a <var>text</var> element, you have to use the <var>textContent</var> property instead of <var>innerText</var> or <var>innerHTML</var>.</p>
 <code class="language-js"><pre><span class="hljs-keyword">const</span> NS = <span class="hljs-string">"http://www.w3.org/2000/svg"</span>;
@@ -51,7 +51,7 @@
   m(<span class="hljs-string">"rect"</span>, { <span class="hljs-attr">x</span>: <span class="hljs-number">10</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">10</span>, <span class="hljs-attr">width</span>: <span class="hljs-number">20</span>, <span class="hljs-attr">height</span>: <span class="hljs-number">40</span> }),
   m(<span class="hljs-string">"circle"</span>, { <span class="hljs-attr">cx</span>: <span class="hljs-number">30</span>, <span class="hljs-attr">cy</span>: <span class="hljs-number">30</span>, <span class="hljs-attr">r</span>: <span class="hljs-number">40</span> })
 ]);</pre></code>
-<h2>I heard you like SVG</h2>
+<h2 id="undefined">I heard you like SVG</h2>
 <script>
 //prep for examples
 var data = {
