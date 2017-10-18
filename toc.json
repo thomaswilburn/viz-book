@@ -7,7 +7,7 @@
       "js-scaling",
       "js-templates",
       "js-domdata",
-      "Scroll effects and client rects",
+      "js-scrolling",
       "Visualizations with canvas",
       "Debugging and dev tools"
     ]

@@ -1,0 +1,76 @@
+@metadata...
+title:Client Rects and Scroll Effects
+type:chapter
+summary:Efficient scroll listeners | get rect | Scrolling sans JS
+...metadata
+
+Although it wasn't the first story to demonstrate the power of scrolling, the infamous <i>Snowfall</i> graphic remains the most notable of the genre for many journalists. The first time that readers scrolled the page and were suddenly immersed in a video of the landscape, rising up into the viewport, it was clear that this was a new storytelling tool that no newsroom could ignore. And it has only become more important as mobile has begun to dominate audiences.
+
+In video game design, it's common to talk about the "verbs" that are available to the player. A simple game of <i>Super Mario</i> contains only a few verbs: run, jump, duck. The more verbs you add to your game, the more complex and interesting it can become, but the harder it is for players to learn. A modern simulation might have tens or even hundreds of verbs, depending on the player and the situation, and they spend a corresponding amount of time on player "education."
+
+These principles are the same for interactive news design: readers have to learn the verbs for complex interactives, whether as simple as clicking a quiz button or complex as filling in a trend graph. There are many designers who argue that news graphics should be reduced, if at all possible, to as few verbs as possible&mdash;all the way to a static image, if necessary. But scroll, particularly on touchscreens, is one verb that we never have to teach. It's instinctive, and that makes it deeply useful for our purposes.
+
+@subhead Registering efficient scroll listeners
+
+Reacting to the page scroll is not hard to do. Both the window and various elements themselves will fire a scroll event, and so we can just listen for it:
+
+@codeblock(js)...
+window.addEventListener("scroll", function() {
+  console.log("Scroll event fired!");
+});
+...codeblock
+
+That said, if you run this code in the console, you'll quickly find that depending on the browser, you may soon be up to your ears in scroll events&mdash;way more than you actually need. Worse, if your code involves making a lot of changes to the page or doing a lot of processing, you can kill your scroll performance. Here's a quick demo:
+
+@html...
+<div class="interactive-section">
+  <button class="add-delay">Add delay</button>
+  <button class="remove-delay">Remove delay</button>
+</div>
+<script>
+var delayScroll = function() {
+  var now = Date.now();
+  while (Date.now() < now + 300);
+};
+
+document.querySelector(".add-delay").addEventListener("click", () => window.addEventListener("scroll", delayScroll));
+
+document.querySelector(".remove-delay").addEventListener("click", () => window.removeEventListener("scroll", delayScroll));
+
+</script>
+...html
+
+Clicking the "Add delay" button will register a scroll listener that churns in a loop for about 300 milliseconds. That's not a very long time. But it's long enough to drop frames: scrolling through the page using the page up/down keys should be noticeably less smooth than with the delay removed. You won't be writing a pointless loop like this, of course, and your code probably won't take 100 milliseconds to do its work. But if you change the page on every scroll event (say, adding or removing a class from the body), you'll trigger the browser's layout process, and that can easily take enough time to become choppy.
+
+Browser developers are aware of this, and so they've taken some steps to mitigate the effect. It's too late to change the behavior of keyboard scrolling, for example. But you may notice that on phones, or on laptops with touchpad, scrolling remains smooth. <a href="https://blogs.windows.com/msedgedev/2017/03/08/scrolling-on-the-web/">This article</a> from Microsoft has more detail on how these events are handled across different browser engines.
+
+Regardless, you just don't need to take action on every single page scroll event. It's not only bad for your performance, but it also makes your effects feel overly-sensitive, and most of the time they just don't need to be that picky. To change this, we can throttle or debounce our scroll listener, so that it only actually runs a few times per second, no matter how often the scroll event fires. Utility functions to do this are included in many packages like Lodash, but a simple throttle is also easy to write:
+
+@codeblock(js)...
+var debounce = function(originalFn, delay = 150) {
+  var timeout = null;
+  // return a new function that's throttled
+  return function(...args) {
+    // if currently in the timeout, return
+    if (timeout) return;
+    timeout = setTimeout(() => timeout = null, delay);
+    originalFn(...args);
+  };
+};
+
+// example of use:
+var throttled = debounce(function() {
+  console.log("scroll");
+});
+
+// this will only log out every 150ms
+window.addEventListener("scroll", throttled);
+...codeblock
+
+Our debounce function will run the submitted function on the initial call, but then it rejects further calls until the delay (defaulting to 150ms) expires.
+
+Debouncing is a great way to handle scroll listeners that trigger large, imprecise changes to the page, like adding a control class or triggering a CSS animation. Most of the time, that's the use case you should have in mind. But it's not good for some tasks, like fine-grained animations based on the scroll position. In that case, your listener function itself will need to dump out as early as possible to keep from interfering with scroll behavior. For example, in <a href="http://projects.seattletimes.com/2017/eastside-prostitution-bust/">this story on prostitution rings in Bellevue, WA</a>, the animated sections are linked directly to the scroll distance, so a 150ms delay would have resulted in jerky transitions. Instead, each listener checks for the visibility of its designated section, and exits early to keep from performing expensive animation work on offscreen sections.
+
+@subhead The magic of <var>getBoundingClientRect</var>
+
+@subhead Common scroll effects with JavaScript
