@@ -105,13 +105,21 @@ var listener = function() {
     var bounds = zone.getBoundingClientRect();
     if (bounds.top > 0 && bounds.top < window.innerHeight) {
       var bg = zone.getAttribute("data-bg");
-      document.body.style.background = `url(${bg})`;
+      document.body.style.background = bg;
     }
   });
 };
 
 window.addEventListener("scroll", debounce(listener));
 ...codeblock
+
+@html...
+<div class="scroll-container simple">
+  <div class="scroll-zone simple" data-bg="salmon"></div>
+  <div class="scroll-zone simple" data-bg="papayawhip"></div>
+  <div class="scroll-zone simple" data-bg="honeydew"></div>
+</div>
+...html
 
 This code works for these empty elements, which are basically just "placeholders" for scrollable space. But it'll also work if there's variable-length article content inside the scroll zones&mdash;just add padding to top and bottom if you need to space those out. This is particularly important on mobile, which may need different spacing to give the page a good rhythm.
 
@@ -124,7 +132,7 @@ var listener = function() {
     var bounds = zone.getBoundingClientRect();
     if (bounds.top > 0 && bounds.top < window.innerHeight) {
       var bg = zone.getAttribute("data-bg");
-      document.body.style.background = `url(${bg})`;
+      document.body.style.background = bg;
       //exit our loop
       break;
     }
@@ -133,7 +141,19 @@ var listener = function() {
 };
 ...codeblock
 
-Now our code is more efficient because it only checks as many positions as it needs to, but we'll still have a problem in any cases where there is more than one scroll zone in the viewport at a time. Our code exits after finding the top-most fully-visible element, but this means we're not technically checking for when elements become visible so much as when their predecessor leaves the viewport. The resulting interaction feels like it has a delay&mdash;users won't be able to predict where the line is for triggering a scroll effect.
+Now our code is more efficient because it only checks as many positions as it needs to, but we'll still have a problem in any cases where there is more than one scroll zone in the viewport at a time. 
+
+@html...
+<div class="scroll-container top-down">
+  <div class="scroll-zone top-down" data-bg="peachpuff"></div>
+  <div class="scroll-zone top-down" data-bg="seashell"></div>
+  <div class="scroll-zone top-down" data-bg="thistle"></div>
+  <div class="scroll-zone top-down" data-bg="peru"></div>
+</div>
+...html
+
+
+Our code exits after finding the top-most fully-visible element, but this means we're not technically checking for when elements become visible so much as when their predecessor leaves the viewport. The resulting interaction feels like it has a delay&mdash;users won't be able to predict where the line is for triggering a scroll effect.
 
 The most "natural" behavior for a browser is to react as an element comes into view at the bottom, even if there's another item onscreen. An easy solution is just to reverse the direction of our loop: instead of checking elements for visibility starting at the top and working down, we'll start at the bottom and work up. We'll also raise the bottom boundary for being considered visible, to a constant 80% of the viewport. This creates a consistent "visibility zone" for scroll effects, and makes sure we react instantly once they enter that zone from the bottom (which is, of course, the most common scroll direction).
 
@@ -153,6 +173,15 @@ var listener = function() {
   }
 };
 ...codeblock
+
+@html...
+<div class="scroll-container bottom-up">
+  <div class="scroll-zone bottom-up" data-bg="wheat"></div>
+  <div class="scroll-zone bottom-up" data-bg="coral"></div>
+  <div class="scroll-zone bottom-up" data-bg="chocolate"></div>
+  <div class="scroll-zone bottom-up" data-bg="linen"></div>
+</div>
+...html
 
 I should note that although this approach is battle-tested and reasonably-performant, it still involves an expensive layout check for multiple elements, and it doesn't work at all inside an embedded iframe like Pym.js. The future of visibility checks is with <a href="https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API">IntersectionObserver</a>, in which the browser will notify you for multiple observed elements as a whole batch, including a near-identical bounds object, following a single layout operation. I suspect that for many news applications, <var>getBoundingClientRect()</var> will remain useful, but if you're starting a new scroll project and don't mind abandoning some older browsers, it might be worth trying Intersection Observers instead.
 
@@ -177,3 +206,5 @@ var onScroll = function() {
 ...codeblock
 
 A simpler solution is just to let the browser handle the fixed positioning by setting the menu's CSS to <var>position: sticky</var>. Supported in pretty much everything except for IE, this leaves the element in place until it hits the boundary defined by <var>top</var> or <var>bottom</var> styles, and then locks it as though it was <var>position: fixed</var>. In IE, the menu won't fix, which is unfortunate but does at least fulfill the principles of graceful degradation. Sticky elements are also limited to the bounds of their containers, which means they can easily slide offscreen once you scroll past a given point. It's a long overdue part of the CSS toolkit.
+
+@include snippets/scroll-examples.html

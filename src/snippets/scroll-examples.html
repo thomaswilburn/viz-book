@@ -1,0 +1,101 @@
+<style>
+
+.scroll-container {
+  overflow: hidden;
+  transition: background .4s linear;
+}
+
+.scroll-zone.simple {
+  height: 110vh;
+  border: 1px dotted black;
+  padding: 20px;
+  font-family: var(--mono);
+  color: white;
+  text-shadow: 1px 1px 1px black;
+}
+
+.scroll-zone.top-down,
+.scroll-zone.bottom-up {
+  background: white;
+  float: right;
+  width: 50%;
+  margin: 10vh 16px 40vh;
+  padding: 40px 20px;
+  color: black;
+  clear: right;
+  box-shadow: 0 12px 16px -8px rgba(0, 0, 0, .2);
+}
+
+.scroll-zone::before {
+  content: attr(data-bg);
+  display: block;
+  color: attr(data-bg);
+}
+
+.scroll-zone.active {
+  border: 1px solid black;
+}
+
+</style>
+<script>
+(function() {
+  
+var $ = (s, d = document) => Array.prototype.slice.call(d.querySelectorAll(s));
+
+$.one = (s, d = document) => d.querySelector(s);
+
+var debounce = function(f, d = 150) {
+  var timeout = null;
+  return function(...args) {
+    if (timeout) return;
+    timeout = setTimeout(() => timeout = null, d);
+    f(...args);
+  }
+};
+
+var bgZones = $(".scroll-zone.simple");
+var simpleContainer = $.one(".scroll-container.simple");
+window.addEventListener("scroll", debounce(function() {
+  bgZones.forEach(function(zone) {
+    var bounds = zone.getBoundingClientRect();
+    if (bounds.top > 0 && bounds.top < window.innerHeight) {
+      simpleContainer.style.background = zone.getAttribute("data-bg");
+      zone.classList.add("active");
+    } else {
+      zone.classList.remove("active");
+    }
+  });
+}));
+
+var naiveZones = $(".scroll-zone.top-down");
+var naiveContainer = $.one(".scroll-container.top-down");
+window.addEventListener("scroll", debounce(function() {
+  naiveZones.forEach(z => z.classList.remove("active"));
+  for (var i = 0; i < naiveZones.length; i++) {
+    var zone = naiveZones[i];
+    var bounds = zone.getBoundingClientRect();
+    if (bounds.top > 0 && bounds.top < window.innerHeight) {
+      naiveContainer.style.background = zone.getAttribute("data-bg");
+      zone.classList.add("active");
+      break;
+    }
+  }
+}));
+
+var wiseZones = $(".scroll-zone.bottom-up");
+var wiseContainer = $.one(".scroll-container.bottom-up");
+window.addEventListener("scroll", debounce(function() {
+  wiseZones.forEach(z => z.classList.remove("active"));
+  for (var i = wiseZones.length - 1; i >= 0; i--) {
+    var zone = wiseZones[i];
+    var bounds = zone.getBoundingClientRect();
+    if (bounds.top > 0 && bounds.top < window.innerHeight * .8) {
+      wiseContainer.style.background = zone.getAttribute("data-bg");
+      zone.classList.add("active");
+      break;
+    }
+  }
+}));
+  
+})();
+</script>
