@@ -105,7 +105,13 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
   <div class="scroll-zone simple" data-bg="honeydew"></div>
 </div>
 <p>This code works for these empty elements, which are basically just "placeholders" for scrollable space. But it'll also work if there's variable-length article content inside the scroll zones&mdash;just add padding to top and bottom if you need to space those out. This is particularly important on mobile, which may need different spacing to give the page a good rhythm.</p>
-<p>One of the things that you'll notice with this code is that it has to check every single element, even if we've already found something in the viewport. Ideally, we should quit as soon as we locate an onscreen element. To do so, we'll switch from a functional loop, to a manual loop with a counter:</p>
+<p>One of the things that you'll notice with this code is that it has to check every single element, even if we've already found something in the viewport. If the scroll zones are short enough, this also means that multiple zones could be considered "active" (shown in these demos with a black outline).</p>
+<div class="scroll-container simple">
+  <div class="scroll-zone simple short" data-bg="cornsilk"></div>
+  <div class="scroll-zone simple short" data-bg="burlywood"></div>
+  <div class="scroll-zone simple short" data-bg="mistyrose"></div>
+</div>
+<p>Ideally, we should quit as soon as we locate an onscreen element, which prevents multiple "active" zones and doesn't waste valuable JS execution time. To do so, we'll switch from a functional loop, to a manual loop with a counter:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> listener = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; zones.length; i++) {
     <span class="hljs-keyword">var</span> zone = zones[i];
@@ -180,6 +186,10 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
   text-shadow: 1px 1px 1px black;
 }
 
+.scroll-zone.simple.short {
+  height: 60vh;
+}
+
 .scroll-zone.top-down,
 .scroll-zone.bottom-up {
   background: white;
@@ -199,7 +209,7 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
 }
 
 .scroll-zone.active {
-  border: 1px solid black;
+  border: 3px solid black;
 }
 
 </style>
@@ -219,19 +229,21 @@ var debounce = function(f, d = 150) {
   }
 };
 
-var bgZones = $(".scroll-zone.simple");
-var simpleContainer = $.one(".scroll-container.simple");
-window.addEventListener("scroll", debounce(function() {
-  bgZones.forEach(function(zone) {
-    var bounds = zone.getBoundingClientRect();
-    if (bounds.top > 0 && bounds.top < window.innerHeight) {
-      simpleContainer.style.background = zone.getAttribute("data-bg");
-      zone.classList.add("active");
-    } else {
-      zone.classList.remove("active");
-    }
-  });
-}));
+var simpleContainers = $(".scroll-container.simple");
+simpleContainers.forEach(function(container) {
+  var bgZones = $(".scroll-zone.simple", container);
+  window.addEventListener("scroll", debounce(function() {
+    bgZones.forEach(function(zone) {
+      var bounds = zone.getBoundingClientRect();
+      if (bounds.top > 0 && bounds.top < window.innerHeight) {
+        container.style.background = zone.getAttribute("data-bg");
+        zone.classList.add("active");
+      } else {
+        zone.classList.remove("active");
+      }
+    });
+  }));
+});
 
 var naiveZones = $(".scroll-zone.top-down");
 var naiveContainer = $.one(".scroll-container.top-down");

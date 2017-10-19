@@ -14,6 +14,10 @@
   text-shadow: 1px 1px 1px black;
 }
 
+.scroll-zone.simple.short {
+  height: 60vh;
+}
+
 .scroll-zone.top-down,
 .scroll-zone.bottom-up {
   background: white;
@@ -33,7 +37,7 @@
 }
 
 .scroll-zone.active {
-  border: 1px solid black;
+  border: 3px solid black;
 }
 
 </style>
@@ -53,19 +57,21 @@ var debounce = function(f, d = 150) {
   }
 };
 
-var bgZones = $(".scroll-zone.simple");
-var simpleContainer = $.one(".scroll-container.simple");
-window.addEventListener("scroll", debounce(function() {
-  bgZones.forEach(function(zone) {
-    var bounds = zone.getBoundingClientRect();
-    if (bounds.top > 0 && bounds.top < window.innerHeight) {
-      simpleContainer.style.background = zone.getAttribute("data-bg");
-      zone.classList.add("active");
-    } else {
-      zone.classList.remove("active");
-    }
-  });
-}));
+var simpleContainers = $(".scroll-container.simple");
+simpleContainers.forEach(function(container) {
+  var bgZones = $(".scroll-zone.simple", container);
+  window.addEventListener("scroll", debounce(function() {
+    bgZones.forEach(function(zone) {
+      var bounds = zone.getBoundingClientRect();
+      if (bounds.top > 0 && bounds.top < window.innerHeight) {
+        container.style.background = zone.getAttribute("data-bg");
+        zone.classList.add("active");
+      } else {
+        zone.classList.remove("active");
+      }
+    });
+  }));
+});
 
 var naiveZones = $(".scroll-zone.top-down");
 var naiveContainer = $.one(".scroll-container.top-down");
