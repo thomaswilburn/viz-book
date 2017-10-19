@@ -195,6 +195,70 @@ var listener = function() {
 
 I should note that although this approach is battle-tested and reasonably-performant, it still involves an expensive layout check for multiple elements, and it doesn't work at all inside an embedded iframe like Pym.js. The future of visibility checks is with <a href="https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API">IntersectionObserver</a>, in which the browser will notify you for multiple observed elements as a whole batch, including a near-identical bounds object, following a single layout operation. I suspect that for many news applications, <var>getBoundingClientRect()</var> will remain useful, but if you're starting a new scroll project and don't mind abandoning some older browsers, it might be worth trying Intersection Observers instead.
 
+@subhead Useful snippets for scroll-aware pages
+
+Given a <var>bounds</var> object from <var>getBoundingClientRect()</var>, what are some common applications?
+
+@subsubhead Viewport scissor test
+
+Is something completely in the viewport? This is as easy as checking the top and bottom against the window.
+
+@codeblock(js)...
+if (bounds.top > 0 && bounds.bottom < window.innerHeight) {
+  return true;
+}
+...codeblock
+
+@subsubhead Exclusion scissor test
+
+It's also useful sometimes to know if something <em>isn't</em> in view. For example, on WebGL projects, I often skip rendering if you can't see the canvas anyway, so I don't burn power for no good reason.
+
+@codeblock(js)...
+if (bounds.bottom < 0 || bounds.top > window.innerHeight) {
+  return true;
+}
+...codeblock
+
+@subsubhead Activating sections once
+
+A common task is to cause an effect to trigger an effect only once per section. Using an array filter is a simple way to do this, since it actually just removes the element from the bounds check. With a little extra work, we can even kill the listener when we're out of single-use elements.
+
+@codeblock(js)...
+//elements is an array of scroll zones
+var scrollCheck = function() {
+  elements = elements.filter(function(el) {
+    // require it to be halfway onscreen
+    if (bounds.top > 0 && bounds.top < window.innerHeight * .5) {
+      el.classList.add("activated-scroll");
+      // remove from the array
+      return false;
+    }
+    // keep it otherwise
+    return true;
+  });
+  // remove listener when everything is activated
+  if (!elements.length) window.removeListener("scroll", scrollCheck);
+};
+
+window.addEventListener("scroll", scrollCheck);
+...codeblock
+
+@subsubhead Measuring progress
+
+Many scroll-linked animations require you to know how far you've scrolled through any given element&mdash;meaning, between the element entering at the very bottom of the screen and leaving at the top, what's the progress between those two points? Parallax scrolls often rely on this information. To do so, we'll find the normalized delta as a number between 0 and 1, where 1 is "leaving the top" and 0 is "entering at the bottom."
+
+@codeblock(js)...
+var vh = window.innerHeight;
+// what's the total covered area?
+var total = vh + bounds.height;
+// how far have we gotten through that?
+var scrolled = bounds.top - vh;
+// normalize to a 0...1 range
+var progress = -scrolled / cover
+// you can also convert to -1...1 for some effects
+var viewRelative = progress * 2 - 1;
+...codeblock
+
 @subhead Home: stuck
 
 The fastest code is the code we never run, and nowhere is that more true than when it comes to reacting to page scroll. For some use cases, it's increasingly possible to create effects purely in CSS.
