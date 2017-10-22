@@ -27,7 +27,7 @@
     "chapters": [
       "svg-viewbox",
       "svg-generation",
-      "Applying CSS to an SVG graphic",
+      "SVG re-use and filtering",
       "Common pitfalls with SVG DOM"
     ]
   },
