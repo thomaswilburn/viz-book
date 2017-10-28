@@ -57,3 +57,16 @@ rect { fill: blue }
 ...html
 
 You should see the second square, the image tag, change color slightly before the first. This is because for the image, the "viewport" that determines the effect of the media query isn't the browser window, it's the image tag itself. The behavior is similar to that of an iframe, in that the "window" for the enclosed contents is basically just the tag.
+
+This ability to adjust styles based on the size of the image element, and not the size of the browser window, makes external SVG ideal for loading resources like icons or logos. When the element is styled smaller, you can use the stylesheet to hide details for readability. When it's shown as a larger part of the page, the same file can add detail, incorporate extra text, or even swap out parts of the image entirely.
+
+@subhead Powering small multiples with CSS
+
+
+
+@subhead The limits of SVG media queries
+
+
+
+@subhead Art directing with <var>srcset</var>
+
