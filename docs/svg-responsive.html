@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Responsive graphics with SVG</title>
+  <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans|Manuale" rel="stylesheet">
+  <link rel="stylesheet" href="static/style.css">
+  <link rel="stylesheet" href="static/highlight/hybrid.css">
+</head>
+<body class="svg-responsive chapter">
+  <nav class="chapter-links top">
+    <ul>
+      <li class="previous"> <a href="svg-generation.html"> &laquo; Generating SVG from code</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href=""> Common pitfalls with SVG DOM &raquo;</a>
+    </ul>
+  </nav>
+  <main>
+  <aside class="summary">
+    Inline and external embeds | Applied media queries | Views with a room
+  </aside>
+  <h1>Responsive graphics with SVG</h1>
+<p>We're naturally interested in SVG because it gives us an easy way to draw live vectors in the browser&mdash;shapes that can be manipulated, listen for events, and announce themselves in a screen reader. But SVG is also interesting because its presentation can be manipulated using CSS, including media queries and complex selectors. This opens up new possibilities, both for data visualization and art direction.</p>
+<p>To really understand how SVG interacts with CSS, we need to talk about how it gets included in the page. Thus far, we've been generating or working with inline SVG, which is content directly placed in an HTML page. The HTML5 parser guarantees that inline <var>&lt;svg&gt;</var> tags simply work, although we do need to use the correct namespace when <a href="svg-generation.html">generating new elements dynamically</a>. So this just works:</p>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"100"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"100"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">rect</span> <span class="hljs-attr">x</span>=<span class="hljs-string">"10"</span> <span class="hljs-attr">y</span>=<span class="hljs-string">"10"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"40"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"40"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">rect</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">svg</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
+<p>You can also include a separate SVG file in a page, same as a JPG or PNG file, using an <var>&lt;img&gt;</var> tag.</p>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"filename.svg"</span>&gt;</span></pre></code>
+<p>However, when included through an image tag, the SVG is "opaque" to the rest of the page: it can't be inspected, you can't access its internal elements from scripts or styles, and it's not allowed to load external resources or run scripts. This makes them largely inert compared to inline elements, but they can still include internal CSS, and they can expose some manipulation capability through the URL used to load them.</p>
+<h2 id="undefined">The media is the message</h2>
+<p>When using media queries with SVG, the difference becomes clear. For example, here's the same SVG loaded twice: once through an inline tag, and once as an external resource. In both cases, the SVG contains a <var>&lt;style&gt;</var> tag that sets the fill of the rectangle with a 400px breakpoint:</p>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"100"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"100 viewBox="</span><span class="hljs-attr">0</span> <span class="hljs-attr">0</span> <span class="hljs-attr">100</span>"&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="css">
+<span class="hljs-selector-tag">rect</span> { <span class="hljs-attribute">fill</span>: blue }
+@<span class="hljs-keyword">media</span> (min-width: <span class="hljs-number">400px</span>) {
+  <span class="hljs-selector-tag">rect</span> { <span class="hljs-attribute">fill</span>: green }
+}
+  </span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">rect</span> <span class="hljs-attr">x</span>=<span class="hljs-string">"20"</span> <span class="hljs-attr">y</span>=<span class="hljs-string">"20"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"60"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"60"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">rect</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">svg</span>&gt;</span></pre></code>
+<p>If you're on a desktop machine, try resizing your window to see when the square changes color.</p>
+<svg width="100" height="100 viewBox="0 0 100" style="display: block">
+  <style>
+rect { fill: blue }
+@media (min-width: 400px) {
+  rect { fill: green }
+}
+  </style>
+  <rect x="20" y="20" width="60" height="60"></rect>
+</svg>
+
+<img src="static/media-query.svg" style="width: 80%; padding: 0 40px; display: block">
+<p>You should see the second square, the image tag, change color slightly before the first. This is because for the image, the "viewport" that determines the effect of the media query isn't the browser window, it's the image tag itself. The behavior is similar to that of an iframe, in that the "window" for the enclosed contents is basically just the tag.</p>
+  </main>
+  <nav class="chapter-links bottom">
+    <ul>
+      <li class="previous"> <a href="svg-generation.html"> &laquo; Generating SVG from code</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href=""> Common pitfalls with SVG DOM &raquo;</a>
+    </ul>
+  </nav>
+</body>
+</html>

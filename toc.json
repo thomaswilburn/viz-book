@@ -8,8 +8,7 @@
       "js-templates",
       "js-domdata",
       "js-scrolling",
-      "Visualizations with canvas",
-      "Debugging and dev tools"
+      "Visualizations with canvas"
     ]
   },
   {
@@ -27,13 +26,14 @@
     "chapters": [
       "svg-viewbox",
       "svg-generation",
-      "SVG re-use and filtering",
+      "svg-responsive",
       "Common pitfalls with SVG DOM"
     ]
   },
   {
     "section": "Performance tips and tricks",
     "chapters": [
+      "Debugging and dev tools",
       "FLIP animations",
       "Measuring page speed for news",
       "Strategies for deferred loading",
