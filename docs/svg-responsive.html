@@ -18,9 +18,14 @@
   </nav>
   <main>
   <aside class="summary">
-    Inline and external embeds | Applied media queries | Views with a room
+    Inline and external media | Small multiples | Style icons
   </aside>
   <h1>Responsive graphics with SVG</h1>
+<style>
+img, svg {
+  display: block;
+}
+</style>
 <p>We're naturally interested in SVG because it gives us an easy way to draw live vectors in the browser&mdash;shapes that can be manipulated, listen for events, and announce themselves in a screen reader. But SVG is also interesting because its presentation can be manipulated using CSS, including media queries and complex selectors. This opens up new possibilities, both for data visualization and art direction.</p>
 <p>To really understand how SVG interacts with CSS, we need to talk about how it gets included in the page. Thus far, we've been generating or working with inline SVG, which is content directly placed in an HTML page. The HTML5 parser guarantees that inline <var>&lt;svg&gt;</var> tags simply work, although we do need to use the correct namespace when <a href="svg-generation.html">generating new elements dynamically</a>. So this just works:</p>
 <code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
@@ -33,7 +38,7 @@
 <p>However, when included through an image tag, the SVG is "opaque" to the rest of the page: it can't be inspected, you can't access its internal elements from scripts or styles, and it's not allowed to load external resources or run scripts. This makes them largely inert compared to inline elements, but they can still include internal CSS, and they can expose some manipulation capability through the URL used to load them.</p>
 <h2 id="undefined">The media is the message</h2>
 <p>When using media queries with SVG, the difference becomes clear. For example, here's the same SVG loaded twice: once through an inline tag, and once as an external resource. In both cases, the SVG contains a <var>&lt;style&gt;</var> tag that sets the fill of the rectangle with a 400px breakpoint:</p>
-<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"100"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"100 viewBox="</span><span class="hljs-attr">0</span> <span class="hljs-attr">0</span> <span class="hljs-attr">100</span>"&gt;</span>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"100"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"100"</span> <span class="hljs-attr">viewBox</span>=<span class="hljs-string">"0 0 100 100"</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="css">
 <span class="hljs-selector-tag">rect</span> { <span class="hljs-attribute">fill</span>: blue }
 @<span class="hljs-keyword">media</span> (min-width: <span class="hljs-number">400px</span>) {
@@ -43,7 +48,7 @@
   <span class="hljs-tag">&lt;<span class="hljs-name">rect</span> <span class="hljs-attr">x</span>=<span class="hljs-string">"20"</span> <span class="hljs-attr">y</span>=<span class="hljs-string">"20"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"60"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"60"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">rect</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">svg</span>&gt;</span></pre></code>
 <p>If you're on a desktop machine, try resizing your window to see when the square changes color.</p>
-<svg width="100" height="100 viewBox="0 0 100" style="display: block">
+<svg width="100" height="100" viewBox="0 0 100 100">
   <style>
 .responsive-rect { fill: blue }
 @media (min-width: 400px) {
@@ -53,11 +58,11 @@
   <rect class="responsive-rect" x="20" y="20" width="60" height="60"></rect>
 </svg>
 
-<img src="static/media-query.svg" style="width: 80%; padding: 0 40px; display: block">
+<img src="static/media-query.svg" style="width: 80%; padding: 0 40px">
 <p>You should see the second square, the image tag, change color slightly before the first. This is because for the image, the "viewport" that determines the effect of the media query isn't the browser window, it's the image tag itself. The behavior is similar to that of an iframe, in that the "window" for the enclosed contents is basically just the tag.</p>
 <p>This ability to adjust styles based on the size of the image element, and not the size of the browser window, makes external SVG ideal for loading resources like icons or logos. When the element is styled smaller, you can use the stylesheet to hide details for readability. When it's shown as a larger part of the page, the same file can add detail, incorporate extra text, or even swap out parts of the image entirely.</p>
 <h2 id="undefined">Powering small multiples with CSS</h2>
-<p>We'll come back to external embeds in a bit. But generally speaking, the most effective way to include an SVG into your page is as inline elements. That doesn't mean you have to write them all in directly&mdash;I'm a big fan of using templating or a custom element like our <a href="https://github.com/seattletimes/savage-image">Savage Image</a> tag, which loads the SVG in a separate network request and then places it in the document for you. This gives you the best of both worlds: small page size and load time, combined with the ability to access and style elements directly.</p>
+<p>Loading external SVG files can be helpful for static elements. But generally speaking, the most effective way to include an SVG into your page is still as inline elements. That doesn't mean you have to write them all in directly&mdash;I'm a big fan of using templating or a custom element like our <a href="https://github.com/seattletimes/savage-image">Savage Image</a> tag, which loads the SVG in a separate network request and then places it in the document for you. This gives you the best of both worlds: small page size and load time, combined with the ability to access and style elements directly.</p>
 <p>Let's take a look at one potential method for using inline SVG in data visualization. We'll create a graphic that uses a template and CSS classes to generate small multiples. In this case, the graphic represents injuries to a football team as a set of paper dolls, with injured limbs shaded. Here's our template function, which takes a string of injuries and then adds those to the <var>data-injuries</var> attribute of its output.</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> generatePlayer = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">injuries</span>) </span>{
 <span class="hljs-keyword">return</span> <span class="hljs-string">`
@@ -94,6 +99,7 @@
 <span class="hljs-selector-attr">[data-injuries~="right-leg"]</span> <span class="hljs-selector-class">.right-leg</span> * { <span class="hljs-attribute">fill</span>: red }</pre></code>
 <p>Putting these two together, we can generate a set of paper dolls that will quickly color themselves based on the data we simply pass through:</p>
 <style>
+.doll { display: inline-block }
 [data-injuries~="head"] .head * { fill: red }
 [data-injuries~="torso"] .torso * { fill: red }
 [data-injuries~="left-arm"] .left-arm * { fill: red }
@@ -105,7 +111,7 @@
 <script>
 var generatePlayer = function(injuries) {
 return `
-<svg width="100" height="140" data-injuries="${injuries}">
+<svg class="doll" width="100" height="140" data-injuries="${injuries}">
   <g class="head">
     <circle cx="50" cy="20" r="20" />
   </g>
@@ -138,8 +144,16 @@ var injuries = [
 ];
 document.querySelector(".injury-dolls").innerHTML = injuries.map(generatePlayer).join("\n");
 </script>
-<h2 id="undefined">The limits of SVG media queries</h2>
-<h2 id="undefined">Art directing with <var>srcset</var></h2>
+<p>Pardon my artistic skills, of course: I'm no designer. However, you can see this same technique used with much more panache in the <a href="http://www.seattletimes.com/sports/seahawks/earl-thomas-tyler-lockett-thomas-rawls-tracking-seahawks-injuries-in-2016/">Seahawks injuries database</a> built by my colleagues, Emily Eng and Vanessa Martínez.</p>
+<p>As demonstrated by Emily and Vanessa's work, part of the advantage of working with CSS classes to style child nodes within an SVG is that it's well-suited to a production process that integrates graphic artists or designers: assets produced in Illustrator with IDs given to groups can then be easily used by a developer to style subsets of the image. I recommend having the graphic produced with all the highlights "turned on" with a common style, which will link them to a shared class. That class can then be turned off in CSS until the correct attribute or class is applied to its parent element.</p>
+<h2 id="undefined">The limits of styling SVG</h2>
+<p>At this point, I hope you're excited by the possibilities: we can use CSS to alter our images, either in response to JavaScript-driven markup or to anything exposed via media query (screen size, orientation, media type, or input type). But don't get too thrilled: although we can do a lot with styles, they're still limited in what they can accomplish.</p>
+<p>Basically, you can use any style properties that are included in the list of presentation attributes:</p>
+<code>
+alignment-baseline, baseline-shift, clip, clip-path, clip-rule, color, color-interpolation, color-interpolation-filters, color-profile, color-rendering, cursor, direction, display, dominant-baseline, enable-background, fill, fill-opacity, fill-rule, filter, flood-color, flood-opacity, font-family, font-size, font-size-adjust, font-stretch, font-style, font-variant, font-weight, glyph-orientation-horizontal, glyph-orientation-vertical, image-rendering, kerning, letter-spacing, lighting-color, marker-end, marker-mid, marker-start, mask, opacity, overflow, pointer-events, shape-rendering, stop-color, stop-opacity, stroke, stroke-dasharray, stroke-dashoffset, stroke-linecap, stroke-linejoin, stroke-miterlimit, stroke-opacity, stroke-width, text-anchor, text-decoration, text-rendering, unicode-bidi, visibility, word-spacing, writing-mode
+</code>
+<p>Notably missing from this list are the important coordinate-related attributes: no <var>x</var>, no <var>y</var>, no <var>width</var> or <var>height</var>. You can fake some of those with <var>transform</var>, but you cannot apply transforms via CSS to SVG elements in IE or Edge.</p>
+<p>This limits our options somewhat when it comes to creating responsive media, because we can't actually reposition elements. It's possible to create some responsive special effects using nested SVGs and creative use of <var>preserveAspectRatio</var>, as <a href="https://www.sarasoueidan.com/blog/nesting-svgs/">Sara Soueidan has written</a>. It may also be possible to take advantage of the small file size of most SVG files by simply duplicating the layers you want to move at different positions, and showing only the one you want.</p>
   </main>
   <nav class="chapter-links bottom">
     <ul>
