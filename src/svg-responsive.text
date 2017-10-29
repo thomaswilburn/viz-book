@@ -45,12 +45,12 @@ If you're on a desktop machine, try resizing your window to see when the square 
 @html...
 <svg width="100" height="100 viewBox="0 0 100" style="display: block">
   <style>
-rect { fill: blue }
+.responsive-rect { fill: blue }
 @media (min-width: 400px) {
-  rect { fill: green }
+  .responsive-rect { fill: green }
 }
   </style>
-  <rect x="20" y="20" width="60" height="60"></rect>
+  <rect class="responsive-rect" x="20" y="20" width="60" height="60"></rect>
 </svg>
 
 <img src="static/media-query.svg" style="width: 80%; padding: 0 40px; display: block">
@@ -62,7 +62,101 @@ This ability to adjust styles based on the size of the image element, and not th
 
 @subhead Powering small multiples with CSS
 
+We'll come back to external embeds in a bit. But generally speaking, the most effective way to include an SVG into your page is as inline elements. That doesn't mean you have to write them all in directly&mdash;I'm a big fan of using templating or a custom element like our <a href="https://github.com/seattletimes/savage-image">Savage Image</a> tag, which loads the SVG in a separate network request and then places it in the document for you. This gives you the best of both worlds: small page size and load time, combined with the ability to access and style elements directly.
 
+Let's take a look at one potential method for using inline SVG in data visualization. We'll create a graphic that uses a template and CSS classes to generate small multiples. In this case, the graphic represents injuries to a football team as a set of paper dolls, with injured limbs shaded. Here's our template function, which takes a string of injuries and then adds those to the <var>data-injuries</var> attribute of its output.
+
+@codeblock(js)...
+var generatePlayer = function(injuries) {
+return `
+<svg width="100" height="140" data-injuries="${injuries}">
+  <g class="head">
+    <circle cx="50" cy="20" r="20" />
+  </g>
+  <g class="torso">
+    <rect x="25" y="40" width="50" height="60" />
+  </g>
+  <g class="right-arm">
+    <rect x="0" y="40" width="25" height="20" />
+  </g>
+  <g class="left-arm">
+    <rect x="75" y="40" width="25" height="20" />
+  </g>
+  <g class="right-leg">
+    <rect x="25" y="100" width="15" height="40" />
+    <rect x="10" y="120" width="25" height="20" />
+  </g>
+  <g class="right-leg">
+    <rect x="60" y="100" width="15" height="40" />
+    <rect x="60" y="120" width="25" height="20" />
+  </g>
+</svg>
+  `;
+};
+...codeblock
+
+A little CSS, meanwhile, will cause set the fill of shapes inside groups that match each injury string (see the chapter on <a href="css-matrix.html">attribute selectors</a> for more detail on how this works):
+
+@codeblock(css)...
+[data-injuries~="head"] .head * { fill: red }
+[data-injuries~="torso"] .torso * { fill: red }
+[data-injuries~="left-arm"] .left-arm * { fill: red }
+[data-injuries~="right-arm"] .right-arm * { fill: red }
+[data-injuries~="left-leg"] .left-leg * { fill: red }
+[data-injuries~="right-leg"] .right-leg * { fill: red }
+...codeblock
+
+Putting these two together, we can generate a set of paper dolls that will quickly color themselves based on the data we simply pass through:
+
+@html...
+<style>
+[data-injuries~="head"] .head * { fill: red }
+[data-injuries~="torso"] .torso * { fill: red }
+[data-injuries~="left-arm"] .left-arm * { fill: red }
+[data-injuries~="right-arm"] .right-arm * { fill: red }
+[data-injuries~="left-leg"] .left-leg * { fill: red }
+[data-injuries~="right-leg"] .right-leg * { fill: red }
+</style>
+<div class="injury-dolls"></div>
+<script>
+var generatePlayer = function(injuries) {
+return `
+<svg width="100" height="140" data-injuries="${injuries}">
+  <g class="head">
+    <circle cx="50" cy="20" r="20" />
+  </g>
+  <g class="torso">
+    <rect x="25" y="40" width="50" height="60" />
+  </g>
+  <g class="right-arm">
+    <rect x="0" y="40" width="25" height="20" />
+  </g>
+  <g class="left-arm">
+    <rect x="75" y="40" width="25" height="20" />
+  </g>
+  <g class="right-leg">
+    <rect x="25" y="100" width="15" height="40" />
+    <rect x="10" y="120" width="25" height="20" />
+  </g>
+  <g class="right-leg">
+    <rect x="60" y="100" width="15" height="40" />
+    <rect x="60" y="120" width="25" height="20" />
+  </g>
+</svg>
+  `;
+};
+
+var injuries = [
+  "left-arm torso",
+  "head",
+  "right-arm left-leg",
+  "head torso left-leg"
+];
+document.querySelector(".injury-dolls").innerHTML = injuries.map(generatePlayer).join("\n");
+</script>
+...html
+
+Pardon my artistic skills, of course: I'm no designer. However, you can see this same technique used with much more panache in the <a href="http://www.seattletimes.com/sports/seahawks/earl-thomas-tyler-lockett-thomas-rawls-tracking-seahawks-injuries-in-2016/">Seahawks injuries database</a> built by my colleagues, Emily Eng and Vanessa Martínez.
 
 @subhead The limits of SVG media queries
 
