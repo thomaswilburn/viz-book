@@ -31,9 +31,9 @@
     ]
   },
   {
-    "section": "Performance tips and tricks",
+    "section": "section-perf",
     "chapters": [
-      "Debugging and dev tools",
+      "perf-debugging",
       "FLIP animations",
       "Measuring page speed for news",
       "Strategies for deferred loading",

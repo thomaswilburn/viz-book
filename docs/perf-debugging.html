@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Debugging and dev tools</title>
+  <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans|Manuale" rel="stylesheet">
+  <link rel="stylesheet" href="static/style.css">
+  <link rel="stylesheet" href="static/highlight/hybrid.css">
+</head>
+<body class="perf-debugging chapter">
+  <nav class="chapter-links top">
+    <ul>
+      <li class="previous"> <a href="section-perf.html"> &laquo; Performance and other problems</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href=""> FLIP animations &raquo;</a>
+    </ul>
+  </nav>
+  <main>
+  <aside class="summary">
+    Dev tools starting points | What to look for | Debugging mobile devices
+  </aside>
+  <h1>Debugging and dev tools</h1>
+<p>Of all the things you learn on the web, there are some skills that have a disproportionate impact, in that they fundamentally change the way you work for the better. For me, one of those was templating, being able to generate HTML in an orderly way instead of haphazardly. Another was learning to write a build system, crucial for news app templates like Tarbell (or the template I've put together for the Seattle Times). But probably the biggest upgrade in my skillset was learning to use Firebug, the ur-developer toolkit first released in 2006 for Firefox.</p>
+<p>Dev tools vary between browsers and are updated rapidly, so we won't try to cover everything under the sun. But there are common elements between them that you should know: how to use the DOM inspector, how to place and use breakpoints, and useful tricks in the console.</p>
+<p>Note that for the purposes of this page, I'll be focusing on the Chrome and Firefox dev tools. It is good to have a working knowledge of the Edge and Safari developer experience, especially since those two are likely to be your "problem browsers." But for most working web developers, the best full-time tooling is in the two cross-platform browsers, Chrome and Firefox.</p>
+<h2 id="undefined">Inspecting the DOM</h2>
+<p>The vast majority of my time in the dev tools is usually spent looking at the DOM through the element inspector (which may be called "Elements" or "Inspector," depending on the browser). That's in large part because it's the place where feedback is most immediate, and where the task at hand (small visual tweaks in CSS) can be hardest to debug. It's also the easiest panel to get to: right-click on a part of the page, choose "inspect," and it'll open right up.</p>
+<p>The element inspector displays the live document tree. This is useful, because of course the pages that a user sees are often much different from the original document that's sent to the browser: we mutate them with JavaScript, and we may also manipulate them using CSS (say, by adding pseudo-elements in different places). But what you see in the element inspector is the "browser's eye" view, and the actual source of truth for what gets shown.</p>
+<p>You'll notice that as you run your mouse over the tree, you should see the elements highlighted in the page, with different colors representing their content, padding, margin, and border. Next to (or below, depending on the size of your dev tools window) the DOM tree, there should also be a panel showing the styles for the selected element. Click on a part of the tree, and you'll see the styles that are applied to it in descending order (meaning, the top-most styles are the ones that actually get applied).</p>
+<p>We say that the inspector is "live" in that it reflects any changes that are made to the document. But that relationship also runs the other way: you can use the inspector to change the document, often without even writing code. For example, you can drag and drop elements around the tree to rearrange the document. You can also click on the values in the style inspector and change them, either by manually typing numbers, or by using the up and down arrows to step through numerical values. If the value of a style is a color, there's a little preview swatch, and clicking on that swatch displays a color picker. If you haven't used the style panel much, I recommend just clicking around and seeing what you can discover&mdash;it's an incredibly rich environment for experimentation.</p>
+<p>It's natural to use the inspector during development of your own pages, since this is actually the intended purpose. But I want to stress that even if you're not a front-end developer, this panel is still incredibly useful:</p>
+<ul>
+<li>You can use the inspector to find elements when performing page scraping, and they'll even generate a selector for you.</li>
+<li>You can turn off or alter styles that make a page difficult to read, such as low contrast text or webfonts that are unnecessarily flashy.</li>
+<li>You can hide or delete elements. I'm not saying that you should use the element inspector to effectively slide right by paywalls or obnoxious advertisements, but I am saying that you'll never look at the huge sticky toolbar on Medium the same way again.</li>
+</ul>
+<p>You should get used to debugging other people's pages this way: it's one of the best ways to learn new CSS and HTML techniques. Many of the tricks that are in this book&mdash;the aspect-ratio padding hack, the weird attribute selectors, and the creation of responsive SVG files&mdash;were learned by digging into other people's code and seeing what made it tick.</p>
+<h2 id="undefined">Debugging and using breakpoints</h2>
+<p>Of course, it's sometimes no easier to tell what makes your own code tick, particularly if you step away from it for a week or two. So the second most important panel in the dev tools is the debugger (referred to, in Chrome at least, as "Sources"). Being able to use a debugger effectively will save hours of chasing down bugs, particularly in projects where you're breaking in one particular iteration of hundreds or thousands of data points.</p>
+<script>
+var broken = function(a, b) {
+  var c = a + b;
+  return d;
+}
+
+var init = function() {
+  broken(1, 2);
+  //this next line will automatically pause if dev tools are open.
+  debugger;
+}
+
+init();
+</script>
+<p>To get us started with the debugger, I've written a script into this page that will break in a particular place. There should be an error in the console when you load it: click on the</p>
+<h2 id="undefined">Better console output</h2>
+  </main>
+  <nav class="chapter-links bottom">
+    <ul>
+      <li class="previous"> <a href="section-perf.html"> &laquo; Performance and other problems</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href=""> FLIP animations &raquo;</a>
+    </ul>
+  </nav>
+</body>
+</html>
