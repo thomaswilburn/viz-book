@@ -168,7 +168,7 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
   <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
 }</pre></code>
 <h3>Activating sections once</h3>
-<p>A common task is to cause an effect to trigger an effect only once per section. Using an array filter is a simple way to do this, since it actually just removes the element from the bounds check. With a little extra work, we can even kill the listener when we're out of single-use elements.</p>
+<p>A common task is to cause an effect to trigger an effect only once per section, per page load. Using an array filter is a simple way to do this, since it actually just removes the element from the bounds check. With a little extra work, we can even kill the listener when we're out of single-use elements.</p>
 <code class="language-js"><pre><span class="hljs-comment">//elements is an array of scroll zones</span>
 <span class="hljs-keyword">var</span> scrollCheck = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
   elements = elements.filter(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">el</span>) </span>{

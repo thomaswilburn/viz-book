@@ -154,7 +154,7 @@ people.forEach(function(person) {
 });
 ...codeblock
 
-Unfortuantely, by using individual listener functions for each element, you're adding some extra memory for every element you create. That may not be important, if you only have a few people in your graphic. But if you have a lot, or if you repeatedly remove and create new elements (say, because you allow the list of people to be filtered), you'll end up using a lot more memory, which may cause your application to stutter, slow down, or even become unresponsive.
+Unfortunately, by using individual listener functions for each element, you're adding some extra memory for every element you create. That may not be important, if you only have a few people in your graphic. But if you have a lot, or if you repeatedly remove and create new elements (say, because you allow the list of people to be filtered), you'll end up using a lot more memory, which may cause your application to stutter, slow down, or even become unresponsive.
 
 It's preferable instead to share a single listener function between all of your elements. By defining it outside the loop, you'll create the function once, and then it can use the <var>this</var> value to determine which specific element was clicked.
 
@@ -205,5 +205,33 @@ people.forEach(function(person) {
 As a rule of thumb, remember that when you're writing markup, you're leaving clues for your future self. Be generous! HTML generated via JavaScript doesn't cost the user in terms of download time or (barring extreme cases) parse time, so make sure that you place classes and attributes throughout to be helpful for yourself, instead of just using bare tags. You never know when you might need those hooks later.
 
 Of course, if you're using the <var>this</var> value and a lookup object, you can probably use <a href="js-jquery.html#delegation">event delegation</a>, which gives you the best of both worlds: easier-to-write string templating, low memory usage, and simple code. This is our most common methodology at the Seattle Times for its simplicity and speed under deadline.
+
+@codeblock(js)...
+var lookup = {};
+
+var clickedPerson = function() {
+  var id = this.getAttribute("data-person");
+  // which person has that ID?
+  var person = lookup[id];
+  console.log(`You clicked on ${person.name}`);
+};
+
+var html = "";
+people.forEach(function(person) {
+  // store the person in our lookup table
+  lookup[person.id] = person;
+
+  html += `
+    <div class="person" data-person="${person.id}">
+      <img src="${person.mug}">
+      <h2>${person.name}</h2>
+    </div>
+  `
+});
+container.innerHTML = html;
+
+// see definition for delegate in the earlier chapter
+delegate(container, "[data-person]", "click", clickedPerson);
+...codeblock
 
 Either way, the circle is now complete: we generate markup from the data, track the IDs that we've left on our elements, and then use those IDs to get the data back when events occur in the generated markup. This architecture is pretty consistent across every interactive I've ever created, with the real differences only being in where I get the data, and what I do in response to events. Learn to adapt these patterns, and they'll serve you well.

@@ -221,7 +221,7 @@ if (bounds.bottom < 0 || bounds.top > window.innerHeight) {
 
 @subsubhead Activating sections once
 
-A common task is to cause an effect to trigger an effect only once per section. Using an array filter is a simple way to do this, since it actually just removes the element from the bounds check. With a little extra work, we can even kill the listener when we're out of single-use elements.
+A common task is to cause an effect to trigger an effect only once per section, per page load. Using an array filter is a simple way to do this, since it actually just removes the element from the bounds check. With a little extra work, we can even kill the listener when we're out of single-use elements.
 
 @codeblock(js)...
 //elements is an array of scroll zones
