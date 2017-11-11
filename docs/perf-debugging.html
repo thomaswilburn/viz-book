@@ -13,7 +13,7 @@
     <ul>
       <li class="previous"> <a href="section-perf.html"> &laquo; Performance and other problems</a>
       <li> <a href="index.html">&bigstar;</a>
-      <li class="next"> <a href=""> FLIP animations &raquo;</a>
+      <li class="next"> <a href="perf-flip.html"> FLIP for smooth animations &raquo;</a>
     </ul>
   </nav>
   <main>
@@ -22,8 +22,9 @@
   </aside>
   <h1>Debugging and dev tools</h1>
 <p>Of all the things you learn on the web, there are some skills that have a disproportionate impact, in that they fundamentally change the way you work for the better. For me, one of those was templating, being able to generate HTML in an orderly way instead of haphazardly. Another was learning to write a build system, crucial for news app templates like Tarbell (or the template I've put together for the Seattle Times). But probably the biggest upgrade in my skillset was learning to use Firebug, the ur-developer toolkit first released in 2006 for Firefox.</p>
-<p>Dev tools vary between browsers and are updated rapidly, so we won't try to cover everything under the sun. But there are common elements between them that you should know: how to use the DOM inspector, how to place and use breakpoints, and useful tricks in the console.</p>
+<p>Dev tools vary between browsers and are updated rapidly, so we won't try to cover everything under the sun. But there are common elements between them that you should know: how to use the DOM inspector, how to place and use breakpoints, and how to debug a mobile page.</p>
 <p>Note that for the purposes of this page, I'll be focusing on the Chrome and Firefox dev tools. It is good to have a working knowledge of the Edge and Safari developer experience, especially since those two are likely to be your "problem browsers." But for most working web developers, the best full-time tooling is in the two cross-platform browsers, Chrome and Firefox.</p>
+<p>While working in the dev tools, you can usually have the console open at all times, even while you're looking at other panels. There's a menu option to do so, but usually the easiest way to show and hide the console drawer is to press the Esc key. Having a console open while you work on a page is like having a command line that's always present, but just for your page.</p>
 <h2 id="undefined">Inspecting the DOM</h2>
 <p>The vast majority of my time in the dev tools is usually spent looking at the DOM through the element inspector (which may be called "Elements" or "Inspector," depending on the browser). That's in large part because it's the place where feedback is most immediate, and where the task at hand (small visual tweaks in CSS) can be hardest to debug. It's also the easiest panel to get to: right-click on a part of the page, choose "inspect," and it'll open right up.</p>
 <p>The element inspector displays the live document tree. This is useful, because of course the pages that a user sees are often much different from the original document that's sent to the browser: we mutate them with JavaScript, and we may also manipulate them using CSS (say, by adding pseudo-elements in different places). But what you see in the element inspector is the "browser's eye" view, and the actual source of truth for what gets shown.</p>
@@ -46,20 +47,29 @@ var broken = function(a, b) {
 
 var init = function() {
   broken(1, 2);
-  //this next line will automatically pause if dev tools are open.
-  debugger;
+  // this next line sets a breakpoint programmatically if uncommented.
+  // debugger;
 }
 
 init();
 </script>
-<p>To get us started with the debugger, I've written a script into this page that will break in a particular place. There should be an error in the console when you load it: click on the</p>
-<h2 id="undefined">Better console output</h2>
+<p>To get us started with the debugger, I've written a script into this page that will break in a particular place. There should be an error in the console when you load it: click on the error location (on the right side of the console line, which should look something like <var>perf-debugging.html:44</var>, meaning line 44 of this file) to jump to the source. The line should be highlighted, and there will usually be a notification about what caused it to break (in this case, <var>d</var> is undefined).</p>
+<p>Now, let's use the real power of a debugger to try out a solution. Still looking at the source file, click on the line number where the error occurred. This should highlight the line number in blue, meaning that a <em>breakpoint</em> is set. Breakpoints effectively pause your script before executing the line. While the script is frozen, you can mouse over variables to see their value. You can also use the console to run snippets of code (remember, you can toggle the console drawer from any dev tools panel by pressing Esc). Your code will run as if you had inserted it where the breakpoint goes, meaning that you have access to any variables that are in scope at that location.</p>
+<p>Let's run a quick line to see how to fix this error, where we have an undefined variable. One way to fix it would simply be to defined it, so from your console type <var>var d = c</var> and press enter. Once that's done, you can use the "resume" button (which will look like either a play button or a stop sign, depending on the browser) or press F8 to continue. Now we've monkey-patched the code to define the missing variable, and the code will continue from there.</p>
+<p>The problem with breakpoints is that for many data journalism contexts they may be more trouble than they're worth. Inside a loop through 1,000 rows of data, for example, you don't want to have to hammer "continue" until you actually hit the error. In that scenario, it may be easier to set a <em>conditional</em> breakpoint: right-click on the number and choose to add a conditional breakpoint, and then fill in the expression (imagine it as the conditional section of an <var>if</var> statement). For example, if I'm looping through a geo dataset but only breaking on a certain FIPS code, I might add a breakpoint with the condition set to <var>row.fips == "53"</var>, and it'll only pause the script on rows where that's the case.</p>
+<h2 id="undefined">Debugging mobile</h2>
+<p>Phones are great, but if you've ever ended up with a bug that, say, only appears in Safari on an actual iOS device, you also know that debugging on mobile is an exercise in pain. It would be nice to have dev tools on the device, but given the screen sizes, it's hard to imagine how that would even work. However, before you resort to <var>alert()</var> and hammering refresh, you should be aware that it <em>is</em> possible to attach dev tools on your desktop to the mobile browser connected via a USB cable, which gives you all the power you're used to.</p>
+<ul>
+<li><b>iOS</b>: In your device's settings, under Safari > Advanced, check the box reading "Web Inspector." You'll also need to have iTunes running, and have the Develop menu activated in your desktop Safari instance. When all that is turned on, there should be a menu entry for your device, with a submenu for each active tab. The Safari dev tools are very crashy, so get ready to reattach them regularly.</li>
+<li><b>Android</b>: On the device, activate developer mode (you'll need to look up what this means for your OS version). Then, in the developer settings, activate "USB Debugging." Finally, on your desktop in Chrome, visit <var>chrome://inspect</var> and see if your device is listed. This can be a little finicky, but if it works, you should be able to inspect active tabs or open new tabs from the desktop window.</li>
+</ul>
+<p>When using the remote inspector, you should be able to view the DOM, edit styles, and set breakpoints the same as you would on the desktop. You can also interact with the device when using the "select element" button: press the button on desktop, then tap the element that you want to inspect.</p>
   </main>
   <nav class="chapter-links bottom">
     <ul>
       <li class="previous"> <a href="section-perf.html"> &laquo; Performance and other problems</a>
       <li> <a href="index.html">&bigstar;</a>
-      <li class="next"> <a href=""> FLIP animations &raquo;</a>
+      <li class="next"> <a href="perf-flip.html"> FLIP for smooth animations &raquo;</a>
     </ul>
   </nav>
 </body>
