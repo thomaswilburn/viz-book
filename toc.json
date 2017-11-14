@@ -34,7 +34,7 @@
     "section": "section-perf",
     "chapters": [
       "perf-debugging",
-      "FLIP animations",
+      "perf-flip",
       "Measuring page speed for news",
       "Strategies for deferred loading",
       "Common sources of slowness"

@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>FLIP for smooth animations</title>
+  <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans|Manuale" rel="stylesheet">
+  <link rel="stylesheet" href="static/style.css">
+  <link rel="stylesheet" href="static/highlight/hybrid.css">
+</head>
+<body class="perf-flip chapter">
+  <nav class="chapter-links top">
+    <ul>
+      <li class="previous"> <a href="perf-debugging.html"> &laquo; Debugging and dev tools</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href=""> Measuring page speed for news &raquo;</a>
+    </ul>
+  </nav>
+  <main>
+  <aside class="summary">
+    From A to B | Using FLIP on many elements | Stack of reflow
+  </aside>
+  <h1>FLIP for smooth animations</h1>
+<p>Traditionally, animation in a browser has involved one of two strategies:</p>
+<ul>
+<li>Run the animation dynamically, updating position on each frame from JavaScript</li>
+<li>Define a CSS animation or transition, and let the browser handle it</li>
+</ul>
+<p>Neither of these approaches is necessarily bad, but they each have serious disadvantages. Manually directing an animation from JavaScript means running code that touches the DOM on every frame, which is difficult to do smoothly (especially on resource-constrained devices). On the other hand, animating using CSS means that you're locking into specific changes that are defined ahead of time, and cannot easily respond to updated page content or user input.</p>
+<p>In 2015, Chrome developer advocate Paul Lewis published an influential article called "<a href="https://aerotwist.com/blog/flip-your-animations/">Flip your animations</a>" that proposed a third method: use JavaScript to define the start and end points of the animation, then let CSS take over so that the browser can smoothly transition between those two states. His technique wasn't without its own limitations, since it's optimized for changes in the <var>transform</var> property (namely position, scaling, and rotation). But since those are typically the properties we want to change anyway, it's a powerful tool to learn.</p>
+<h2 id="undefined">Breaking down the process</h2>
+<p>FLIP gets its name from the four stages of the animation process:</p>
+<ul>
+<li><b>First</b>: Store the starting position of the element being animated</li>
+<li><b>Last</b>: Move the element to its final position</li>
+<li><b>Invert</b>: Using transforms, "move" the element back to its starting position</li>
+<li><b>Play</b>: Finally, turn on transitions and remove the transforms to "play" the animation</li>
+</ul>
+<p>It's probably easier to understand as code, though:</p>
+<code class="language-js"><pre><span class="hljs-comment">// get the initial position</span>
+<span class="hljs-keyword">var</span> first = element.getBoundingClientRect();
+
+<span class="hljs-comment">// you can mutate this element's position or size</span>
+<span class="hljs-comment">// you can even animate "into" a second element if you want</span>
+<span class="hljs-comment">// here we'll add a class</span>
+element.classList.add(<span class="hljs-string">"active"</span>);
+
+<span class="hljs-comment">// measure the resulting position</span>
+<span class="hljs-keyword">var</span> last = element.getBoundingClientRect();
+<span class="hljs-comment">// invert the position</span>
+<span class="hljs-keyword">var</span> t = {
+  <span class="hljs-attr">top</span>: first.top - last.top,
+  <span class="hljs-attr">left</span>: first.left - last.left,
+  <span class="hljs-attr">width</span>: last.width / first.width,
+  <span class="hljs-attr">height</span>: last.height / first.height
+};
+<span class="hljs-comment">// this transform moves the element to its original position/size</span>
+element.style.transform = <span class="hljs-string">`translate(<span class="hljs-subst">${t.left}</span>px, <span class="hljs-subst">${t.top}</span>px) scale(<span class="hljs-subst">${t.width}</span>, <span class="hljs-subst">${t.height}</span>)`</span>;
+
+<span class="hljs-comment">// turn on transitions and remove the transform to "play" it</span>
+<span class="hljs-comment">// we wait a frame to give the browser a chance to render</span>
+requestAnimationFrame(<span class="hljs-function"><span class="hljs-params">_</span> =&gt;</span> {
+  element.classList.add(<span class="hljs-string">"enable-transition"</span>);
+  element.style.transform = <span class="hljs-string">""</span>;
+});</pre></code>
+<p>The key to FLIP is that it prioritizes the CSS properties that browsers can animate smoothly, because they map cleanly to operations that can be offloaded to the GPU: fading opacity and transforming size or position without affecting layout. Other properties, like changing the color of a background or the layout dimensions of an element, require the browser to repaint element contents instead of re-using them in an composited layer. Paul Lewis' <a href="https://csstriggers.com/">CSS Triggers</a> can serve as a guide for which properties cause repaint, and which ones only need compositing.</p>
+<h2 id="undefined">Making FLIP slow</h2>
+<p>Here's the thing about doing FLIP: it's basically a process of moving the expensive parts of animation to the beginning of the process so that the rest can go smoothly. Those two calls to <var>getBoundingClientRect()</var> at the start of the process are relatively slow, but after that all animation is done by the browser without any script. For only one or two concurrent animations, that's fine.</p>
+<p>However, if you're animating many elements&mdash;say, a scatterplot or a stacked bar chart that transitions between relative and absolute numbers&mdash;it's easy to blow through your frame budget by using FLIP naively. Each time you collect two measurements separated by a DOM mutation, it requires the browser to perform a full page layout and measurement, and you can't afford many of those.</p>
+<p>Instead, if you have many elements you're planning on animating, you'll want to batch reads and writes. The browser is smart enough to cache the layout data in between <var>getBoundingClientRect()</var> calls as long as you don't change the page in any way, and it also applies changes lazily if you let it. So the key is to use an array to associate intermediate values across animation phases for many elements.</p>
+<code class="language-js"><pre><span class="hljs-comment">// start with a set of elements</span>
+<span class="hljs-keyword">var</span> elements = $(<span class="hljs-string">".animation-targets"</span>);
+
+<span class="hljs-comment">// Perform "First" step for all elements</span>
+<span class="hljs-keyword">var</span> flip = elements.map(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">element</span>) </span>{
+  <span class="hljs-keyword">return</span> {
+    element,
+    <span class="hljs-attr">first</span>: element.getBoundingClientRect()
+  };
+});
+
+<span class="hljs-comment">// Mutate all elements at once</span>
+flip.forEach(<span class="hljs-function"><span class="hljs-params">el</span> =&gt;</span> el.classList.add(<span class="hljs-string">"active"</span>));
+
+<span class="hljs-comment">// Get the "Last" position and invert</span>
+flip.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">f</span>) </span>{
+  <span class="hljs-keyword">var</span> last = f.element.getBoundingClientRect();
+  <span class="hljs-keyword">var</span> invert = {
+    <span class="hljs-attr">top</span>: f.first.top - last.top,
+    <span class="hljs-attr">left</span>: f.left.top - last.left
+  };
+  f.element.style.transform = <span class="hljs-string">`translate(<span class="hljs-subst">${invert.left}</span>px, <span class="hljs-subst">${invert.top}</span>px)`</span>;
+});
+
+<span class="hljs-comment">// now after a frame to render, play all</span>
+requestAnimationFrame(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  flip.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">f</span>) </span>{
+    f.element.classList.add(<span class="hljs-string">"enable-transitions"</span>);
+    f.element.style.transform = <span class="hljs-string">""</span>;
+  });
+});</pre></code>
+<p>This kind of batching is not new: Wilson Page's <a href="https://github.com/wilsonpage/fastdom">FastDOM</a> library (created at the Financial Times) has been offering tools for years that let developers prevent costly document reflow by combining reads and writes. But with FLIP, we need to make it very explicit, and account for the <a href="https://aerotwist.com/blog/the-anatomy-of-a-frame/">anatomy of a frame</a>. It may be possible, one day, that browsers will automatically make these kinds of performance improvements for us, but speaking from my limited experience with game engines, I doubt it.</p>
+  </main>
+  <nav class="chapter-links bottom">
+    <ul>
+      <li class="previous"> <a href="perf-debugging.html"> &laquo; Debugging and dev tools</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href=""> Measuring page speed for news &raquo;</a>
+    </ul>
+  </nav>
+</body>
+</html>
