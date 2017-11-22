@@ -1,0 +1,104 @@
+<div class="dial-container">
+  <canvas class="dial"></canvas>
+</div>
+<style>
+.dial-container {
+  position: relative;
+  max-width: 400px;
+  margin: 30px auto;
+}
+
+.dial-container::before {
+  content: "";
+  display: block;
+  padding-bottom: 100%;
+}
+
+.dial {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  outline: 1px solid gray;
+}
+</style>
+<script>
+  
+  var canvas = document.querySelector(".dial");
+  var context = canvas.getContext("2d");
+  
+  var result = {
+    value: 50,
+    margin: 2,
+    displayed: 50
+  };
+  
+  // update the margin of error every few seconds
+  // pretend this is AJAX polling
+  var updateResults = function() {
+    result.value = Math.random() * 20 + 35;
+    result.margin = Math.random() * 10 + 2;
+    setTimeout(updateResults, 3000);
+  }
+  updateResults();
+  
+  var arcs = [
+    [ 1.25, 1.375, "rgba(255, 0, 0, .5)" ],
+    [ 1.375, 1.5, "rgba(255, 0, 0, .2)" ],
+    [ 1.5, 1.625, "rgba(0, 0, 255, .2)" ],
+    [ 1.625, 1.75, "rgba(0, 0, 255, .5)" ]
+  ];
+  
+  // here's our render function
+  // it will get a timestamp t as an argument
+  var render = function(t) {
+    // reset width and height, clearing canvas
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    
+    //useful metrics
+    var dialCoords = {
+      x: canvas.width * .5,
+      y: canvas.width * .8,
+      r: canvas.width * .6
+    };
+    var bounds = {
+      min: Math.PI * 1.25,
+      max: Math.PI * 1.75,
+      range: Math.PI * .5
+    }
+    
+    //draw the background arcs
+    context.lineWidth = canvas.width * .1;
+    arcs.forEach(function(arc) {
+      var [from, to, color ] = arc;
+      context.beginPath();
+      context.arc(dialCoords.x, dialCoords.y, dialCoords.r, Math.PI * from, Math.PI * to);
+      context.strokeStyle = color;
+      context.stroke();
+    });
+    
+    // figure the needle position
+    // value is Math.sin() * the error rate + the current scaled value
+    var jiggle = Math.sin(t / 100) * result.margin;
+    var value = result.value + jiggle;
+    var scaled = value / 100 * bounds.range + bounds.min;
+    
+    
+    // draw the needle
+    context.beginPath();
+    context.moveTo(dialCoords.x, dialCoords.y);
+    var x = Math.cos(scaled) * dialCoords.r * 1.2 + dialCoords.x;
+    var y = Math.sin(scaled) * dialCoords.r * 1.2 + dialCoords.y;
+    context.lineTo(x, y);
+    context.lineWidth = 2;
+    context.strokeStyle = "black";
+    context.stroke();
+    // console.log(value, jiggle, scaled);
+    requestAnimationFrame(render);
+  };
+  
+  // start the animation next frame
+  requestAnimationFrame(render);
+</script>
