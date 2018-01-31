@@ -22,7 +22,7 @@ exports.subsubhead = (_, { lines }) => `<h3>${lines.join("\n").trim()}</h3>`;
 
 var escapeHTML = s => s.replace(/&/g, "&amp;").replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
 
-exports.codeblock = function(_, def) {
+exports.codeblock = function(context, def) {
   var start = -1;
   var end = 0;
   var { lines, arg } = def;
@@ -34,8 +34,10 @@ exports.codeblock = function(_, def) {
   }
   lines = lines.slice(start, end);
   var contents = lines.join("\n");
-  var highlighted = hljs.highlight(def.arg || "html", contents).value;
-  return `<code class="language-${def.arg}"><pre>${highlighted}</pre></code>`
+  // we ignore illegal parses but that's not great.
+  var highlighted = hljs.highlight(def.arg || "html", contents, true);
+  if (highlighted.relevance == 0) console.log(`Error highlighting file: ${context.filename}`);
+  return `<code class="language-${def.arg}"><pre>${highlighted.value}</pre></code>`
 };
 
 exports.sidebar = (_, { lines }, process) => `<aside class="sidebar">

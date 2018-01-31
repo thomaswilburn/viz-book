@@ -8,7 +8,8 @@
       "js-templates",
       "js-domdata",
       "js-scrolling",
-      "js-canvas"
+      "js-canvas",
+      "js-media"
     ]
   },
   {

@@ -14,7 +14,12 @@ var process = function(lines, context = {}) {
       case "multiline":
         if (l == "..." + active.tag) {
           if (!directives[active.tag]) throw `No matching directive for @${active.tag}`;
-          var result = directives[active.tag](context, active, process);
+          try {
+            var result = directives[active.tag](context, active, process);
+          } catch (err) {
+            console.log(`Error in file: ${context.filename}`);
+            throw err;
+          }
           if (result) processed.push(result);
           mode = null;
           active = false;
@@ -55,7 +60,12 @@ var process = function(lines, context = {}) {
           } else {
             //immediate replace using arguments to end of line
             if (!directives[directive]) throw `No matching directive for @${directive}`;
-            var result = directives[directive](context, { arg, lines: [input] }, process);
+            try {
+              var result = directives[directive](context, { arg, lines: [input] }, process);
+            } catch (err) {
+              console.log(`Error in file: ${context.filename}`);
+              throw err;
+            }
             if (result) processed.push(result);
           }
         } else {

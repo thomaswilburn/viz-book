@@ -30,7 +30,7 @@ path.setAttribute("fill", "red");
 
 @subhead More like text lay-about, amirite?
 
-Using text in an SVG feels thrilling at first: you can place it anywhere you want! It can be scaled arbitrarily! You can place it on a path, like one of those horrible Word "TextArt" printouts that people love to use for leaving nasty notes on the communal refridgerator! 
+Using text in an SVG feels thrilling at first: you can place it anywhere you want! It can be scaled arbitrarily! You can place it on a path, like one of those horrible Word "TextArt" printouts that people love to use for leaving nasty notes on the communal refridgerator!
 
 Unfortunately, once you try to place a significant amount of text into a graphic, it becomes clear that SVG just wasn't designed for doing real layout. You can't wrap text, it gets distorted by the underlying coordinate system, and scaling text up and down directly is rarely what you want for responsive graphics.
 
