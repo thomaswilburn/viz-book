@@ -24,7 +24,14 @@ exports.ul = (_, { lines }) => `<ul>
 ${lines.map(l => `<li>${inlines(l)}</li>`).join("\n")}
 </ul>`;
 
-exports.subhead = (_, { lines, arg }) => `<h2 id="${arg}">${lines.map(inlines).join("\n").trim()}</h2>`;
+exports.subhead = function(context, { lines, arg }) {
+  var contents = lines.join("\n").trim();
+  var id = arg || contents.replace(/[`"',?.]/g, "").replace(/\s+/g, "-").toLowerCase();
+  contents = inlines(contents);
+  if (!context.subheads) context.subheads = [];
+  context.subheads.push({ id, contents });
+  return `<h2 id="${id}">${contents}</h2>`
+};
 
 exports.subsubhead = (_, { lines }) => `<h3>${lines.map(inlines).join("\n").trim()}</h3>`;
 

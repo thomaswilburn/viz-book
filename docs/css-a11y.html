@@ -24,7 +24,7 @@
 <p>Historically, accessibility (often shortened to a11y) has not been strongly emphasized by most interactive news teams. As a result, many of our most interesting work is at best dismissive of much of our audience, and at worst it's actively hostile.</p>
 <p>One reason for our industry's inattention to accessibility is that we tend to think about disability as a binary proposition. But among practitioners, this understanding hasn't been accurate for a long time. Instead, modern "inclusive design" thinking positions ability as a mismatch between a person and their environment--one that is contextual, and exists on a spectrum. All of us fall somewhere on that spectrum throughout our lives, depending on where we are, our health, and the task we're trying to accomplish.</p>
 <p>The goal of inclusive design is to recognize that making a product more accessible tends to benefit users across the entire spectrum of ability. Closed captions may help those who are deaf or hard of hearing, but they also benefit people in noisy environments, who are learning a language, or who want to view a video silently. One-handed operation benefits new parents or people with injuries just as it does those who are missing or unable to use one arm. An accessible product is a better product, for everyone.</p>
-<h2 id="undefined">Accessible by default</h2>
+<h2 id="accessible-by-default">Accessible by default</h2>
 <p>What does it mean to create more accessible news graphics? I'm not an expert, just an enthusiastic beginner. But I like to think about it in terms of three basic challenges:</p>
 <ul>
 <li>Keyboard: Does this graphic let me navigate it only with the keyboard? This benefits users with repetitive stress injuries, low dexterity, and switch access devices.</li>
@@ -51,7 +51,7 @@
 <span class="hljs-selector-class">.play-button</span><span class="hljs-selector-attr">[aria-pressed="true"]</span> {
   // styles for playing state
 }</pre></code>
-<h2 id="undefined">Role playing</h2>
+<h2 id="role-playing">Role playing</h2>
 <p>Behind the scenes, screen readers understand semantic HTML elements through "roles" that are assigned to each one. A button will always have the "button" role, for example. An <var>&lt;a&gt;</var> tag has a "link" role. Using the right elements means that the correct roles will be announced. All of these are defined by the Accessible Rich Internet Applications spec, or ARIA. If you must use a different element, HTML allows you to specify a role for an element. For our purposes, this tends to be useful in two separate cases: generated images and tables.</p>
 <p>If you work on a typical news graphics desk, you may build things that are "images," but are actually composed of HTML and SVG. In a screen reader, these will often be announced in odd ways: for example, the labels on the X axis might be read out without any context, leaving users confused. It's helpful instead to mark the entire block containing the visualization as an image, and giving it a description using ARIA (in place of the alt text all images should have):</p>
 <code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span>
@@ -152,7 +152,7 @@
 <li>VoiceOver can be used on <a href="https://www.apple.com/voiceover/info/guide/_1124.html">OS X</a> and <a href="https://support.apple.com/guide/iphone/learn-voiceover-gestures-iph3e2e2281/ios">iOS</a></li>
 <li>Android includes a built-in screenreader named <a href="https://support.google.com/accessibility/android/answer/6283677?hl=en">TalkBack</a></li>
 </ul>
-<h2 id="undefined">Required reading</h2>
+<h2 id="required-reading">Required reading</h2>
 <p>As you can probably tell, accessibility is a big job, and one that involves a lot of testing to get right. This is just an introduction to the topic. To learn more, you may want to dig into the following resources:</p>
 <ul>
 <li><a href="https://www.w3.org/TR/WCAG21/">The Web Content Accessibility Guidelines</a>, which detail expectations of software that's fully accessible</li>

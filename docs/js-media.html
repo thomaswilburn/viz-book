@@ -43,7 +43,7 @@
 <li>You can also play a video from JavaScript (using the <var>play()</var> method) if it has a <var>muted</var> attribute or no audio tracks.</li>
 <li>Video will be placed in the page as a block, instead of playing as a fullscreen takeover, if it has the <var>playsinline</var>. This is important for Safari, since Chrome on Android has always supported inline video elements.</li>
 </ul>
-<h2 id="undefined">Let's get responsive</h2>
+<h2 id="lets-get-responsive">Let's get responsive</h2>
 <p>We typically think about responsive elements in terms of size. For example, we might want to rearrange the layout if the physical dimensions of the screen are very small or very large. We can also think of it in terms of resolution, delivering bigger or smaller images depending on whether the screen is high-DPI or not. However, there's a third kind of responsiveness that is not well-represented on the web platform now, but is especially important for time-based media like video and audio, and that's <i>bandwidth</i>.</p>
 <p>Your connection to the wider Internet can be classified in several ways. We might use "latency," or the time delay between making a request and getting a response. Or we might discuss "speed" in terms of actual download rate&mdash;how many kilobytes per second you can pull down once the connection is made. We generally expect desktop users to have "fast" connections in both senses, while mobile connections have increasingly high download rates but relatively slow latency. But these rules of thumb are not particularly reliable, so we're already on shaky ground.</p>
 <p>For me, a more important question in terms of bandwidth is the cost. Budget-sensitive users may be using a plan on desktop and/or mobile that has a download cap, at which point they will either be throttled or will need to pay by the byte for traffic. Forcing these users to download a high definition video file, which will dwarf almost any other asset on your page, is not only rude, it may well cost them money. Don't be the person who runs up the data cost for low-income users just for a visual effect.</p>
@@ -81,7 +81,7 @@
   img.parentElement.replaceChild(video, img);
 });</pre></code>
 <p>Creating a design that can scale up or down to a user's capability adds some complexity to this process, and it does require us to re-encode the video into a couple of different files. But this seems like a small price to pay for accessibility.</p>
-<h2 id="undefined">Live updates</h2>
+<h2 id="live-updates">Live updates</h2>
 <p>It's great that the browser's media tags provide controls, and for the most part I strongly recommend using them: they're guaranteed to be accessible and well-tested. Building your own player controls will almost certainly be a more difficult task. That said, we may still want to synchronize other parts of the page with audio playback&mdash;say, for transcripts, slides, or special effects. To do so, we need to be able to handle media events.</p>
 <p>Let's say that we have an audio tag that we want to make "live":</p>
 <code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">audio</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"recording.mp3"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">audio</span>&gt;</span></pre></code>

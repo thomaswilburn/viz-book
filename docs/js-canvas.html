@@ -24,7 +24,7 @@
 <p>The history of the HTML canvas tag is hilariously contentious.</p>
 <p>In 2005, Apple introduced the tag for the first time as a part of their short-lived "dashboard widgets" feature. People <a href="http://ln.hixie.ch/?start=1089635050&count=1">were upset</a>: without consulting anyone or making any attempt to standardize, Safari added an entirely new tag. A few years later, everyone realized it was actually a pretty good idea, and canvas entered the HTML5 spec.</p>
 <p>Canvas lets us create bitmap images (meaning, composed of a grid of pixels) using a relatively simple drawing API. Compared to SVG, performance is relatively high, but it comes at a cost of abstraction: event handling, drawing state, and animations must all be manually programmed. When writing code that uses canvas, it may be worth it to quickly benchmark whether your requirements could be met with DOM and SVG techniques first, before shouldering the extra burden of writing interactive canvas code.</p>
-<h2 id="undefined">A little context</h2>
+<h2 id="a-little-context">A little context</h2>
 <p>Canvas is a powerful tool, but we don't interact with it directly. This in part is because it only represents a bucket of pixels, and there might be multiple ways of setting those pixels. For example, browsers may support WebGL, which also draws to a canvas but uses a very different (and much more cumbersome) API to do so. So our first job is to ask the canvas for a <em>rendering context</em>, specifying that we want to use the regular 2D functions for drawing:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> canvas = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">"canvas"</span>);
 <span class="hljs-keyword">var</span> context = canvas.getContext(<span class="hljs-string">"2d"</span>);</pre></code>
@@ -71,7 +71,7 @@ context.fill();</pre></code>
 <li>Call the actual drawing functions (<var>stroke()</var> and/or <var>fill()</var>) to render your path</li>
 </ul>
 <p>Let's take a look at how to put these things together, by designing a version of everyone's worst dataviz nightmare: the jiggling New York Times election dial.</p>
-<h2 id="undefined">Content warning: 2016 election</h2>
+<h2 id="content-warning:-2016-election">Content warning: 2016 election</h2>
 <div class="dial-container">
   <canvas class="dial"></canvas>
 </div>
@@ -233,7 +233,7 @@ context.strokeStyle = <span class="hljs-string">"black"</span>;
 context.stroke();</pre></code>
 <p>The <var>Math.sin()</var> and <var>Math.cos()</var> functions convert a measurement in radians (which, remember, goes from 0 to 2 around the circle) to the vertical and horizontal position of a point at that angle, respectively. By taking our scaled value, which ranges from 1.25 radians to 1.75 radians, and feeding it to these trig functions, we get the position on a unit circle, which we then multiply by our distance (1.2x the circle's radius) to find the final endpoint of the needle.</p>
 <p>Ultimately, though, don't worry too much about the trigonometry. The important parts of this code are the structure of the rendering loop, the correct order of draw operations, and managing context state properly. If you can manage those, you're well on your way.</p>
-<h2 id="undefined">Events without DOM</h2>
+<h2 id="events-without-dom">Events without DOM</h2>
 <p>All of the examples above have involved an animation loop, where the render code is called continually using <var>requestAnimationFrame</var>. It's worth noting that you can use canvas to render static images as well: it's perfectly fine to just draw something once and then move on, as we did for <a href="https://projects.seattletimes.com/2017/politics/mayoral-campaign-contributions/">these contribution graphs</a>. Alternately, you can choose to redraw only when something changes, instead of continuously updating. For example, you might update the canvas when notified of a user event, like a mouse or touch interaction.</p>
 <p>The tough part of handling events when using canvas is that you no longer have distinct "targets" to which you can attach listeners. Visually, there may be objects drawn onscreen, but they're just pixels in the image buffer, not actual elements. How do we react appropriately to clicks or taps? Let's break this problem down into two parts to solve it: finding the location of the event relative to the canvas, and then strategies for hit detection.</p>
 <p>Our first problem is to figure out where <em>on the canvas</em> the event occurred. Unfortunately, this is not a simple way to solve across mobile and desktop browsers. Most modern browsers support the <var>offsetX/Y</var> properties on mouse events (it finally shipped in Firefox in mid-2015). However, touch events do not provide an offset from the targeted element, probably because touch movement is treated much differently from mouse movement. Instead, we have to recreate it, using <var>getBoundingClientRect()</var>:</p>
