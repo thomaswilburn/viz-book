@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Fixing common slowdowns</title>
+  <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans|Manuale" rel="stylesheet">
+  <link rel="stylesheet" href="static/style.css">
+  <link rel="stylesheet" href="static/highlight/hybrid.css">
+</head>
+<body class="perf-slowdowns chapter">
+  <nav class="chapter-links top">
+    <ul>
+      <li class="previous"> <a href="perf-flip.html"> &laquo; FLIP for smooth animations</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href="index.html"> Table of Contents &raquo;</a>
+    </ul>
+  </nav>
+  <main>
+  <aside class="summary">
+    The easy stuff | Deferred loading | Shrink your JavaScript
+  </aside>
+  <h1>Fixing common slowdowns</h1>
+<p>Time and time again, research shows that a faster page is stickier: readers are less likely to leave, and will be more engaged during their time, if it feels snappy. Unfortunately, news sites do not have a reputation for speed. As a journalist in the newsroom, some of these problems will be outside of your control, but many of them aren't.</p>
+<p>Let's start with the basics--a checklist of basic steps you can take to reduce the weight of the page itself:</p>
+<h3>Images</h3>
+<p>Images should be sized appropriately, close to the size that they'll actually be on the page and probably no larger than 1600px for full-bleed backgrounds. It's easy to forget this, and accidentally put an image thousands of pixels wide into a thumbnail spot--don't do that. You should be using JPG for the image format, and compressing them as far as you can tolerate. You can use the Imagemagick command line tools to resize images in bulk, with a little Bash scripting:</p>
+<code class="language-sh"><pre><span class="hljs-keyword">for</span> jpg <span class="hljs-keyword">in</span> *.jpg; <span class="hljs-keyword">do</span> 
+  convert <span class="hljs-variable">$jppg</span> -resize 1600x\&gt; -quality 60 resized/<span class="hljs-variable">$jpg</span>
+<span class="hljs-keyword">done</span></pre></code>
+<p>Using this command, all images will be sized down to 1600px wide (but not scaled up, if it's already smaller), compressed, and placed in a "resized" subfolder.</p>
+<h3>Animations</h3>
+<p>When possible, use MP4 video instead of .gif files, since it'll look better and be smaller. But if you can avoid either, do that: an animation using CSS and image layers will be much more performant than the equivalent movie file.</p>
+<h3>Ads</h3>
+<p>Look, I'm not saying you don't want to make money. But I am saying there's a good reason why adblockers speed pages up. If your pages is slow, removing ads and ad networks will make a substantial difference.</p>
+<h3>Precompute data</h3>
+<p>If possible, bake your data out ahead of time, instead of relying on the browser to do the processing. Don't ship raw data to the client if you can help it.</p>
+<h3>Load resources intelligently</h3>
+<p>Browser support for preventing the loading process from blocking page rendering has gotten better and better over time. Usually this is as simple as adding an attribute or two. Not all of these are suported in all browsers, but adding them doesn't hurt anything, either.</p>
+<ul>
+<li>Load scripts with the <var>async</var> and <var>defer</var> attributes</li>
+<li>Add <var>loading="lazy"</var> to images, iframes, and videos</li>
+<li>If possible, use <var>srcset</var> and <var>&lt;picture&gt;</var> to load images that are sized for your page</li>
+</ul>
+<p>Unfortunately, the <var>media</var> attribute was removed from video tags at some point, which means it's difficult to load media sized for a specific device. Instead, load the smallest possible size, then swap it out using a media query in JavaScript:</p>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> isDesktop = <span class="hljs-built_in">window</span>.matchMedia(<span class="hljs-string">"(min-width: 720px)"</span>);
+<span class="hljs-keyword">if</span> (isDesktop.matches) {
+  <span class="hljs-comment">// &lt;video src="small.mp4" data-desktop="large.mp4"&gt;&lt;/video&gt;</span>
+  videoTags.forEach(<span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> v.src = v.dataset.desktop);
+}</pre></code>
+<h2 id="undefined">Deferred loading strategies</h2>
+<p>In another chapter, we talked about <a href="js-scrolling.html">building interactive scrolling pages</a>. The same strategy can be used to lazy-load images and media files in browsers that don't suppoprt <var>loading="lazy"</var> (currently, most of them). By creating our images with a placeholder source, and replacing those with the actual image only when they're close the viewport, we can substantially reduce the amount that the page requests up-front.</p>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"placeholder.jpg"</span> <span class="hljs-attr">data-src</span>=<span class="hljs-string">"actual.jpg"</span>&gt;</span></pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> responsiveImages = $(<span class="hljs-string">"[data-src]"</span>);
+<span class="hljs-keyword">var</span> onScroll = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  responsiveImages = responsiveImages.filter(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">img</span>) </span>{
+    <span class="hljs-keyword">var</span> bounds = img.getBoundingClientRect();
+    <span class="hljs-keyword">if</span> (bounds.top &lt; <span class="hljs-built_in">window</span>.innerHeight + <span class="hljs-number">100</span> &amp;&amp; bounds.bottom &gt; <span class="hljs-number">-100</span>) {
+      <span class="hljs-comment">// image is near or in the viewport</span>
+      img.src = img.dataset.src;
+      <span class="hljs-comment">// don't process this again</span>
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
+    }
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
+  });
+  <span class="hljs-comment">// remove listener when all images are loaded</span>
+  <span class="hljs-keyword">if</span> (!responsiveImages.length) <span class="hljs-built_in">window</span>.removeEventListener(<span class="hljs-string">"scroll"</span>, onScroll);
+};
+<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, onScroll);</pre></code>
+<p>Similar code works for deferring the load of videos, complicated interactives, or (perhaps most importantly) ad code.</p>
+<h2 id="undefined">Shrink your JavaScript</h2>
+<p>In many ways, the substance of this book is about reducing our JavaScript footprint. In this, we're not just fighting our bad old habits, but also the natural tendencies of the tools we use. Build systems like Webpack make it easy to include third-party JavaScript libraries in our bundles, as well as images, stylesheets, and even larger data files. After all, it's just an <var>import</var> or a <var>require()</var> away.</p>
+<p>None of this is free, and not just because the files can get larger than you might expect. Parsing JavaScript is costly, especially on low-end mobile devices. It also takes additional time for your compiler to run--I've seen delays of many seconds when including a large GeoJSON file, and that's time you're not working. Google recommends an initial bundle size of under 25KB for best performance, and most data files will blow right by that. That said, we still need to load this data. How do we make it fast?</p>
+<p>The answer, of course, is that we split these resources out of our code. Whenever possible, load data asynchronously, using AJAX. A simple utility function makes it easy to request resources using Node callback-style code:</p>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> xhr = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">url, callback</span>) </span>{
+  <span class="hljs-keyword">var</span> request = <span class="hljs-keyword">new</span> XMLHttpRequest();
+  request.open(<span class="hljs-string">"GET"</span>, url);
+  <span class="hljs-comment">// if successful</span>
+  request.onload = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">var</span> data = request.responseText;
+    <span class="hljs-comment">// is this JSON?</span>
+    <span class="hljs-keyword">if</span> (url.match(<span class="hljs-regexp">/json/</span>)) {
+      callback(<span class="hljs-literal">null</span>, <span class="hljs-built_in">JSON</span>.parse(data));
+    }
+    <span class="hljs-comment">// nope?</span>
+    callback(<span class="hljs-literal">null</span>, data);
+  };
+  <span class="hljs-comment">// error case</span>
+  request.onerror = <span class="hljs-function"><span class="hljs-params">e</span> =&gt;</span> callback(e);
+  request.send();
+};
+
+xhr(<span class="hljs-string">"map.geojson"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
+  <span class="hljs-comment">// do whatever with our map data</span>
+})</pre></code>
+<p>Writing asynchronous code this way makes loading a bit more difficult, since initialization code that requires the data must run in the callback, not in the normal script execution flow. However, if you're targeting modern browsers, you can use the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">Fetch API</a> to make it easier:</p>
+<code class="language-js"><pre><span class="hljs-comment">// the await keyword only works in async functions</span>
+<span class="hljs-keyword">var</span> init = <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">var</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">"map.geojson"</span>);
+  <span class="hljs-keyword">var</span> data = <span class="hljs-keyword">await</span> response.json();
+  <span class="hljs-comment">// use our data as normal, no callbacks</span>
+};
+
+init();</pre></code>
+<p>Splitting data and code into separate bundles and initializing them on demand is an entirely different challenge, one that depends largely on your loader. Not every project requires that kind of optimization. But if you're working on something that depends on large JS bundled libraries, such as Three.JS, it may be worth taking the time, especially if you're making your graphics available to people who don't have the newest and most powerful devices.</p>
+  </main>
+  <nav class="chapter-links bottom">
+    <ul>
+      <li class="previous"> <a href="perf-flip.html"> &laquo; FLIP for smooth animations</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href="index.html"> Table of Contents &raquo;</a>
+    </ul>
+  </nav>
+</body>
+</html>

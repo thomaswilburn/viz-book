@@ -1,0 +1,128 @@
+@metadata...
+title: Fixing common slowdowns
+type: chapter
+summary: The easy stuff | Deferred loading | Shrink your JavaScript
+prereqs: js-jquery, js-scrolling
+...metadata
+
+Time and time again, research shows that a faster page is stickier: readers are less likely to leave, and will be more engaged during their time, if it feels snappy. Unfortunately, news sites do not have a reputation for speed. As a journalist in the newsroom, some of these problems will be outside of your control, but many of them aren't.
+
+Let's start with the basics--a checklist of basic steps you can take to reduce the weight of the page itself:
+
+@subsubhead Images
+
+Images should be sized appropriately, close to the size that they'll actually be on the page and probably no larger than 1600px for full-bleed backgrounds. It's easy to forget this, and accidentally put an image thousands of pixels wide into a thumbnail spot--don't do that. You should be using JPG for the image format, and compressing them as far as you can tolerate. You can use the Imagemagick command line tools to resize images in bulk, with a little Bash scripting:
+
+@codeblock(sh)...
+for jpg in *.jpg; do 
+  convert $jppg -resize 1600x\> -quality 60 resized/$jpg
+done
+...codeblock
+
+Using this command, all images will be sized down to 1600px wide (but not scaled up, if it's already smaller), compressed, and placed in a "resized" subfolder.
+
+@subsubhead Animations
+
+When possible, use MP4 video instead of .gif files, since it'll look better and be smaller. But if you can avoid either, do that: an animation using CSS and image layers will be much more performant than the equivalent movie file.
+
+@subsubhead Ads
+
+Look, I'm not saying you don't want to make money. But I am saying there's a good reason why adblockers speed pages up. If your pages is slow, removing ads and ad networks will make a substantial difference.
+
+@subsubhead Precompute data
+
+If possible, bake your data out ahead of time, instead of relying on the browser to do the processing. Don't ship raw data to the client if you can help it.
+
+@subsubhead Load resources intelligently
+
+Browser support for preventing the loading process from blocking page rendering has gotten better and better over time. Usually this is as simple as adding an attribute or two. Not all of these are suported in all browsers, but adding them doesn't hurt anything, either.
+
+* Load scripts with the `async` and `defer` attributes
+* Add `loading="lazy"` to images, iframes, and videos
+* If possible, use `srcset` and `<picture>` to load images that are sized for your page
+
+Unfortunately, the `media` attribute was removed from video tags at some point, which means it's difficult to load media sized for a specific device. Instead, load the smallest possible size, then swap it out using a media query in JavaScript:
+
+@codeblock(js)...
+var isDesktop = window.matchMedia("(min-width: 720px)");
+if (isDesktop.matches) {
+  // <video src="small.mp4" data-desktop="large.mp4"></video>
+  videoTags.forEach(v => v.src = v.dataset.desktop);
+}
+...codeblock
+
+@subhead Deferred loading strategies
+
+In another chapter, we talked about <a href="js-scrolling.html">building interactive scrolling pages</a>. The same strategy can be used to lazy-load images and media files in browsers that don't suppoprt `loading="lazy"` (currently, most of them). By creating our images with a placeholder source, and replacing those with the actual image only when they're close the viewport, we can substantially reduce the amount that the page requests up-front.
+
+@codeblock(html)...
+<img src="placeholder.jpg" data-src="actual.jpg">
+...codeblock
+
+@codeblock(js)...
+var responsiveImages = $("[data-src]");
+var onScroll = function() {
+  responsiveImages = responsiveImages.filter(function(img) {
+    var bounds = img.getBoundingClientRect();
+    if (bounds.top < window.innerHeight + 100 && bounds.bottom > -100) {
+      // image is near or in the viewport
+      img.src = img.dataset.src;
+      // don't process this again
+      return false;
+    }
+    return true;
+  });
+  // remove listener when all images are loaded
+  if (!responsiveImages.length) window.removeEventListener("scroll", onScroll);
+};
+window.addEventListener("scroll", onScroll);
+...codeblock
+
+Similar code works for deferring the load of videos, complicated interactives, or (perhaps most importantly) ad code.
+
+@subhead Shrink your JavaScript
+
+In many ways, the substance of this book is about reducing our JavaScript footprint. In this, we're not just fighting our bad old habits, but also the natural tendencies of the tools we use. Build systems like Webpack make it easy to include third-party JavaScript libraries in our bundles, as well as images, stylesheets, and even larger data files. After all, it's just an `import` or a `require()` away.
+
+None of this is free, and not just because the files can get larger than you might expect. Parsing JavaScript is costly, especially on low-end mobile devices. It also takes additional time for your compiler to run--I've seen delays of many seconds when including a large GeoJSON file, and that's time you're not working. Google recommends an initial bundle size of under 25KB for best performance, and most data files will blow right by that. That said, we still need to load this data. How do we make it fast?
+
+The answer, of course, is that we split these resources out of our code. Whenever possible, load data asynchronously, using AJAX. A simple utility function makes it easy to request resources using Node callback-style code:
+
+@codeblock(js)...
+var xhr = function(url, callback) {
+  var request = new XMLHttpRequest();
+  request.open("GET", url);
+  // if successful
+  request.onload = function() {
+    var data = request.responseText;
+    // is this JSON?
+    if (url.match(/json/)) {
+      callback(null, JSON.parse(data));
+    }
+    // nope?
+    callback(null, data);
+  };
+  // error case
+  request.onerror = e => callback(e);
+  request.send();
+};
+
+xhr("map.geojson", function(err, data) {
+  // do whatever with our map data
+})
+...codeblock
+
+Writing asynchronous code this way makes loading a bit more difficult, since initialization code that requires the data must run in the callback, not in the normal script execution flow. However, if you're targeting modern browsers, you can use the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">Fetch API</a> to make it easier:
+
+@codeblock(js)...
+// the await keyword only works in async functions
+var init = async function() {
+  var response = await fetch("map.geojson");
+  var data = await response.json();
+  // use our data as normal, no callbacks
+};
+
+init();
+...codeblock
+
+Splitting data and code into separate bundles and initializing them on demand is an entirely different challenge, one that depends largely on your loader. Not every project requires that kind of optimization. But if you're working on something that depends on large JS bundled libraries, such as Three.JS, it may be worth taking the time, especially if you're making your graphics available to people who don't have the newest and most powerful devices.

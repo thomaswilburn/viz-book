@@ -36,10 +36,7 @@
     "chapters": [
       "perf-debugging",
       "perf-flip",
-      "Measuring page speed for news",
-      "Strategies for deferred loading",
-      "Common sources of slowness"
+      "perf-slowdowns"
     ]
-  },
-  "Glossary"
+  }
 ]
