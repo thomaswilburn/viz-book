@@ -22,7 +22,7 @@ And here's what that looks like, rendered onto the page. I've outlined it in gra
 </svg>
 ...html
 
-It's a simple domain-specific language, really. Within the <var>svg</var> element, you can think of its child elements as being absolutely-positioned. The circle may look a little different, being positioned using the center x, center y, and radius, but so far it looks and acts a lot like HTML. It's certainly more like HTML than a JPG image: if you change the height and width (or set it from CSS), the SVG doesn't scale up or down. Instead, you just get more or less space around your shapes.
+It's a simple domain-specific language, really. Within the `svg` element, you can think of its child elements as being absolutely-positioned. The circle may look a little different, being positioned using the center x, center y, and radius, but so far it looks and acts a lot like HTML. It's certainly more like HTML than a JPG image: if you change the height and width (or set it from CSS), the SVG doesn't scale up or down. Instead, you just get more or less space around your shapes.
 
 But what if that weren't the case?
 
@@ -32,7 +32,7 @@ Ideally, we write an SVG using three different "measurements:"
 
 * Width and height attributes on the element itself, setting its "intrinsic" size and aspect ratio
 * CSS to define the actual, on-page width and/or height
-* a <var>viewBox</var> attribute to define the internal coordinate system
+* a `viewBox` attribute to define the internal coordinate system
 
 The first two are basically identical to creating a JPG image, which also has an intrinsic size and can be resized from CSS. The view box, however, lets us choose a coordinate system that doesn't match the rest of the page, or even the final dimensions of the image. Its format is a space-separated list of "x y w h", meaning the x and y coordinates of the top-left corner, followed by the width and height of the visible space.
 
@@ -54,7 +54,7 @@ We've essentially "zoomed in" on the upper left corner: the graphic still starts
 </svg>
 ...html
 
-Note that in all of these examples, the attribute has the letter B capitalized: <var>viewBox</var>. Unlike HTML, SVG attributes are case-sensitive. If you don't capitalize it correctly, you won't see the desired behavior, and the default view box (starting at 0,0 and extending to the image's rendered width/height) will be used.
+Note that in all of these examples, the attribute has the letter B capitalized: `viewBox`. Unlike HTML, SVG attributes are case-sensitive. If you don't capitalize it correctly, you won't see the desired behavior, and the default view box (starting at 0,0 and extending to the image's rendered width/height) will be used.
 
 It may be helpful to think of the view box as a camera looking down on a sheet of graph paper. With the first two numbers, we tell the camera how to pan across the image. The second two numbers tell it how to "zoom," or more specifically, how many squares on the graph paper should be visible in either direction. Unlike a real camera, however, that zoom doesn't have to be uniform in both directions: you can set the width and height in different ways, and by default the SVG will try to fit on the largest axis. Here's a view box with a height of 200, but a width of 100:
 
@@ -67,17 +67,17 @@ It may be helpful to think of the view box as a camera looking down on a sheet o
 
 @subhead Stretching out with preserveAspectRatio
 
-How the SVG "camera" handles a mismatch between the size of the viewBox and the intrinsic height of the image (as defined by the width and height attributes) is set by the <var>preserveAspectRatio</var> attribute. This lets us either reposition the contents, stretch them, or cut them off as needed.
+How the SVG "camera" handles a mismatch between the size of the viewBox and the intrinsic height of the image (as defined by the width and height attributes) is set by the `preserveAspectRatio` attribute. This lets us either reposition the contents, stretch them, or cut them off as needed.
 
-Try setting different <var>viewBox</var> and <var>preserveAspectRatio</var> values in this interactive playground.
+Try setting different `viewBox` and `preserveAspectRatio` values in this interactive playground.
 
 @include snippets/viewbox-interactive.html
 
-Setting <var>preserveAspectRatio</var> to "none" causes the image to stretch and squish, much like if you set a width and height on a bitmap image that are different from its intrinsic width and height. This can certainly be useful at times, but it's usually not what you probably want. The other options are more interesting, and are set using a pair of keywords.
+Setting `preserveAspectRatio` to "none" causes the image to stretch and squish, much like if you set a width and height on a bitmap image that are different from its intrinsic width and height. This can certainly be useful at times, but it's usually not what you probably want. The other options are more interesting, and are set using a pair of keywords.
 
 The first keyword dictates how the SVG will position content where there's a mismatch between its size and the view box. Essentially, you're telling it where to add the leftover space. For example, on the X axis, it can either push content against the left side ("xMin"), center it along the horizontal axis ("xMid"), or fit it against the right side ("xMax"). These are paired with equivalent settings for the vertical axis ("YMin," "YMid," and "YMax," respectively). In the interactive, these are set the same across both axes, but they don't have to be. "xMinYMax" is a valid option, for example, which would push the content to the left and toward the bottom (thus allocating leftover space to the top and right).
 
-The second <var>preserveAspectRatio</var> keyword is either "meet" or "slice," and these decide how the graphic will decide to scale. If the "meet" keyword is used, the longest axis (either width or height) will be scaled to match the image's rendered size, leaving empty space on either side of the shorter axis. The "slice" keyword, on the other hand, tells the graphic to scale the <em>shorter</em> axis up, cutting off whatever falls outside the bounds of the graphic.
+The second `preserveAspectRatio` keyword is either "meet" or "slice," and these decide how the graphic will decide to scale. If the "meet" keyword is used, the longest axis (either width or height) will be scaled to match the image's rendered size, leaving empty space on either side of the shorter axis. The "slice" keyword, on the other hand, tells the graphic to scale the <em>shorter</em> axis up, cutting off whatever falls outside the bounds of the graphic.
 
 There are probably cases where "slice" makes sense, but for our purposes, "meet" is usually a better choice. By setting a view box around a given element, and using a "meet" value, you'll make sure that whole element is always in view. This is a great technique to use when creating SVG images that "re-frame" themselves on mobile, or in response to interaction. It's also especially handy when we take the next step: animating the view box to move around the image.
 
@@ -172,7 +172,7 @@ button.addEventListener("click", function() {
 </script>
 ...html
 
-To really get the most use out of this, we might need a way to get the coordinates (in view box space) of a given shape. Then we can tell our camera to zoom in on that particular item, whether a particular shape or (more likely) a layer group defined by the artist in Illustrator or their tool of choice. Luckily, SVG elements provide a helpful method for doing just that: calling any SVG element's <var>getBBox()</var> method will tell you how big it is, including all its child elements if it's a group element.
+To really get the most use out of this, we might need a way to get the coordinates (in view box space) of a given shape. Then we can tell our camera to zoom in on that particular item, whether a particular shape or (more likely) a layer group defined by the artist in Illustrator or their tool of choice. Luckily, SVG elements provide a helpful method for doing just that: calling any SVG element's `getBBox()` method will tell you how big it is, including all its child elements if it's a group element.
 
 @codeblock(js)...
 

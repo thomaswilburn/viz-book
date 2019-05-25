@@ -1,0 +1,71 @@
+<style>
+.sr-only {
+  position: absolute;
+  left: -99999px;
+}
+
+.key {
+  display: block;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.key .block {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.key-item {
+  display: inline-block;
+  padding: 4px 12px;
+}
+
+.item {
+  display: flex;
+}
+
+.label {
+  flex: 0 0 100px;
+}
+
+.bar-container {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+}
+
+.bar {
+  text-align: right;
+}
+
+.col-a { background: salmon }
+.col-b { background: wheat }
+.col-c { background: lavender }
+</style>
+<div class="bar-chart" role="table">
+  <ul class="key" role="row">
+    <li class="key-item sr-only" role="columnheader">Label
+    <li class="key-item" role="columnheader">
+      <i class="block col-a"></i>Column A
+    <li class="key-item" role="columnheader">
+      <i class="block col-b"></i>Column B
+    <li class="key-item" role="columnheader">
+      <i class="block col-c"></i>Column C
+  </ul>
+  <div class="bars" role="rowgroup">
+    <div class="item" role="row">
+      <div class="label" role="cell">
+        Row 1
+      </div>
+      <div class="bar-container" role="presentation">
+        <div class="bar col-a" style="width: 40%" role="cell">40%</div>
+        <div class="bar col-b" style="width: 50%" role="cell">50%</div>
+        <div class="bar col-c" style="width: 10%" role="cell">10%</div>
+      </div>
+    </div>
+  </div>
+</div>

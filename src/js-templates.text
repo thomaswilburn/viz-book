@@ -20,7 +20,7 @@ var htmlText = `
 `;
 ...codeblock
 
-If that were all we were getting out of a new string type, it'd be pretty good. But template literals also have a new trick: they can be <em>interpolated</em>, meaning that we can inject values into the string without having to concatenate them on either side. To do so, you use the <var>${ }</var> delimiters, with your intended value inside the curly braces. Those expressions are immediately evaluated and placed into the string when it's defined, which means you do need to have access to the variable (you should be able to <var>console.log()</var> it). 
+If that were all we were getting out of a new string type, it'd be pretty good. But template literals also have a new trick: they can be <em>interpolated</em>, meaning that we can inject values into the string without having to concatenate them on either side. To do so, you use the `${ }` delimiters, with your intended value inside the curly braces. Those expressions are immediately evaluated and placed into the string when it's defined, which means you do need to have access to the variable (you should be able to `console.log()` it). 
 
 @codeblock(js)...
 var num = 2;
@@ -30,7 +30,7 @@ var slogan = `There are ${num + 1} kinds of ${type} in this ${"world"}.`;
 // "There are 3 kinds of people in this world."
 ...codeblock
 
-You can't write anything that's not a simple expression inside of a template literal, so no <var>if</var> statements or loops. You can use ternary expressions, however, if you need to make a choice:
+You can't write anything that's not a simple expression inside of a template literal, so no `if` statements or loops. You can use ternary expressions, however, if you need to make a choice:
 
 @codeblock(js)...
 var quantity = 14;
@@ -54,7 +54,7 @@ var featured = $(`[data-featured="true"]`);
 
 @subhead More with maps
 
-Note that although I did say that you can't write loops in a template literal, that's only true for the <var>for</var> loop syntax. You can, however, call functions that loop as a part of an expression, and if that function returns a value, it'll be injected into the string. What looping function with return values is generally available to us? That's right, it's our old friend <var>Array.map()</var>.
+Note that although I did say that you can't write loops in a template literal, that's only true for the `for` loop syntax. You can, however, call functions that loop as a part of an expression, and if that function returns a value, it'll be injected into the string. What looping function with return values is generally available to us? That's right, it's our old friend `Array.map()`.
 
 @codeblock(js)...
 var values = ["a", "b", "c", "d"];
@@ -124,7 +124,7 @@ Another cool use for tag functions is to build and issue database queries in Nod
 
 But if you wanted to make some very poor life choices, we could use it to emulate a real template system. You know, for educational purposes.
 
-We'll start with a tag function, <var>HTML()</var>, that just concatenates its inputs together:
+We'll start with a tag function, `HTML()`, that just concatenates its inputs together:
 
 @codeblock(js)...
 var HTML = function(parts, ...values) {

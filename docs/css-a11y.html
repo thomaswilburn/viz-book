@@ -1,0 +1,174 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Visualization as a civil right</title>
+  <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans|Manuale" rel="stylesheet">
+  <link rel="stylesheet" href="static/style.css">
+  <link rel="stylesheet" href="static/highlight/hybrid.css">
+</head>
+<body class="css-a11y chapter">
+  <nav class="chapter-links top">
+    <ul>
+      <li class="previous"> <a href="css-matrix.html"> &laquo; Dot matrix chart via CSS attributes</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href=""> Building stacked graphs with flex &raquo;</a>
+    </ul>
+  </nav>
+  <main>
+  <aside class="summary">
+    Inclusive news design | Accessible by default | Required reading
+  </aside>
+  <h1>Visualization as a civil right</h1>
+<p>Historically, accessibility (often shortened to a11y) has not been strongly emphasized by most interactive news teams. As a result, many of our most interesting work is at best dismissive of much of our audience, and at worst it's actively hostile.</p>
+<p>One reason for our industry's inattention to accessibility is that we tend to think about disability as a binary proposition. But among practitioners, this understanding hasn't been accurate for a long time. Instead, modern "inclusive design" thinking positions ability as a mismatch between a person and their environment--one that is contextual, and exists on a spectrum. All of us fall somewhere on that spectrum throughout our lives, depending on where we are, our health, and the task we're trying to accomplish.</p>
+<p>The goal of inclusive design is to recognize that making a product more accessible tends to benefit users across the entire spectrum of ability. Closed captions may help those who are deaf or hard of hearing, but they also benefit people in noisy environments, who are learning a language, or who want to view a video silently. One-handed operation benefits new parents or people with injuries just as it does those who are missing or unable to use one arm. An accessible product is a better product, for everyone.</p>
+<h2 id="undefined">Accessible by default</h2>
+<p>What does it mean to create more accessible news graphics? I'm not an expert, just an enthusiastic beginner. But I like to think about it in terms of three basic challenges:</p>
+<ul>
+<li>Keyboard: Does this graphic let me navigate it only with the keyboard? This benefits users with repetitive stress injuries, low dexterity, and switch access devices.</li>
+<li>Assistive tech: Can this graphic be used with a screen reader?</li>
+<li>Visuals: Is the palette for this graphic friendly to users with color-blindness? Does it respect media queries for users who need high contrast or reduced motion?</li>
+</ul>
+<p>Here's the good news: the easiest way to get started with accessibility is to simply write good, semantic HTML. If you work with the browser, it will automatically make work with assistive tech and various interaction modes. For some of us, this means unlearning some bad habits. But the resulting code is not only easier to use, I think it's also easier to write, since it accurately represents your actual intent.</p>
+<h3>Buttons vs. links</h3>
+<p>As a rule of thumb, if clicking on a element navigates the page, internally or externally, it should be an <var>&lt;a&gt;</var> tag. If it does something that's not navigation, it should be a <var>&lt;button&gt;</var>. Don't use <var>&lt;div&gt;</var> or other generic elements to represent clickable things.</p>
+<p>Using these elements properly means that they'll be announced correctly in screen readers, and they'll be available to keyboard users (i.e., you can "click" on a button by pressing enter while it's focused).</p>
+<h3>Ordered headers</h3>
+<p>Screen reader users often navigate your page via "landmarks" taken from the HTML source. Tags like <var>&lt;nav&gt;</var>, <var>&lt;main&gt;</var>, <var>&lt;header&gt;</var>, and <var>&lt;footer&gt;</var> let them jump around the page instead of having to listen through all the boilerplate. Additionally, the header tags (<var>&lt;h1&gt;</var>, <var>&lt;h2&gt;</var>, etc) provide landmarks of their own. So use them! Don't just size up a paragraph tag when you want to put a headline in place.</p>
+<h3>Always provide alt text</h3>
+<p>Images in HTML should always have an <var>alt</var> attribute, which can be read by screen readers or revealed while the image is still loading. Ideally, the tag should describe the image contents briefly. If an image is entirely decorative, you can set <var>alt=""</var> to have it ignored by assistive tech.</p>
+<h3>Use native inputs</h3>
+<p>It's always tempting to use custom-built controls for things like drop-down menus or combo boxes. The default form elements aren't particularly attractive, they're hard to style, and they tend to vary wildly between browsers. But here's the thing: they're consistent, they're adaptable for mobile/desktop usage, and they tend to respond consistently to keyboard inputs. From an inclusion standpoint, they're your best option.</p>
+<h3>Lean on WAI-ARIA for state</h3>
+<p>The <a href="https://www.w3.org/TR/wai-aria-practices-1.1/">WAI-ARIA Authoring Practices</a> lay out expectations for how browser UI should act in order to meet consistent expectations. A set of extra attributes, prefixed with <var>ARIA-</var>, are used as additional hints for assistive tech. By leaning on attribute selectors in our CSS, we can integrate styling and accessibility into a single effort.</p>
+<p>For example, if we were to make a toggle button (say, a play/pause button in a media player), we'd normally add and remove a class from the button to indicate its state. But the spec for WAI-ARIA indicates that toggle buttons should be expressed in screen readers using <var>aria-pressed="true"</var> or <var>aria-pressed="false"</var>. Why not use that instead of an "active" class to update the button?</p>
+<code class="language-css"><pre><span class="hljs-selector-class">.play-button</span><span class="hljs-selector-attr">[aria-pressed="false"]</span> {
+  // styles for paused state
+}
+
+<span class="hljs-selector-class">.play-button</span><span class="hljs-selector-attr">[aria-pressed="true"]</span> {
+  // styles for playing state
+}</pre></code>
+<h2 id="undefined">Role playing</h2>
+<p>Behind the scenes, screen readers understand semantic HTML elements through "roles" that are assigned to each one. A button will always have the "button" role, for example. An <var>&lt;a&gt;</var> tag has a "link" role. Using the right elements means that the correct roles will be announced. All of these are defined by the Accessible Rich Internet Applications spec, or ARIA. If you must use a different element, HTML allows you to specify a role for an element. For our purposes, this tends to be useful in two separate cases: generated images and tables.</p>
+<p>If you work on a typical news graphics desk, you may build things that are "images," but are actually composed of HTML and SVG. In a screen reader, these will often be announced in odd ways: for example, the labels on the X axis might be read out without any context, leaving users confused. It's helpful instead to mark the entire block containing the visualization as an image, and giving it a description using ARIA (in place of the alt text all images should have):</p>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span>
+  <span class="hljs-attr">class</span>=<span class="hljs-string">"graphic"</span>
+  <span class="hljs-attr">role</span>=<span class="hljs-string">"img"</span>
+  <span class="hljs-attr">aria-label</span>=<span class="hljs-string">"A bar chart containing lots of child elements"</span>
+&gt;</span>
+  <span class="hljs-comment">&lt;!-- complicated markup goes here, but won't be read --&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
+<p>One common technique for making HTML tables responsive is to change their display property in CSS based on the media query--turning rows into lists of header/value pairs. However, changing the CSS of a table means that it will cease to be a table as far as screen readers are concerned. In that case, we will need to use roles to reaffirm the table-ness of our markup:</p>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">table</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"table"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">thead</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"rowgroup"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">tr</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"row"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">th</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"columnheader"</span>&gt;</span>A
+      <span class="hljs-tag">&lt;<span class="hljs-name">th</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"columnheader"</span>&gt;</span>B
+  <span class="hljs-tag">&lt;<span class="hljs-name">tbody</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"rowgroup"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">tr</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"row"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"cell"</span>&gt;</span>1
+      <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"cell"</span>&gt;</span>2
+<span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span></pre></code>
+<p>Is this obnoxious? You bet! But it means that you can restyle a data table to your heart's content, and it will still act like a table for users in a screen reader--meaning that headers will be announced for each cell, and it's possible to navigate around the grid.</p>
+<p>Here's the cool thing about table roles: you can also use them to create tables for screen readers where it doesn't exist normally. For example, here's a bar chart that's also a table. Inspect it to see the roles that are assigned. Many browsers now include a panel in the dev tools that exposes the accessibility roles assigned to the DOM tree.</p>
+<style>
+.sr-only {
+  position: absolute;
+  left: -99999px;
+}
+
+.key {
+  display: block;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.key .block {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.key-item {
+  display: inline-block;
+  padding: 4px 12px;
+}
+
+.item {
+  display: flex;
+}
+
+.label {
+  flex: 0 0 100px;
+}
+
+.bar-container {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+}
+
+.bar {
+  text-align: right;
+}
+
+.col-a { background: salmon }
+.col-b { background: wheat }
+.col-c { background: lavender }
+</style>
+<div class="bar-chart" role="table">
+  <ul class="key" role="row">
+    <li class="key-item sr-only" role="columnheader">Label
+    <li class="key-item" role="columnheader">
+      <i class="block col-a"></i>Column A
+    <li class="key-item" role="columnheader">
+      <i class="block col-b"></i>Column B
+    <li class="key-item" role="columnheader">
+      <i class="block col-c"></i>Column C
+  </ul>
+  <div class="bars" role="rowgroup">
+    <div class="item" role="row">
+      <div class="label" role="cell">
+        Row 1
+      </div>
+      <div class="bar-container" role="presentation">
+        <div class="bar col-a" style="width: 40%" role="cell">40%</div>
+        <div class="bar col-b" style="width: 50%" role="cell">50%</div>
+        <div class="bar col-c" style="width: 10%" role="cell">10%</div>
+      </div>
+    </div>
+  </div>
+</div>
+<p>If you've never used a screen reader before, now is a great chance to learn.</p>
+<ul>
+<li>Windows now includes a screen reader named <a href="https://support.microsoft.com/en-us/help/17173/windows-10-hear-text-read-aloud">Narrator</a></li>
+<li><a href="http://nvaccess.org">NVDA</a> is another popular and free alternative for Windows</li>
+<li>VoiceOver can be used on <a href="https://www.apple.com/voiceover/info/guide/_1124.html">OS X</a> and <a href="https://support.apple.com/guide/iphone/learn-voiceover-gestures-iph3e2e2281/ios">iOS</a></li>
+<li>Android includes a built-in screenreader named <a href="https://support.google.com/accessibility/android/answer/6283677?hl=en">TalkBack</a></li>
+</ul>
+<h2 id="undefined">Required reading</h2>
+<p>As you can probably tell, accessibility is a big job, and one that involves a lot of testing to get right. This is just an introduction to the topic. To learn more, you may want to dig into the following resources:</p>
+<ul>
+<li><a href="https://www.w3.org/TR/WCAG21/">The Web Content Accessibility Guidelines</a>, which detail expectations of software that's fully accessible</li>
+<li><a href="https://www.w3.org/TR/wai-aria-practices-1.1/">WAI-ARIA Authoring Practices</a></li>
+<li><a href="https://www.scottohara.me/note/2019/05/07/resources.html">Scott O'Hara's list of links</a></li>
+<li><a href="https://marcysutton.com/web-accessibility-resources">More resources from Marcy Sutton</a>, whose talk "Accessibility as a Civil Right" inspired this chapter</li>
+<li><a href="https://source.opennews.org/articles/accessibility-starter-kit/">Tips on learning how to use a mobile screen reader for testing</a></li>
+</ul>
+<p>Hopefully, by making inclusion a key part of our writing and development process, it becomes natural, instead of something bolted onto our news graphics. The result is journalism that's available to everyone, not just people in perfect health and exactly the right circumstances.</p>
+  </main>
+  <nav class="chapter-links bottom">
+    <ul>
+      <li class="previous"> <a href="css-matrix.html"> &laquo; Dot matrix chart via CSS attributes</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href=""> Building stacked graphs with flex &raquo;</a>
+    </ul>
+  </nav>
+</body>
+</html>

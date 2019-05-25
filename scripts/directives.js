@@ -7,20 +7,26 @@ exports.metadata = function(context, { lines }) {
   });
 };
 
+var escapeHTML = s => s.replace(/&/g, "&amp;").replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
+
+var inlines = function(text) {
+  return text.replace(/`([^`]+)`/g, function(_, v) {
+    return `<var>${escapeHTML(v)}</var>`
+  });
+}
+
 //paragraph is special-cased
-exports.paragraph = (_, line) => `<p>${line}</p>`;
+exports.paragraph = (_, line) => `<p>${inlines(line)}</p>`;
 
 exports.html = (_, { lines }) => lines.join("\n");
 
 exports.ul = (_, { lines }) => `<ul>
-${lines.map(l => `<li>${l}</li>`).join("\n")}
+${lines.map(l => `<li>${inlines(l)}</li>`).join("\n")}
 </ul>`;
 
-exports.subhead = (_, { lines, arg }) => `<h2 id="${arg}">${lines.join("\n").trim()}</h2>`;
+exports.subhead = (_, { lines, arg }) => `<h2 id="${arg}">${lines.map(inlines).join("\n").trim()}</h2>`;
 
-exports.subsubhead = (_, { lines }) => `<h3>${lines.join("\n").trim()}</h3>`;
-
-var escapeHTML = s => s.replace(/&/g, "&amp;").replace(/\</g, "&lt;").replace(/\>/g, "&gt;");
+exports.subsubhead = (_, { lines }) => `<h3>${lines.map(inlines).join("\n").trim()}</h3>`;
 
 exports.codeblock = function(context, def) {
   var start = -1;
@@ -36,7 +42,10 @@ exports.codeblock = function(context, def) {
   var contents = lines.join("\n");
   // we ignore illegal parses but that's not great.
   var highlighted = hljs.highlight(def.arg || "html", contents, true);
-  if (highlighted.relevance == 0) console.log(`Error highlighting file: ${context.filename}`);
+  if (highlighted.relevance == 0) {
+    console.log(`No highlight for: ${context.filename}`);
+    console.log(contents);
+  }
   return `<code class="language-${def.arg}"><pre>${highlighted.value}</pre></code>`
 };
 
@@ -51,4 +60,13 @@ var src = path.resolve(__dirname, "../src");
 exports.include = function(_, def) {
   var filename = def.arg || def.lines[0];
   return fs.readFileSync(path.resolve(src, filename), "utf-8");
+};
+
+exports.includeCode = function(context, def) {
+  var redef = {
+    arg: def.lines[0]
+  }
+  var contents = exports.include(null, redef);
+  def.lines = contents.split("\n");
+  return exports.codeblock(context, def); 
 };

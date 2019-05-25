@@ -4,11 +4,11 @@ type:chapter
 summary:Media tags | Creating player UI | Never use .gif again
 ...metadata
 
-For a very long time, if you wanted to interact with rich media on the web, you needed a plugin (probably Flash). It was a huge hole in the browser, but a difficult one to plug, since media formats are often protected under copyright and only available for an onerous licensing fee. It took years to sort out. We're very lucky to be in a place now where we can include <var>&lt;audio&gt;</var> and <var>&lt;video&gt;</var> in a page and it pretty much just works.
+For a very long time, if you wanted to interact with rich media on the web, you needed a plugin (probably Flash). It was a huge hole in the browser, but a difficult one to plug, since media formats are often protected under copyright and only available for an onerous licensing fee. It took years to sort out. We're very lucky to be in a place now where we can include `<audio>` and `<video>` in a page and it pretty much just works.
 
 Originally, both media tags were designed to support multiple source files, since one browser might support H.264 encoding and another might only support OGGV (or MP3 vs OGG). You could put two source tags in the parent media tag, one for each format. The downside to this is that you needed to create two (or more) files per media clip, and nobody wanted to do that. There was also the fact that Apple, which controls Safari with little concern for the feelings of developers or other companies, just flat-out refused to support open formats like VP8 on the iPhone. At the end of the day, Firefox <a href="https://hacks.mozilla.org/2012/03/video-mobile-and-the-open-web/">caved</a> and supported the patent-encumbered formats through a combination of trickery.
 
-This is arguably bad for software freedom (should you care about such a thing), but it's good for us as developers. Both media tags support a <var>src</var> attribute identical to an <var>img</var> tag, using either H.264 or MP3 encoding for video and audio, respectively. So putting a playable media file on your page is as simple as the following:
+This is arguably bad for software freedom (should you care about such a thing), but it's good for us as developers. Both media tags support a `src` attribute identical to an `img` tag, using either H.264 or MP3 encoding for video and audio, respectively. So putting a playable media file on your page is as simple as the following:
 
 @codeblock(html)...
 <video controls src="movie.mp4"></video>
@@ -16,14 +16,14 @@ This is arguably bad for software freedom (should you care about such a thing), 
 <audio controls src="sound.mp3"></video>
 ...codeblock
 
-There are a number of optional attributes you can add to these tags, such as the <var>controls</var> attribute (which provides a track scrubber, play button, and time display). Most media tag attributes are boolean, meaning that they're either there or not, but the value doesn't matter. Other useful options include:
+There are a number of optional attributes you can add to these tags, such as the `controls` attribute (which provides a track scrubber, play button, and time display). Most media tag attributes are boolean, meaning that they're either there or not, but the value doesn't matter. Other useful options include:
 
-* <var>loop</var> - restart the clip when it finishes
-* <var>poster</var> - an image to show before playback begins (video only)
-* <var>muted</var> - silence the media type by default
-* <var>autoplay</var>
+* `loop` - restart the clip when it finishes
+* `poster` - an image to show before playback begins (video only)
+* `muted` - silence the media type by default
+* `autoplay`
 
-That last option is where things get complicated. Autoplaying video (and, to a lesser extent, audio) is... controversial, to say the least. To put it more bluntly, people hate it with a furious passion. And so, for most of the time that the <var>video</var> tag has existed, playing video on mobile required a "user gesture" of some kind, in a click or touch event listener. Users rejoiced, knowing that their phones would be relatively free of the annoying ads plastered all over our news sites (at least, until advertisers figured out workarounds).
+That last option is where things get complicated. Autoplaying video (and, to a lesser extent, audio) is... controversial, to say the least. To put it more bluntly, people hate it with a furious passion. And so, for most of the time that the `video` tag has existed, playing video on mobile required a "user gesture" of some kind, in a click or touch event listener. Users rejoiced, knowing that their phones would be relatively free of the annoying ads plastered all over our news sites (at least, until advertisers figured out workarounds).
 
 But here's the thing: there are good reasons that you might want autoplaying video, and we can sum it up with the letters G, I, and F. Originally designed for a dial-up bulletin board in the 80's, GIF files are used for animation all over the web. Unfortunately, they're spectacularly bad at it, since they were never really designed to compress full-frame animations well, and because normally they support only 256 colors (which creates the signature "grain" you see in AOL screenshots).
 
@@ -31,9 +31,9 @@ A GIF is a bad video, both in terms of file size and image quality. But they pla
 
 Luckily, confronted with this reality, browser developers have created new guidelines for autoplaying video. There are three things that are key to know:
 
-* You can use the <var>autoplay</var> attribute to start a video automatically if it is either <var>muted</var> or doesn't have any audio tracks in it.
-* You can also play a video from JavaScript (using the <var>play()</var> method) if it has a <var>muted</var> attribute or no audio tracks.
-* Video will be placed in the page as a block, instead of playing as a fullscreen takeover, if it has the <var>playsinline</var>. This is important for Safari, since Chrome on Android has always supported inline video elements.
+* You can use the `autoplay` attribute to start a video automatically if it is either `muted` or doesn't have any audio tracks in it.
+* You can also play a video from JavaScript (using the `play()` method) if it has a `muted` attribute or no audio tracks.
+* Video will be placed in the page as a block, instead of playing as a fullscreen takeover, if it has the `playsinline`. This is important for Safari, since Chrome on Android has always supported inline video elements.
 
 @subhead Let's get responsive
 
@@ -43,9 +43,9 @@ Your connection to the wider Internet can be classified in several ways. We migh
 
 For me, a more important question in terms of bandwidth is the cost. Budget-sensitive users may be using a plan on desktop and/or mobile that has a download cap, at which point they will either be throttled or will need to pay by the byte for traffic. Forcing these users to download a high definition video file, which will dwarf almost any other asset on your page, is not only rude, it may well cost them money. Don't be the person who runs up the data cost for low-income users just for a visual effect.
 
-Unfortunately, there's not a media query for bandwidth, and even if there were, there's no way to hook it up to a video tag, because they don't support <var>srcset</var> like images do. So our first problem is that if we want responsive video, we need to drop down into JavaScript. Our second problem is that our usual measures of quality, like screen size, are not a great proxy for bandwidth, although they will do in a pinch. There is a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Network_Information_API">network information API</a> in JavaScript, which provides some information, but is not yet well-supported. We may be better off providing a "switch" for users to opt-in to high quality video, similar to the "HD" buttons on YouTube and Vimeo.
+Unfortunately, there's not a media query for bandwidth, and even if there were, there's no way to hook it up to a video tag, because they don't support `srcset` like images do. So our first problem is that if we want responsive video, we need to drop down into JavaScript. Our second problem is that our usual measures of quality, like screen size, are not a great proxy for bandwidth, although they will do in a pinch. There is a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Network_Information_API">network information API</a> in JavaScript, which provides some information, but is not yet well-supported. We may be better off providing a "switch" for users to opt-in to high quality video, similar to the "HD" buttons on YouTube and Vimeo.
 
-We'll sidestep the question of checking the connection for now. Regardless of the method that we use to decide that a user is "high bandwidth," our method is going to be the same. First, we'll create the page with a video that has a poster attribute and the <var>src</var> set to point to a video encoded at a low resolution and high compression. This ensures that low-bandwidth users (who, after all, will also probably have a delay while waiting for JavaScript to download) are sent the smallest possible file. An extra attribute will hold onto the high-quality video URL for us.
+We'll sidestep the question of checking the connection for now. Regardless of the method that we use to decide that a user is "high bandwidth," our method is going to be the same. First, we'll create the page with a video that has a poster attribute and the `src` set to point to a video encoded at a low resolution and high compression. This ensures that low-bandwidth users (who, after all, will also probably have a delay while waiting for JavaScript to download) are sent the smallest possible file. An extra attribute will hold onto the high-quality video URL for us.
 
 @codeblock(html)...
 <video
@@ -104,7 +104,7 @@ Let's say that we have an audio tag that we want to make "live":
 <audio src="recording.mp3"></audio>
 ...codeblock
 
-One thing that's important to know from the start is that media events, unlike most UI events, do not bubble up through the DOM, so you can't <a href="js-jquery.html">delegate your event listeners</a>. We have to attach listeners directly to the element itself, such as these listeners on the <var>play</var> and <var>pause</var> events.
+One thing that's important to know from the start is that media events, unlike most UI events, do not bubble up through the DOM, so you can't <a href="js-jquery.html">delegate your event listeners</a>. We have to attach listeners directly to the element itself, such as these listeners on the `play` and `pause` events.
 
 @codeblock(js)...
 var audio = document.querySelector("audio");
@@ -122,7 +122,7 @@ var onPause = function(e) {
 ["pause", "play"].forEach(event => audio.addEventListener(event, onPause));
 ...codeblock
 
-Our next task is to update whenever the audio changes location, either because the user used the scrubber to jump around (the <var>seek</var> event) or because of normal playback (<var>timeupdate</var>). To find the exact location within the file, we can look at the media element's <var>currentTime</var> property, which will contain the file's playback location in seconds:
+Our next task is to update whenever the audio changes location, either because the user used the scrubber to jump around (the `seek` event) or because of normal playback (`timeupdate`). To find the exact location within the file, we can look at the media element's `currentTime` property, which will contain the file's playback location in seconds:
 
 @codeblock(js)...
 var onUpdate = function(e) {

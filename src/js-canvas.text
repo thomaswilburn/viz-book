@@ -65,14 +65,14 @@ context.stroke();
 context.fill();
 ...codeblock
 
-A 2D context is what we call a "state machine API," in the sense that it retains a degree of global state between calls, and uses that to do its drawing. Settings like the fill or stroke style (the aptly-named <var>fillStyle</var> and <var>strokeStyle</var> properties) are persistent across drawing instructions&mdash;you set them once, and they continue in effect until they're altered. This is in contrast to an API where these settings are done explicitly for each function call (say, where drawing a rectangle takes a color argument in addition to size and position).
+A 2D context is what we call a "state machine API," in the sense that it retains a degree of global state between calls, and uses that to do its drawing. Settings like the fill or stroke style (the aptly-named `fillStyle` and `strokeStyle` properties) are persistent across drawing instructions&mdash;you set them once, and they continue in effect until they're altered. This is in contrast to an API where these settings are done explicitly for each function call (say, where drawing a rectangle takes a color argument in addition to size and position).
 
-Another part of the global state is the path: when we call <var>beginPath()</var> in the code above, the context starts tracking drawing instructions, but it doesn't actually render anything out to the screen until the <var>stroke()</var> and <var>fill()</var> calls are made. There's a good reason for this&mdash;it's more efficient to build up a complex shape from individual points, and then color it in with a single instruction&mdash;but it does mean that you should get into a routine whenever you use canvas:
+Another part of the global state is the path: when we call `beginPath()` in the code above, the context starts tracking drawing instructions, but it doesn't actually render anything out to the screen until the `stroke()` and `fill()` calls are made. There's a good reason for this&mdash;it's more efficient to build up a complex shape from individual points, and then color it in with a single instruction&mdash;but it does mean that you should get into a routine whenever you use canvas:
 
-* Call <var>beginPath()</var> to make sure you're starting from a clean state, unless using one of the few immediate drawing functions (like <var>fillRect()</var>)
+* Call `beginPath()` to make sure you're starting from a clean state, unless using one of the few immediate drawing functions (like `fillRect()`)
 * Create the path you want to draw
-* Set any drawing state that needs to be set: <var>fillStyle</var>, <var>strokeStyle</var>, <var>lineWidth</var>, etc.
-* Call the actual drawing functions (<var>stroke()</var> and/or <var>fill()</var>) to render your path
+* Set any drawing state that needs to be set: `fillStyle`, `strokeStyle`, `lineWidth`, etc.
+* Call the actual drawing functions (`stroke()` and/or `fill()`) to render your path
 
 Let's take a look at how to put these things together, by designing a version of everyone's worst dataviz nightmare: the jiggling New York Times election dial.
 
@@ -86,7 +86,7 @@ In 2016, the NYT rolled out their election results page, complete with a set of 
 <canvas class="dial"></canvas>
 ...codeblock
 
-In our JavaScript, we're going to get our canvas and its context, and then define a render function that will repeatedly schedule itself to be run every frame. Functions called with <var>requestAnimationFrame</var> are passed a high-precision timestamp as their initial parameter, which is useful for creating animations. Not shown is the actual election results data, which is updated separately from the animation (say, from a regular network request to the server). Currently, the render function just clears the canvas by resizing it to match its physical dimensions.
+In our JavaScript, we're going to get our canvas and its context, and then define a render function that will repeatedly schedule itself to be run every frame. Functions called with `requestAnimationFrame` are passed a high-precision timestamp as their initial parameter, which is useful for creating animations. Not shown is the actual election results data, which is updated separately from the animation (say, from a regular network request to the server). Currently, the render function just clears the canvas by resizing it to match its physical dimensions.
 
 @codeblock(js)...
 
@@ -158,17 +158,17 @@ context.stroke();
 
 ...codeblock
 
-The <var>Math.sin()</var> and <var>Math.cos()</var> functions convert a measurement in radians (which, remember, goes from 0 to 2 around the circle) to the vertical and horizontal position of a point at that angle, respectively. By taking our scaled value, which ranges from 1.25 radians to 1.75 radians, and feeding it to these trig functions, we get the position on a unit circle, which we then multiply by our distance (1.2x the circle's radius) to find the final endpoint of the needle.
+The `Math.sin()` and `Math.cos()` functions convert a measurement in radians (which, remember, goes from 0 to 2 around the circle) to the vertical and horizontal position of a point at that angle, respectively. By taking our scaled value, which ranges from 1.25 radians to 1.75 radians, and feeding it to these trig functions, we get the position on a unit circle, which we then multiply by our distance (1.2x the circle's radius) to find the final endpoint of the needle.
 
 Ultimately, though, don't worry too much about the trigonometry. The important parts of this code are the structure of the rendering loop, the correct order of draw operations, and managing context state properly. If you can manage those, you're well on your way.
 
 @subhead Events without DOM
 
-All of the examples above have involved an animation loop, where the render code is called continually using <var>requestAnimationFrame</var>. It's worth noting that you can use canvas to render static images as well: it's perfectly fine to just draw something once and then move on, as we did for <a href="https://projects.seattletimes.com/2017/politics/mayoral-campaign-contributions/">these contribution graphs</a>. Alternately, you can choose to redraw only when something changes, instead of continuously updating. For example, you might update the canvas when notified of a user event, like a mouse or touch interaction.
+All of the examples above have involved an animation loop, where the render code is called continually using `requestAnimationFrame`. It's worth noting that you can use canvas to render static images as well: it's perfectly fine to just draw something once and then move on, as we did for <a href="https://projects.seattletimes.com/2017/politics/mayoral-campaign-contributions/">these contribution graphs</a>. Alternately, you can choose to redraw only when something changes, instead of continuously updating. For example, you might update the canvas when notified of a user event, like a mouse or touch interaction.
 
 The tough part of handling events when using canvas is that you no longer have distinct "targets" to which you can attach listeners. Visually, there may be objects drawn onscreen, but they're just pixels in the image buffer, not actual elements. How do we react appropriately to clicks or taps? Let's break this problem down into two parts to solve it: finding the location of the event relative to the canvas, and then strategies for hit detection.
 
-Our first problem is to figure out where <em>on the canvas</em> the event occurred. Unfortunately, this is not a simple way to solve across mobile and desktop browsers. Most modern browsers support the <var>offsetX/Y</var> properties on mouse events (it finally shipped in Firefox in mid-2015). However, touch events do not provide an offset from the targeted element, probably because touch movement is treated much differently from mouse movement. Instead, we have to recreate it, using <var>getBoundingClientRect()</var>:
+Our first problem is to figure out where <em>on the canvas</em> the event occurred. Unfortunately, this is not a simple way to solve across mobile and desktop browsers. Most modern browsers support the `offsetX/Y` properties on mouse events (it finally shipped in Firefox in mid-2015). However, touch events do not provide an offset from the targeted element, probably because touch movement is treated much differently from mouse movement. Instead, we have to recreate it, using `getBoundingClientRect()`:
 
 @codeblock(js)...
 
@@ -189,7 +189,7 @@ canvas.addEventListener("touchstart", e => listener(e.touches[0]));
 
 ...codeblock
 
-We should note that on certain touch events (such as movement), the list of finger contacts is called <var>changedTouches</var> instead of just <var>touches</var>, because Apple delights in making these APIs as precious as possible at the cost of usability. Regardless, once we have a position that's in the same coordinate space as our canvas, we can convert back from that pixel location into some kind of meaningful event target. 
+We should note that on certain touch events (such as movement), the list of finger contacts is called `changedTouches` instead of just `touches`, because Apple delights in making these APIs as precious as possible at the cost of usability. Regardless, once we have a position that's in the same coordinate space as our canvas, we can convert back from that pixel location into some kind of meaningful event target. 
 
 The classical method for handing this kind of thing, indeed the way that the browser itself handles it, is by creating a render tree in which display objects can contain other display objects, and each specifies its position in the coordinate system. The same process is then used for both drawing and input: walk the tree, rendering or testing as we go, until either drawing is complete or you find the deepest element at the input coordinates. This is how the DOM works, as well as how older technologies like Flash worked, and how frameworks like ThreeJS display a scene.
 

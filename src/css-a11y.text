@@ -1,0 +1,111 @@
+@metadata...
+title: Visualization as a civil right
+type: chapter
+summary: Inclusive news design | Accessible by default | Required reading
+...metadata
+
+Historically, accessibility (often shortened to a11y) has not been strongly emphasized by most interactive news teams. As a result, many of our most interesting work is at best dismissive of much of our audience, and at worst it's actively hostile.
+
+One reason for our industry's inattention to accessibility is that we tend to think about disability as a binary proposition. But among practitioners, this understanding hasn't been accurate for a long time. Instead, modern "inclusive design" thinking positions ability as a mismatch between a person and their environment--one that is contextual, and exists on a spectrum. All of us fall somewhere on that spectrum throughout our lives, depending on where we are, our health, and the task we're trying to accomplish.
+
+The goal of inclusive design is to recognize that making a product more accessible tends to benefit users across the entire spectrum of ability. Closed captions may help those who are deaf or hard of hearing, but they also benefit people in noisy environments, who are learning a language, or who want to view a video silently. One-handed operation benefits new parents or people with injuries just as it does those who are missing or unable to use one arm. An accessible product is a better product, for everyone.
+
+@subhead Accessible by default
+
+What does it mean to create more accessible news graphics? I'm not an expert, just an enthusiastic beginner. But I like to think about it in terms of three basic challenges:
+
+* Keyboard: Does this graphic let me navigate it only with the keyboard? This benefits users with repetitive stress injuries, low dexterity, and switch access devices.
+* Assistive tech: Can this graphic be used with a screen reader?
+* Visuals: Is the palette for this graphic friendly to users with color-blindness? Does it respect media queries for users who need high contrast or reduced motion?
+
+Here's the good news: the easiest way to get started with accessibility is to simply write good, semantic HTML. If you work with the browser, it will automatically make work with assistive tech and various interaction modes. For some of us, this means unlearning some bad habits. But the resulting code is not only easier to use, I think it's also easier to write, since it accurately represents your actual intent.
+
+@subsubhead Buttons vs. links
+
+As a rule of thumb, if clicking on a element navigates the page, internally or externally, it should be an `<a>` tag. If it does something that's not navigation, it should be a `<button>`. Don't use `<div>` or other generic elements to represent clickable things.
+
+Using these elements properly means that they'll be announced correctly in screen readers, and they'll be available to keyboard users (i.e., you can "click" on a button by pressing enter while it's focused).
+
+@subsubhead Ordered headers
+
+Screen reader users often navigate your page via "landmarks" taken from the HTML source. Tags like `<nav>`, `<main>`, `<header>`, and `<footer>` let them jump around the page instead of having to listen through all the boilerplate. Additionally, the header tags (`<h1>`, `<h2>`, etc) provide landmarks of their own. So use them! Don't just size up a paragraph tag when you want to put a headline in place.
+
+@subsubhead Always provide alt text
+
+Images in HTML should always have an `alt` attribute, which can be read by screen readers or revealed while the image is still loading. Ideally, the tag should describe the image contents briefly. If an image is entirely decorative, you can set `alt=""` to have it ignored by assistive tech.
+
+@subsubhead Use native inputs
+
+It's always tempting to use custom-built controls for things like drop-down menus or combo boxes. The default form elements aren't particularly attractive, they're hard to style, and they tend to vary wildly between browsers. But here's the thing: they're consistent, they're adaptable for mobile/desktop usage, and they tend to respond consistently to keyboard inputs. From an inclusion standpoint, they're your best option.
+
+@subsubhead Lean on WAI-ARIA for state
+
+The <a href="https://www.w3.org/TR/wai-aria-practices-1.1/">WAI-ARIA Authoring Practices</a> lay out expectations for how browser UI should act in order to meet consistent expectations. A set of extra attributes, prefixed with `ARIA-`, are used as additional hints for assistive tech. By leaning on attribute selectors in our CSS, we can integrate styling and accessibility into a single effort.
+
+For example, if we were to make a toggle button (say, a play/pause button in a media player), we'd normally add and remove a class from the button to indicate its state. But the spec for WAI-ARIA indicates that toggle buttons should be expressed in screen readers using `aria-pressed="true"` or `aria-pressed="false"`. Why not use that instead of an "active" class to update the button?
+
+@codeblock(css)...
+.play-button[aria-pressed="false"] {
+  // styles for paused state
+}
+
+.play-button[aria-pressed="true"] {
+  // styles for playing state
+}
+...codeblock
+
+@subhead Role playing
+
+Behind the scenes, screen readers understand semantic HTML elements through "roles" that are assigned to each one. A button will always have the "button" role, for example. An `<a>` tag has a "link" role. Using the right elements means that the correct roles will be announced. All of these are defined by the Accessible Rich Internet Applications spec, or ARIA. If you must use a different element, HTML allows you to specify a role for an element. For our purposes, this tends to be useful in two separate cases: generated images and tables.
+
+If you work on a typical news graphics desk, you may build things that are "images," but are actually composed of HTML and SVG. In a screen reader, these will often be announced in odd ways: for example, the labels on the X axis might be read out without any context, leaving users confused. It's helpful instead to mark the entire block containing the visualization as an image, and giving it a description using ARIA (in place of the alt text all images should have):
+
+@codeblock(html)...
+<div
+  class="graphic"
+  role="img"
+  aria-label="A bar chart containing lots of child elements"
+>
+  <!-- complicated markup goes here, but won't be read -->
+</div>
+...codeblock
+
+One common technique for making HTML tables responsive is to change their display property in CSS based on the media query--turning rows into lists of header/value pairs. However, changing the CSS of a table means that it will cease to be a table as far as screen readers are concerned. In that case, we will need to use roles to reaffirm the table-ness of our markup:
+
+@codeblock(html)...
+<table role="table">
+  <thead role="rowgroup">
+    <tr role="row">
+      <th role="columnheader">A
+      <th role="columnheader">B
+  <tbody role="rowgroup">
+    <tr role="row">
+      <td role="cell">1
+      <td role="cell">2
+</table>
+...codeblock
+
+Is this obnoxious? You bet! But it means that you can restyle a data table to your heart's content, and it will still act like a table for users in a screen reader--meaning that headers will be announced for each cell, and it's possible to navigate around the grid.
+
+Here's the cool thing about table roles: you can also use them to create tables for screen readers where it doesn't exist normally. For example, here's a bar chart that's also a table. Inspect it to see the roles that are assigned. Many browsers now include a panel in the dev tools that exposes the accessibility roles assigned to the DOM tree.
+
+@include snippets/a11y-table.html
+
+If you've never used a screen reader before, now is a great chance to learn.
+
+* Windows now includes a screen reader named <a href="https://support.microsoft.com/en-us/help/17173/windows-10-hear-text-read-aloud">Narrator</a>
+* <a href="http://nvaccess.org">NVDA</a> is another popular and free alternative for Windows
+* VoiceOver can be used on <a href="https://www.apple.com/voiceover/info/guide/_1124.html">OS X</a> and <a href="https://support.apple.com/guide/iphone/learn-voiceover-gestures-iph3e2e2281/ios">iOS</a>
+* Android includes a built-in screenreader named <a href="https://support.google.com/accessibility/android/answer/6283677?hl=en">TalkBack</a>
+
+@subhead Required reading
+
+As you can probably tell, accessibility is a big job, and one that involves a lot of testing to get right. This is just an introduction to the topic. To learn more, you may want to dig into the following resources:
+
+* <a href="https://www.w3.org/TR/WCAG21/">The Web Content Accessibility Guidelines</a>, which detail expectations of software that's fully accessible
+* <a href="https://www.w3.org/TR/wai-aria-practices-1.1/">WAI-ARIA Authoring Practices</a>
+* <a href="https://www.scottohara.me/note/2019/05/07/resources.html">Scott O'Hara's list of links</a>
+* <a href="https://marcysutton.com/web-accessibility-resources">More resources from Marcy Sutton</a>, whose talk "Accessibility as a Civil Right" inspired this chapter
+* <a href="https://source.opennews.org/articles/accessibility-starter-kit/">Tips on learning how to use a mobile screen reader for testing</a>
+
+Hopefully, by making inclusion a key part of our writing and development process, it becomes natural, instead of something bolted onto our news graphics. The result is journalism that's available to everyone, not just people in perfect health and exactly the right circumstances.

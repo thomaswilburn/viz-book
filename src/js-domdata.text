@@ -15,7 +15,7 @@ Let's imagine that we have an array containing a set of objects, each of which i
 <div class="rogues"></div>
 ...codeblock
 
-By setting the <var>innerHTML</var> property of this element, the browser will parse and generate elements for us. I like to do this using a single big string, to which we add the markup for each item, like so. Note that for this and all the other examples, we'll be using the selector functions from our <a href="js-jquery.html">Deconstructed jQuery</a> chapter.
+By setting the `innerHTML` property of this element, the browser will parse and generate elements for us. I like to do this using a single big string, to which we add the markup for each item, like so. Note that for this and all the other examples, we'll be using the selector functions from our <a href="js-jquery.html">Deconstructed jQuery</a> chapter.
 
 @codeblock(js)...
 var container = $.one(".rogues");
@@ -34,7 +34,7 @@ people.forEach(function(person) {
 container.innerHTML = html;
 ...codeblock
 
-You can also add the markup to the <var>innerHTML</var> property one unit at a time, using the <var>+=</var> operator, but it's faster for the browser to get it and parse it all in one big chunk.
+You can also add the markup to the `innerHTML` property one unit at a time, using the `+=` operator, but it's faster for the browser to get it and parse it all in one big chunk.
 
 Creating markup this way is fast and easy, but it does have a flaw: because the elements don't exist until the string is handed over to the browser, we can't add event listeners or retain references right away. Instead, we have to generate a big string, use that to create the container's contents, and then query the newly-created elements in order to manipulate them. It's not very convenient, it's slower (since we have to query for all the elements), and we have to write a second loop:
 
@@ -67,7 +67,7 @@ people.forEach(function(person) {
 
 What if we could make this a bit cleaner, writing JavaScript code that mimics the structure of the tree we're trying to create, similar to the HTML markup itself? That's absolutely possible if we steal a trick from React.
 
-React uses an embedded language called JSX, which puts HTML templates directly into the JavaScript. However, behind the scenes, that JSX is actually just translated into function calls&mdash;specifically <var>React.createElement()</var>. Our version of this will take three arguments: the tag that we want to create, an optional object containing attributes, and then the contents of the element as a string (for setting text contents) or an array of child elements.
+React uses an embedded language called JSX, which puts HTML templates directly into the JavaScript. However, behind the scenes, that JSX is actually just translated into function calls&mdash;specifically `React.createElement()`. Our version of this will take three arguments: the tag that we want to create, an optional object containing attributes, and then the contents of the element as a string (for setting text contents) or an array of child elements.
 
 In practice, it doesn't look that much different from HTML itself:
 
@@ -86,7 +86,7 @@ makeDOM("div", { class: "container" }, [
 // </div>
 ...codeblock
 
-Here's the actual code to implement <var>makeDOM</var>. Most of the complication here is the code to support different argument combinations (attributes but no children, no attributes and string contents, no attributes and child elements, both attributes and text or child elements), but the ergonomics are much better that way.
+Here's the actual code to implement `makeDOM`. Most of the complication here is the code to support different argument combinations (attributes but no children, no attributes and string contents, no attributes and child elements, both attributes and text or child elements), but the ergonomics are much better that way.
 
 @codeblock(js)...
 var makeDOM = function(tagName, attributes = {}, children = []) {
@@ -114,7 +114,7 @@ var makeDOM = function(tagName, attributes = {}, children = []) {
 };
 ...codeblock
 
-As above, because <var>makeDOM</var> accepts an array of elements to be children, we can nest multiple calls to this inside the arguments, and build a whole subtree on the spot. Here's our loop through the bio data using this function instead of manually calling the DOM API, which is much more readable:
+As above, because `makeDOM` accepts an array of elements to be children, we can nest multiple calls to this inside the arguments, and build a whole subtree on the spot. Here's our loop through the bio data using this function instead of manually calling the DOM API, which is much more readable:
 
 @codeblock(js)...
 people.forEach(function(person) {
@@ -137,7 +137,7 @@ Our JavaScript is now structured in a very similar way to our HTML markup, inden
 
 Making HTML from our data is only half the challenge, and it's the easier half. We still have to be able to reverse that process whenever a user interacts with our page: for each element, we need to retrieve the corresponding data for display or manipulation.
 
-As mentioned above, one way to do this is by associating the data directly with the event listener for the element, using a closure inside of our loop. A "closure" is a function that incorporates outside variables from the context in which it was created. For example, the following loop has an event listener that "closes over" the <var>person</var> value.
+As mentioned above, one way to do this is by associating the data directly with the event listener for the element, using a closure inside of our loop. A "closure" is a function that incorporates outside variables from the context in which it was created. For example, the following loop has an event listener that "closes over" the `person` value.
 
 @codeblock(js)...
 people.forEach(function(person) {
@@ -156,7 +156,7 @@ people.forEach(function(person) {
 
 Unfortunately, by using individual listener functions for each element, you're adding some extra memory for every element you create. That may not be important, if you only have a few people in your graphic. But if you have a lot, or if you repeatedly remove and create new elements (say, because you allow the list of people to be filtered), you'll end up using a lot more memory, which may cause your application to stutter, slow down, or even become unresponsive.
 
-It's preferable instead to share a single listener function between all of your elements. By defining it outside the loop, you'll create the function once, and then it can use the <var>this</var> value to determine which specific element was clicked.
+It's preferable instead to share a single listener function between all of your elements. By defining it outside the loop, you'll create the function once, and then it can use the `this` value to determine which specific element was clicked.
 
 @codeblock(js)...
 var clickedPerson = function() {
@@ -176,7 +176,7 @@ people.forEach(function(person) {
 
 Now, however, we have a problem: we're sharing a single function across all our elements, which means that it can figure out which <em>element</em> was clicked, but it doesn't know what data is associated with that element, because it was defined outside of the loop where that data was available. Luckily, we've been setting the element's "data-person" attribute to be the same as the person's ID in our data. We could loop through the data to search for that identifier, but a little preparation can speed things up.
 
-Let's build a lookup table using a JavaScript object. During element creation, we'll add references to the object, with the keys being the person IDs and the values being the source data itself. Then, inside our listener, we can get the attribute value from <var>this</var> and ask the lookup table for the matching array object.
+Let's build a lookup table using a JavaScript object. During element creation, we'll add references to the object, with the keys being the person IDs and the values being the source data itself. Then, inside our listener, we can get the attribute value from `this` and ask the lookup table for the matching array object.
 
 @codeblock(js)...
 var lookup = {};
@@ -204,7 +204,7 @@ people.forEach(function(person) {
 
 As a rule of thumb, remember that when you're writing markup, you're leaving clues for your future self. Be generous! HTML generated via JavaScript doesn't cost the user in terms of download time or (barring extreme cases) parse time, so make sure that you place classes and attributes throughout to be helpful for yourself, instead of just using bare tags. You never know when you might need those hooks later.
 
-Of course, if you're using the <var>this</var> value and a lookup object, you can probably use <a href="js-jquery.html#delegation">event delegation</a>, which gives you the best of both worlds: easier-to-write string templating, low memory usage, and simple code. This is our most common methodology at the Seattle Times for its simplicity and speed under deadline.
+Of course, if you're using the `this` value and a lookup object, you can probably use <a href="js-jquery.html#delegation">event delegation</a>, which gives you the best of both worlds: easier-to-write string templating, low memory usage, and simple code. This is our most common methodology at the Seattle Times for its simplicity and speed under deadline.
 
 @codeblock(js)...
 var lookup = {};

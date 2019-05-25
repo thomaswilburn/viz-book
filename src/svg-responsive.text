@@ -14,7 +14,7 @@ img, svg {
 
 We're naturally interested in SVG because it gives us an easy way to draw live vectors in the browser&mdash;shapes that can be manipulated, listen for events, and announce themselves in a screen reader. But SVG is also interesting because its presentation can be manipulated using CSS, including media queries and complex selectors. This opens up new possibilities, both for data visualization and art direction.
 
-To really understand how SVG interacts with CSS, we need to talk about how it gets included in the page. Thus far, we've been generating or working with inline SVG, which is content directly placed in an HTML page. The HTML5 parser guarantees that inline <var>&lt;svg&gt;</var> tags simply work, although we do need to use the correct namespace when <a href="svg-generation.html">generating new elements dynamically</a>. So this just works:
+To really understand how SVG interacts with CSS, we need to talk about how it gets included in the page. Thus far, we've been generating or working with inline SVG, which is content directly placed in an HTML page. The HTML5 parser guarantees that inline `<svg>` tags simply work, although we do need to use the correct namespace when <a href="svg-generation.html">generating new elements dynamically</a>. So this just works:
 
 @codeblock(html)...
 <div>
@@ -24,7 +24,7 @@ To really understand how SVG interacts with CSS, we need to talk about how it ge
 </div>
 ...codeblock
 
-You can also include a separate SVG file in a page, same as a JPG or PNG file, using an <var>&lt;img&gt;</var> tag. 
+You can also include a separate SVG file in a page, same as a JPG or PNG file, using an `<img>` tag. 
 
 @codeblock(html)...
 <img src="filename.svg">
@@ -34,7 +34,7 @@ However, when included through an image tag, the SVG is "opaque" to the rest of 
 
 @subhead The media is the message
 
-When using media queries with SVG, the difference becomes clear. For example, here's the same SVG loaded twice: once through an inline tag, and once as an external resource. In both cases, the SVG contains a <var>&lt;style&gt;</var> tag that sets the fill of the rectangle with a 400px breakpoint:
+When using media queries with SVG, the difference becomes clear. For example, here's the same SVG loaded twice: once through an inline tag, and once as an external resource. In both cases, the SVG contains a `<style>` tag that sets the fill of the rectangle with a 400px breakpoint:
 
 @codeblock(html)...
 <svg width="100" height="100" viewBox="0 0 100 100">
@@ -72,7 +72,7 @@ This ability to adjust styles based on the size of the image element, and not th
 
 Loading external SVG files can be helpful for static elements. But generally speaking, the most effective way to include an SVG into your page is still as inline elements. That doesn't mean you have to write them all in directly&mdash;I'm a big fan of using templating or a custom element like our <a href="https://github.com/seattletimes/savage-image">Savage Image</a> tag, which loads the SVG in a separate network request and then places it in the document for you. This gives you the best of both worlds: small page size and load time, combined with the ability to access and style elements directly.
 
-Let's take a look at one potential method for using inline SVG in data visualization. We'll create a graphic that uses a template and CSS classes to generate small multiples. In this case, the graphic represents injuries to a football team as a set of paper dolls, with injured limbs shaded. Here's our template function, which takes a string of injuries and then adds those to the <var>data-injuries</var> attribute of its output.
+Let's take a look at one potential method for using inline SVG in data visualization. We'll create a graphic that uses a template and CSS classes to generate small multiples. In this case, the graphic represents injuries to a football team as a set of paper dolls, with injured limbs shaded. Here's our template function, which takes a string of injuries and then adds those to the `data-injuries` attribute of its output.
 
 @codeblock(js)...
 var generatePlayer = function(injuries) {
@@ -181,6 +181,6 @@ alignment-baseline, baseline-shift, clip, clip-path, clip-rule, color, color-int
 </code>
 ...html
 
-Notably missing from this list are the important coordinate-related attributes: no <var>x</var>, no <var>y</var>, no <var>width</var> or <var>height</var>. You can fake some of those with <var>transform</var>, but you cannot apply transforms via CSS to SVG elements in IE or Edge. 
+Notably missing from this list are the important coordinate-related attributes: no `x`, no `y`, no `width` or `height`. You can fake some of those with `transform`, but you cannot apply transforms via CSS to SVG elements in IE or Edge. 
 
-This limits our options somewhat when it comes to creating responsive media, because we can't actually reposition elements. It's possible to create some responsive special effects using nested SVGs and creative use of <var>preserveAspectRatio</var>, as <a href="https://www.sarasoueidan.com/blog/nesting-svgs/">Sara Soueidan has written</a>. It may also be possible to take advantage of the small file size of most SVG files by simply duplicating the layers you want to move at different positions, and showing only the one you want.
+This limits our options somewhat when it comes to creating responsive media, because we can't actually reposition elements. It's possible to create some responsive special effects using nested SVGs and creative use of `preserveAspectRatio`, as <a href="https://www.sarasoueidan.com/blog/nesting-svgs/">Sara Soueidan has written</a>. It may also be possible to take advantage of the small file size of most SVG files by simply duplicating the layers you want to move at different positions, and showing only the one you want.

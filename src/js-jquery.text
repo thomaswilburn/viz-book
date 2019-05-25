@@ -8,10 +8,10 @@ I love to eat, which means I love watching competitive cooking shows. One staple
 
 On the web, a classic flavor is jQuery: the ur-library that tamed a wildly inconsistent range of browsers, and made it possible to build interactive pages without wanting to stick your head in the microwave. But browsers kept improving, and some of jQuery's features became antipatterns. It's a perfect example of this book's thesis: these days, you probably don't need everything that the library does:
 
-* AJAX - replaced by <var>fetch</var>
+* AJAX - replaced by `fetch`
 * Deferred - replaced by built-in Promise support
 * Effects - replaced by CSS animations and transitions
-* Offset and dimensions - replaced by <var>getBoundingClientRect()</var>
+* Offset and dimensions - replaced by `getBoundingClientRect()`
 
 That doesn't mean that jQuery is worthless&mdash;far from it! The fundamental pattern of selection and iteration is a good one, and we still need to be able to perform DOM manipulation to add and remove classes, or to listen for events. But let's see if we can make a "deconstructed jQuery" with a similar API flavor, but broken into micro-modules that we can mix and match as demanded. That way, we don't have to load a big library full of stuff we don't need just for basic tasks.
 
@@ -29,9 +29,9 @@ To replace jQuery's core functionality, we need to handle a few basic tasks. We 
 
 @subhead Making selections
 
-Let's start by making some selections. After jQuery's popularity skyrocketed, browsers added a similar <var>querySelectorAll</var> function for searching the document. Unfortunately, this function wasn't as useful as a regular jQuery search was, because the object wasn't an array that you could loop through. Instead, it was a NodeList, an array-<em>like</em> object that had numbered items and a length, but lacked important methods like <var>forEach</var> or <var>map</var>.
+Let's start by making some selections. After jQuery's popularity skyrocketed, browsers added a similar `querySelectorAll` function for searching the document. Unfortunately, this function wasn't as useful as a regular jQuery search was, because the object wasn't an array that you could loop through. Instead, it was a NodeList, an array-<em>like</em> object that had numbered items and a length, but lacked important methods like `forEach` or `map`.
 
-Luckily, it's pretty easy to convert a NodeList into a JavaScript array. In newer browsers, you can use <var>Array.from()</var>, but for broader compatibility we can "borrow" the Array prototype's <var>slice</var> method to make a copy, which even works on array-likes. Here's the code for a jQuery-like <var>$()</var> function that can search within either the document or a chosen child node:
+Luckily, it's pretty easy to convert a NodeList into a JavaScript array. In newer browsers, you can use `Array.from()`, but for broader compatibility we can "borrow" the Array prototype's `slice` method to make a copy, which even works on array-likes. Here's the code for a jQuery-like `$()` function that can search within either the document or a chosen child node:
 
 @codeblock(js)...
 var $ = (selector, d = document) => Array.prototype.slice.call(d.querySelectorAll(selector));
@@ -39,13 +39,13 @@ var $ = (selector, d = document) => Array.prototype.slice.call(d.querySelectorAl
 
 This function returns an array containing all the selected nodes. If you call it with a different node as the second argument, it'll use that as the root of the search, instead of looking through the entire document. Pretty handy!
 
-In jQuery, once you made a selection, any methods you called on the object would be applied to everything in it. Our function isn't quite as powerful, but since it returns an array, we can use the <var>forEach()</var> method to iterate through it with an arrow function. For example, to change the style of every link on the page, we might do this:
+In jQuery, once you made a selection, any methods you called on the object would be applied to everything in it. Our function isn't quite as powerful, but since it returns an array, we can use the `forEach()` method to iterate through it with an arrow function. For example, to change the style of every link on the page, we might do this:
 
 @codeblock(js)...
 $("a").forEach(a => a.style.color = "red");
 ...codeblock
 
-Let's try a more realistic example. jQuery make it easy to add or remove classes from a group of elements. Browser developers knew that manually manipulating the <var>className</var> property of an element was too cumbersome, so they added the <var>classList</var> property, which supports operations for <var>add</var>, <var>remove</var>, <var>contains</var>, and <var>toggle</var> operations. So, for example, to update a few classes on the page:
+Let's try a more realistic example. jQuery make it easy to add or remove classes from a group of elements. Browser developers knew that manually manipulating the `className` property of an element was too cumbersome, so they added the `classList` property, which supports operations for `add`, `remove`, `contains`, and `toggle` operations. So, for example, to update a few classes on the page:
 
 @codeblock(js)...
 //jQuery version
@@ -59,7 +59,7 @@ $("tab.disabled").forEach(el => el.classList.add("hidden"));
 
 It's a little more verbose, sure. But I would argue that the meaning is more clear, and that it's easier to think about what you can "do" to our version of the object, since the answer is "anything I can do to an array."
 
-Of course, sometimes, you just want one element, and then iterating over an array with just one item doesn't make a lot of sense. So let's add a method to our <var>$()</var> function that grabs just one item from the page:
+Of course, sometimes, you just want one element, and then iterating over an array with just one item doesn't make a lot of sense. So let's add a method to our `$()` function that grabs just one item from the page:
 
 @codeblock(js)...
 $.one = (s, d = document) => d.querySelector(s);
@@ -70,9 +70,9 @@ $.one("tab.active").classList.toggle("active");
 
 @subhead Listening for events
 
-Another traditional use for jQuery is to register for events. Event handling used to be very inconsistent between browsers, with some passing an event into the listener function, and others (well, just IE) setting a <var>window.event</var> property instead (this worked, because JS is single-threaded, but it's an ugly way to write code).
+Another traditional use for jQuery is to register for events. Event handling used to be very inconsistent between browsers, with some passing an event into the listener function, and others (well, just IE) setting a `window.event` property instead (this worked, because JS is single-threaded, but it's an ugly way to write code).
 
-These days, however, pretty much everything supports the standard <var>addEventListener</var> function, and jQuery's habit of "normalizing" properties on the event object can actually backfire when we want to pay attention to non-input events, like media playback or file drag/drop. Binding an event listener to a selection of elements using our new <var>$</var> function turns out to be pretty easy:
+These days, however, pretty much everything supports the standard `addEventListener` function, and jQuery's habit of "normalizing" properties on the event object can actually backfire when we want to pay attention to non-input events, like media playback or file drag/drop. Binding an event listener to a selection of elements using our new `$` function turns out to be pretty easy:
 
 @codeblock(js)...
 //Arrow functions inherit this, which we don't want
@@ -83,11 +83,11 @@ var listener = function(e) {
 $(".event-handlers").forEach(el => el.addEventListener("click", listener);
 ...codeblock
 
-When you click on the elements that we selected, the browser should log out the specific element clicked (that's the <var>this</var> value) and an event with additional details (mouse position, event type, and so on). I like to define the listener as a separate variable outside of the loop: if you define it inline, you're technically creating a new function for each individual element, which wastes memory. Defined separately, each element shares the same listener, but we can still react to the specific item by using <var>this</var>.
+When you click on the elements that we selected, the browser should log out the specific element clicked (that's the `this` value) and an event with additional details (mouse position, event type, and so on). I like to define the listener as a separate variable outside of the loop: if you define it inline, you're technically creating a new function for each individual element, which wastes memory. Defined separately, each element shares the same listener, but we can still react to the specific item by using `this`.
 
 @subhead Walking up the tree
 
-A wrapper for <var>querySelectorAll()</var> is fine for searching down into a tree, but what if we want to search upward instead? That's the functionality of jQuery's <var>closest()</var> method, and we'll want some sort of equivalent in our deconstructed library. Luckily, it's easy to check if an element matches a given selector using the <var>matches</var> method (implemented in IE as <var>matchesSelector</var>). So to duplicate <var>closest</var>, we'll write a function that starts at a given element, and walks up the tree checking each parent, until it hits a root element (usually the document's <var>html</var> tag).
+A wrapper for `querySelectorAll()` is fine for searching down into a tree, but what if we want to search upward instead? That's the functionality of jQuery's `closest()` method, and we'll want some sort of equivalent in our deconstructed library. Luckily, it's easy to check if an element matches a given selector using the `matches` method (implemented in IE as `matchesSelector`). So to duplicate `closest`, we'll write a function that starts at a given element, and walks up the tree checking each parent, until it hits a root element (usually the document's `html` tag).
 
 @codeblock(js)...
 //shim for IE
@@ -150,7 +150,7 @@ So for our delegation utility function, we need a few things to happen:
 * When events are triggered, we filter for the desired elements (or their children)
 * We call the event listener in the context of those elements instead of where we registered the listener
 
-Luckily, <var>closest()</var> takes care of the tricky part, which is testing the event's target against the selector. Here's our delegation function:
+Luckily, `closest()` takes care of the tricky part, which is testing the event's target against the selector. Here's our delegation function:
 
 @codeblock(js)...
 var delegate = function(container, selector, event, listener) {
@@ -180,4 +180,4 @@ All told, our jQuery replacement is about 20 lines of code, not all of which we'
 
 That said, are there times when we should use jQuery? Absolutely. Our goal isn't to get rid of big libraries, just to only use them when we really need them. My rule of thumb is that if there are three or more jQuery features that would make your project substantially easier, you should go ahead and include it. One of those features might also be the normalization that jQuery still does for cross-browser hiccups, like automatically using prefixed styles in browsers that need them. So if you were working on something that involves Promises, JSONP, and setting lots of newer CSS properties, jQuery might make sense. Use your judgement!
 
-At the Seattle Times, we keep these jQuery-lite functions in three or four small library files, and include them as needed for any given project. After a while, it becomes second-nature. But at first, using the <var>$()</var> variable name might be confusing if you're used to jQuery. If so, it might make sense to import that function as <var>qsa()</var> (for "querySelectorAll" instead). However, for the rest of this book, whenever you see a <var>$()</var>, it'll mean this function, and not the original jQuery. Keep an eye out!
+At the Seattle Times, we keep these jQuery-lite functions in three or four small library files, and include them as needed for any given project. After a while, it becomes second-nature. But at first, using the `$()` variable name might be confusing if you're used to jQuery. If so, it might make sense to import that function as `qsa()` (for "querySelectorAll" instead). However, for the rest of this book, whenever you see a `$()`, it'll mean this function, and not the original jQuery. Keep an eye out!

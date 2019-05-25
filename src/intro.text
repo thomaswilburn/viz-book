@@ -11,7 +11,7 @@ To deal with this extra complexity, newsroom developers often relied on tools an
 
 Almost ten years later, however, that landscape has changed. These days, the slowest release cycle comes from Safari, which puts out major versions roughly once a year (but still manages minor releases with significant new features in between OS updates). Elsewhere, Chrome and Firefox have continued to sprint ahead, adding new technology that's often inspired by the frameworks of the past. IE was replaced by Edge, which has also moved to an evergreen update cycle. While we were heads down on deadline, the web platform became enormously more capable, and consistent, than we might have thought.
 
-As a result, that habitual framework usage has become a little wasteful, since what once required a hefty library is now built-in to the browser. On the Seattle Times' interactives team, we make it a point of pride to use frameworks sparingly. By leaning on the browser, our pages are lighter (and faster). More importantly, it's a good chance for junior team members to learn how the platform actually works, and develop skills that will transfer across languages and architectures. After all, JavaScript fashions may come and go, but the browser is here for the foreseeable future.
+As a result, that habitual framework usage has become a little wasteful, since what once required a hefty library is now built-in to the browser. On the Seattle Times' interactives team, I made it a point of pride to use frameworks sparingly. By leaning on the browser, our pages were lighter (and faster). More importantly, it was a good chance for junior team members to learn how the platform actually works, and develop skills that will transfer across languages and architectures. After all, JavaScript fashions may come and go, but the browser is here for the foreseeable future.
 
 In this book, you'll learn how to build powerful data visualizations online, based on three principles:
 
@@ -23,7 +23,7 @@ Above all, through these short lessons, you should have a chance to level up as 
 
 @subhead About me
 
-My name is Thomas Wilburn, and I'm a news developer and data journalist on the Seattle Times' interactives team, where I build graphics, special pages, and newsroom tools using JavaScript. Previously, I ran the multimedia team for Congressional Quarterly, and was a web programmer at ArenaNet working on UI and services for Guild Wars 2. 
+My name is Thomas Wilburn, and I'm a news developer and data journalist on the NPR News Apps team, where I build graphics, special pages, and newsroom tools using JavaScript. Previously, I was the senior interactive developer for the Seattle Times, ran the multimedia team for Congressional Quarterly, and was a web programmer at ArenaNet working on UI and services for Guild Wars 2. 
 
 I've also been a guest lecturer at the University of Washington, and a speaker at tech and journalism conferences (including NICAR, SRCCON, CascadiaFest, and SeattleJS). If you took one of my classes, you may have read my <a href="https://thomaswilburn.github.io/textbook">textbook for learning JavaScript</a>. 
 
@@ -63,7 +63,7 @@ var x = function(a, b) {
 
 To be specific, I'll be using the following ES2015 syntax additions for this book:
 
-* Arrow functions (<var>=&gt;</var>)
+* Arrow functions (`=>`)
 * Template strings
 * Destructuring
 * Enhanced object literals

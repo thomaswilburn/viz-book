@@ -11,7 +11,7 @@ Traditionally, animation in a browser has involved one of two strategies:
 
 Neither of these approaches is necessarily bad, but they each have serious disadvantages. Manually directing an animation from JavaScript means running code that touches the DOM on every frame, which is difficult to do smoothly (especially on resource-constrained devices). On the other hand, animating using CSS means that you're locking into specific changes that are defined ahead of time, and cannot easily respond to updated page content or user input.
 
-In 2015, Chrome developer advocate Paul Lewis published an influential article called "<a href="https://aerotwist.com/blog/flip-your-animations/">Flip your animations</a>" that proposed a third method: use JavaScript to define the start and end points of the animation, then let CSS take over so that the browser can smoothly transition between those two states. His technique wasn't without its own limitations, since it's optimized for changes in the <var>transform</var> property (namely position, scaling, and rotation). But since those are typically the properties we want to change anyway, it's a powerful tool to learn.
+In 2015, Chrome developer advocate Paul Lewis published an influential article called "<a href="https://aerotwist.com/blog/flip-your-animations/">Flip your animations</a>" that proposed a third method: use JavaScript to define the start and end points of the animation, then let CSS take over so that the browser can smoothly transition between those two states. His technique wasn't without its own limitations, since it's optimized for changes in the `transform` property (namely position, scaling, and rotation). But since those are typically the properties we want to change anyway, it's a powerful tool to learn.
 
 @subhead Breaking down the process
 
@@ -59,11 +59,11 @@ The key to FLIP is that it prioritizes the CSS properties that browsers can anim
 
 @subhead Making FLIP slow
 
-Here's the thing about doing FLIP: it's basically a process of moving the expensive parts of animation to the beginning of the process so that the rest can go smoothly. Those two calls to <var>getBoundingClientRect()</var> at the start of the process are relatively slow, but after that all animation is done by the browser without any script. For only one or two concurrent animations, that's fine.
+Here's the thing about doing FLIP: it's basically a process of moving the expensive parts of animation to the beginning of the process so that the rest can go smoothly. Those two calls to `getBoundingClientRect()` at the start of the process are relatively slow, but after that all animation is done by the browser without any script. For only one or two concurrent animations, that's fine.
 
 However, if you're animating many elements&mdash;say, a scatterplot or a stacked bar chart that transitions between relative and absolute numbers&mdash;it's easy to blow through your frame budget by using FLIP naively. Each time you collect two measurements separated by a DOM mutation, it requires the browser to perform a full page layout and measurement, and you can't afford many of those.
 
-Instead, if you have many elements you're planning on animating, you'll want to batch reads and writes. The browser is smart enough to cache the layout data in between <var>getBoundingClientRect()</var> calls as long as you don't change the page in any way, and it also applies changes lazily if you let it. So the key is to use an array to associate intermediate values across animation phases for many elements.
+Instead, if you have many elements you're planning on animating, you'll want to batch reads and writes. The browser is smart enough to cache the layout data in between `getBoundingClientRect()` calls as long as you don't change the page in any way, and it also applies changes lazily if you let it. So the key is to use an array to associate intermediate values across animation phases for many elements.
 
 @codeblock(js)...
 

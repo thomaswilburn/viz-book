@@ -18,11 +18,11 @@ In the resulting visualization, the browser does most of the work for us, and it
 
 @subhead There can be only one
 
-There's a truism in the accessibility community: don't reinvent the <var>select</var> element. The form controls available in the browser may be clumsy, and difficult to restyle, but they also provide a large amount of benefit to screen readers, to people with reduced dexterity, and to users accustomed to the default behavior on their particular operating system. Reproducing all of that is an enormous investment, as <a href="https://accessibility.oit.ncsu.edu/it-accessibility-at-nc-state/developers/accessibility-handbook/aria-checkbox/">this guide to creating a "custom checkbox"</a> shows. The built-in defaults aren't as pretty, but there's good reason to just use them instead of doing all that work.
+There's a truism in the accessibility community: don't reinvent the `select` element. The form controls available in the browser may be clumsy, and difficult to restyle, but they also provide a large amount of benefit to screen readers, to people with reduced dexterity, and to users accustomed to the default behavior on their particular operating system. Reproducing all of that is an enormous investment, as <a href="https://accessibility.oit.ncsu.edu/it-accessibility-at-nc-state/developers/accessibility-handbook/aria-checkbox/">this guide to creating a "custom checkbox"</a> shows. The built-in defaults aren't as pretty, but there's good reason to just use them instead of doing all that work.
 
 However, I would go one step farther: for many common UI patterns, there may be a form element that we can build off, even if it's not an obvious choice. This shouldn't be surprising, since the point of "UI patterns" is to look for behaviors that crop up across multiple different widgets. Take, for example, a tabbed window and an image gallery with a "filmstrip" of thumbnails underneath. They have very different goals, and they look very different to users. But the functionality, in which the selected item is shown while the others are hidden, is largely the same, and the underlying code for them might be almost identical.
 
-In this case, what we're going to leverage is the radio button, one of the several types available for the <var>input</var> tag. Radio buttons are basically checkboxes, but they're linked together in groups, and only one can be checked at a time. Checking a different radio button will uncheck the first. Each button in a group can have its own value, and the group itself is created by a common value for the "name" attribute. Here's a set of three radio buttons in a group, each with its own label:
+In this case, what we're going to leverage is the radio button, one of the several types available for the `input` tag. Radio buttons are basically checkboxes, but they're linked together in groups, and only one can be checked at a time. Checking a different radio button will uncheck the first. Each button in a group can have its own value, and the group itself is created by a common value for the "name" attribute. Here's a set of three radio buttons in a group, each with its own label:
 
 @codeblock(html)...
 <div class="radio-block">
@@ -37,7 +37,7 @@ In this case, what we're going to leverage is the radio button, one of the sever
 
 By giving each input its own ID, and setting the "for" attribute of each label to match, the browser hooks up each label to the corresponding input: clicking on the label text will select that radio button from the group. Essentially, it makes the label a part of the input.
 
-Now, with a little CSS trickery, we can make actually hide the inputs themselves, and instead show the checked/unchecked state on the label. To do so, we'll use the <var>+</var> CSS operator, which selects an element's next sibling, and the <var>:checked</var> pseudoclass. Here's some style rules that will highlight the label for the selected item in red:
+Now, with a little CSS trickery, we can make actually hide the inputs themselves, and instead show the checked/unchecked state on the label. To do so, we'll use the `+` CSS operator, which selects an element's next sibling, and the `:checked` pseudoclass. Here's some style rules that will highlight the label for the selected item in red:
 
 @codeblock(css)...
 .radio-block input { opacity: 0; width: 0 }
@@ -87,7 +87,7 @@ And here it is in action:
 </style>
 ...html
 
-Add a few extra styles, and it's easy to make this look like an iOS-style "pillbox," a set of Android tabs, a line of gallery thumbnails, or any other UI widget where the user can select only one item from a set of choices. We didn't have to write any JS code to keep track of the selected item and update the classes on those elements. And because we're just using HTML and CSS, this code is accessible to screen readers, and you can easily use the arrow keys to pick between the different options (although adding the <var>:focus</var> rule is necessary to make that more clear).
+Add a few extra styles, and it's easy to make this look like an iOS-style "pillbox," a set of Android tabs, a line of gallery thumbnails, or any other UI widget where the user can select only one item from a set of choices. We didn't have to write any JS code to keep track of the selected item and update the classes on those elements. And because we're just using HTML and CSS, this code is accessible to screen readers, and you can easily use the arrow keys to pick between the different options (although adding the `:focus` rule is necessary to make that more clear).
 
 It's worth experimenting with this technique, since it can also be generalized to checkboxes as well. But that's a topic for study on your own time&mdash;now that our controls are working, let's hook them up to our category palettes.
 
@@ -114,14 +114,14 @@ Our dots are styled to be 30px by 30px inline blocks, and setting the border rad
 
 Attribute selectors are written between square brackets, and are extremely flexible in how they match. These selectors check for the exact value of the attribute, but there are many other options available:
 
-* <var>[attr]</var> - simply matches an element that has the attribute, with any value (or no value).
-* <var>[attr="value"]</var> - as above, matches the exact value of the attribute.
-* <var>[attr~="value"]</var> - matches attributes that contain "value" as one of a list of whitespace-separated words. Basically, it's a class selector (<var>.foo</var> is the same as <var>[class~="foo"]</var>).
-* <var>[attr*="value"]</var> - matches an attribute that has "value" somewhere inside it
-* <var>[attr^="value"]</var> - matches an attribute that starts with "value"
-* <var>[attr$="value"]</var> - matches an attribute that ends with "value"
+* `[attr]` - simply matches an element that has the attribute, with any value (or no value).
+* `[attr="value"]` - as above, matches the exact value of the attribute.
+* `[attr~="value"]` - matches attributes that contain "value" as one of a list of whitespace-separated words. Basically, it's a class selector (`.foo` is the same as `[class~="foo"]`).
+* `[attr*="value"]` - matches an attribute that has "value" somewhere inside it
+* `[attr^="value"]` - matches an attribute that starts with "value"
+* `[attr$="value"]` - matches an attribute that ends with "value"
 
-A little experimentation creates all kinds of useful applications for these selectors, especially when combined with the <var>:not()</var> pseudoclass. For example, you might style links to external sites with a little indicator by combining for <var>a[href*="://"]</var> and <var>:not([href*="yourdomain.com"])</var>, or links that open in a new window via <var>a[target]</var>. You could blank out image tags that don't have a <var>src</var> attribute, hiding the "broken image" icon. Or use this to hide UI widgets that haven't loaded until they have a "ready" attribute added. Indeed, because these selectors are more low-level than class and ID selectors, they open up a lot more power.
+A little experimentation creates all kinds of useful applications for these selectors, especially when combined with the `:not()` pseudoclass. For example, you might style links to external sites with a little indicator by combining for `a[href*="://"]` and `:not([href*="yourdomain.com"])`, or links that open in a new window via `a[target]`. You could blank out image tags that don't have a `src` attribute, hiding the "broken image" icon. Or use this to hide UI widgets that haven't loaded until they have a "ready" attribute added. Indeed, because these selectors are more low-level than class and ID selectors, they open up a lot more power.
 
 To look back at our chart, however, we're simply allowing each dot to color itself based on the current "filter" of the container, as expressed by its "data-category" attribute. We don't need to set each element's color individually&mdash;they can have as many category classes as they want, but only one will be expressed at any time. And because the parent element is controlled using an attribute value instead of a class, we don't have to worry about removing old state when we switch filters. We can just clobber the attribute value with the new setting, and watch the colors adjust:
 

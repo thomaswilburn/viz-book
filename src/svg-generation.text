@@ -6,11 +6,11 @@ summary:Creating elements | Nesting SVG | Line charts to scale
 
 Although they can be written into HTML5 source code the same way as other elements, SVG elements are not HTML elements, and they don't act like it. In another chapter, we'll talk about the common pitfalls where this may catch you off guard. But for now, let's talk about how to generate SVG dynamically without wanting to chop off a finger.
 
-@subhead <var>makeDOM</var> revisited
+@subhead `makeDOM` revisited
 
-In our chapter on <a href="js-domdata.html">working with DOM and data</a>, we wrote a function called <var>makeDOM</var> that generates HTML programmatically in a similar way to React's <var>createElement</var> function. When working with raw SVG, a similar function is a good thing to have, especially because there actually isn't an easy way to just hand the browser an SVG string for rendering the same way as <var>innerHTML</var>. Elements must be created and appended using DOM function calls.
+In our chapter on <a href="js-domdata.html">working with DOM and data</a>, we wrote a function called `makeDOM` that generates HTML programmatically in a similar way to React's `createElement` function. When working with raw SVG, a similar function is a good thing to have, especially because there actually isn't an easy way to just hand the browser an SVG string for rendering the same way as `innerHTML`. Elements must be created and appended using DOM function calls.
 
-To adapt our HTML generator to SVG, we'll need to make two changes. First, SVG elements have to be created with a "namespace" that identifies them as SVG, or they won't do anything when you insert them into the page. Second, if you want to set the contents of a <var>text</var> element, you have to use the <var>textContent</var> property instead of <var>innerText</var> or <var>innerHTML</var>.
+To adapt our HTML generator to SVG, we'll need to make two changes. First, SVG elements have to be created with a "namespace" that identifies them as SVG, or they won't do anything when you insert them into the page. Second, if you want to set the contents of a `text` element, you have to use the `textContent` property instead of `innerText` or `innerHTML`.
 
 @codeblock(js)...
 const NS = "http://www.w3.org/2000/svg";

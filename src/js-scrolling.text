@@ -83,9 +83,9 @@ Debouncing is a great way to handle scroll listeners that trigger large, impreci
 
 That said, debouncing is inappropriate for fine-grained animations based on the scroll position. In those cases, your listener function itself will need to dump out as early as possible to keep from interfering with scroll behavior. For example, in <a href="http://projects.seattletimes.com/2017/eastside-prostitution-bust/">this story on prostitution rings in Bellevue, WA</a>, the animated sections are linked directly to the scroll distance, so a 150ms delay would have resulted in jerky transitions. Instead, each listener checks for the visibility of its designated section, and exits early to keep from performing expensive animation work on offscreen sections.
 
-@subhead The magic of <var>getBoundingClientRect</var>
+@subhead The magic of `getBoundingClientRect`
 
-How do we figure out scroll position? It's tempting to do so using the <var>scrollTop</var> property of the document's containing element, and compare this to a range of offsets. At best, this will be slow. At worst, it's brittle and error-prone. A better method is to lean on the browser's layout engine, by defining scroll zones in your markup and checking their positions against the viewport.
+How do we figure out scroll position? It's tempting to do so using the `scrollTop` property of the document's containing element, and compare this to a range of offsets. At best, this will be slow. At worst, it's brittle and error-prone. A better method is to lean on the browser's layout engine, by defining scroll zones in your markup and checking their positions against the viewport.
 
 Let's say that we want to create a parallax background effect, where scrolling through the page causes the background image to change. We might define each zone using a common class, and force it to be 150% of the screen height in CSS, so that it feels like a reasonable distance regardless of device size:
 
@@ -95,7 +95,7 @@ Let's say that we want to create a parallax background effect, where scrolling t
 }
 ...codeblock
 
-Then, in our scroll listener, we're going to check the position of each zone relative to the screen, using a function called <var>getBoundingClientRect()</var>. This function, which is incredibly useful as an interactive developer, just tells you the location and size of a given element. If the top of the element is greater than zero, but less than the height of the screen, it must be somewhere in the viewport.
+Then, in our scroll listener, we're going to check the position of each zone relative to the screen, using a function called `getBoundingClientRect()`. This function, which is incredibly useful as an interactive developer, just tells you the location and size of a given element. If the top of the element is greater than zero, but less than the height of the screen, it must be somewhere in the viewport.
 
 @codeblock(js)...
 var zones = $(".scroll-zone");
@@ -193,11 +193,11 @@ var listener = function() {
 </div>
 ...html
 
-I should note that although this approach is battle-tested and reasonably-performant, it still involves an expensive layout check for multiple elements, and it doesn't work at all inside an embedded iframe like Pym.js. The future of visibility checks is with <a href="https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API">IntersectionObserver</a>, in which the browser will notify you for multiple observed elements as a whole batch, including a near-identical bounds object, following a single layout operation. I suspect that for many news applications, <var>getBoundingClientRect()</var> will remain useful, but if you're starting a new scroll project and don't mind abandoning some older browsers, it might be worth trying Intersection Observers instead.
+I should note that although this approach is battle-tested and reasonably-performant, it still involves an expensive layout check for multiple elements, and it doesn't work at all inside an embedded iframe like Pym.js. The future of visibility checks is with <a href="https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API">IntersectionObserver</a>, in which the browser will notify you for multiple observed elements as a whole batch, including a near-identical bounds object, following a single layout operation. I suspect that for many news applications, `getBoundingClientRect()` will remain useful, but if you're starting a new scroll project and don't mind abandoning some older browsers, it might be worth trying Intersection Observers instead.
 
 @subhead Useful snippets for scroll-aware pages
 
-Given a <var>bounds</var> object from <var>getBoundingClientRect()</var>, what are some common applications?
+Given a `bounds` object from `getBoundingClientRect()`, what are some common applications?
 
 @subsubhead Viewport scissor test
 
@@ -279,6 +279,6 @@ var onScroll = function() {
 };
 ...codeblock
 
-A simpler solution is just to let the browser handle the fixed positioning by setting the menu's CSS to <var>position: sticky</var>. Supported in pretty much everything except for IE, this leaves the element in place until it hits the boundary defined by <var>top</var> or <var>bottom</var> styles, and then locks it as though it was <var>position: fixed</var>. In IE, the menu won't fix, which is unfortunate but does at least fulfill the principles of graceful degradation. Sticky elements are also limited to the bounds of their containers, which means they can easily slide offscreen once you scroll past a given point. It's a long overdue part of the CSS toolkit.
+A simpler solution is just to let the browser handle the fixed positioning by setting the menu's CSS to `position: sticky`. Supported in pretty much everything except for IE, this leaves the element in place until it hits the boundary defined by `top` or `bottom` styles, and then locks it as though it was `position: fixed`. In IE, the menu won't fix, which is unfortunate but does at least fulfill the principles of graceful degradation. Sticky elements are also limited to the bounds of their containers, which means they can easily slide offscreen once you scroll past a given point. It's a long overdue part of the CSS toolkit.
 
 @include snippets/scroll-examples.html

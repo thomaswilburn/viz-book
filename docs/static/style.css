@@ -60,7 +60,7 @@ main {
   padding: 16px;
   font-family: var(--sans-serif);
   font-size: 18px;
-  line-height: 1.4;
+  line-height: 1.6;
   min-height: 95vh;
 }
 
@@ -84,7 +84,8 @@ code pre {
 
 var {
   font-family: var(--mono);
-  border: 1px dashed #E8E8E8;
+  border-top: 1px dashed var(--foreground);
+  border-bottom: 1px dashed var(--foreground);
   padding: 0 2px;
   font-style: normal;
 }

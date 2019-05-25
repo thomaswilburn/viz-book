@@ -8,11 +8,11 @@ If you need a vector-based image, there's really nothing else on the web platfor
 
 @subhead Attributes vs. properties
 
-An <em>attribute</em> is the string-based markup on a given tag, while a <em>property</em> is the JavaScript mirror of that attribute that exists on the element after parsing. It's the difference between <var>&lt;element id="x"&gt;</var> (attribute) and <var>element.id</var> (property). This distinction is often blurry, because most DOM properties are "live" values linked to the matching HTML attribute. For example, if you update <var>element.style</var> in some way, you'll expect the style attribute on the element itself to be updated, and vice versa.
+An <em>attribute</em> is the string-based markup on a given tag, while a <em>property</em> is the JavaScript mirror of that attribute that exists on the element after parsing. It's the difference between `<element id="x">` (attribute) and `element.id` (property). This distinction is often blurry, because most DOM properties are "live" values linked to the matching HTML attribute. For example, if you update `element.style` in some way, you'll expect the style attribute on the element itself to be updated, and vice versa.
 
 However, not all attributes are live, and in SVG they carry an additional caveat: if you try to access a property directly, instead of getting the value itself, you'll probably get an object of type "SVGAnimatedString" for your trouble. This object is a wrapper for "base" and "animated" values, and you can't set its value. Even better, in IE this is not true: since Microsoft never supported SVG declarative animations, its attributes are the same as any other HTML type.
 
-The workaround for this is simple and effective: never set a property on an SVG element directly. Use the <var>getAttribute()</var> and <var>setAttribute()</var> methods instead. The code for doing so is much more verbose, particularly when working with the element's class, but it's safer and more reliable in a cross-browser environment.
+The workaround for this is simple and effective: never set a property on an SVG element directly. Use the `getAttribute()` and `setAttribute()` methods instead. The code for doing so is much more verbose, particularly when working with the element's class, but it's safer and more reliable in a cross-browser environment.
 
 @codeblock(js)...
 
@@ -70,7 +70,7 @@ tagged.forEach(function(element) {
 });
 ...codeblock
 
-However, a simpler solution exists, which is to make it so that the text labels just don't actually trigger events at all. You can do this using the <var>pointer-events</var> style property, which is always supported on SVG (and increasingly&mdash;happily!&mdash;supported on HTML as well):
+However, a simpler solution exists, which is to make it so that the text labels just don't actually trigger events at all. You can do this using the `pointer-events` style property, which is always supported on SVG (and increasingly&mdash;happily!&mdash;supported on HTML as well):
 
 @codeblock(css)...
 svg text.label {
