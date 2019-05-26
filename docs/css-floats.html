@@ -44,7 +44,7 @@
   <rect class="content" x="10" y="80" width="280" height="100"></rect>
   <rect class="sidebar" x="180" y="13" width="100" height="120"></rect>
 </svg>
-<p>The intended solution to this is to "clear" the float, by adding the <var>clear</var> property matching the float direction. For example, if your sidebar is floated right, then adding <var>clear: right</var> causes an element to pay attention to it for layout, dropping it under the float. It's a way of saying "at this point, floats should influence the stack of document flow again." Here's our example, but with the following section set to clear floats:</p>
+<p>The intended solution to this is to "clear" the float, by adding the <var>clear</var> property matching the float direction. For example, if your sidebar is floated right, then adding <var>clear: right</var> to the footer causes it to notice right-floated elements (like your sidebar) for layout, dropping it underneath them. It's a way of saying "at this point, floats should influence the stack of document flow again." Here's our example, but with the following section set to clear floats:</p>
 <svg width="300" height="200">
   <style>
     rect.content { fill: salmon; stroke: darkred; }

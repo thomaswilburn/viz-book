@@ -36,7 +36,7 @@ This behavior&mdash;a kind of weird mix of inline alignment and absolute positio
 </svg>
 ...html
 
-The intended solution to this is to "clear" the float, by adding the `clear` property matching the float direction. For example, if your sidebar is floated right, then adding `clear: right` causes an element to pay attention to it for layout, dropping it under the float. It's a way of saying "at this point, floats should influence the stack of document flow again." Here's our example, but with the following section set to clear floats:
+The intended solution to this is to "clear" the float, by adding the `clear` property matching the float direction. For example, if your sidebar is floated right, then adding `clear: right` to the footer causes it to notice right-floated elements (like your sidebar) for layout, dropping it underneath them. It's a way of saying "at this point, floats should influence the stack of document flow again." Here's our example, but with the following section set to clear floats:
 
 @html...
 <svg width="300" height="200">
