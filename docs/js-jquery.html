@@ -28,6 +28,7 @@
 <li>Deferred - replaced by built-in Promise support</li>
 <li>Effects - replaced by CSS animations and transitions</li>
 <li>Offset and dimensions - replaced by <var>getBoundingClientRect()</var></li>
+<li>Data stored on elements - replaced by <var>dataset</var></li>
 </ul>
 <p>That doesn't mean that jQuery is worthless&mdash;far from it! The fundamental pattern of selection and iteration is a good one, and we still need to be able to perform DOM manipulation to add and remove classes, or to listen for events. But let's see if we can make a "deconstructed jQuery" with a similar API flavor, but broken into micro-modules that we can mix and match as demanded. That way, we don't have to load a big library full of stuff we don't need just for basic tasks.</p>
 <aside class="sidebar">
