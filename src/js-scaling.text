@@ -205,7 +205,7 @@ var context = canvas.getContext("2d");
 
 var animate = function() {
   $(".trigger-tween").forEach(el => el.disabled = true);
-  var mode = this.getAttribute("data-mode");
+  var mode = this.dataset.mode;
 
   var start = performance.now();
 
@@ -240,7 +240,7 @@ To create this animation, we'll first define an outer `animate` function that ge
 @codeblock(js)...
 var animate = function() {
   var start = performance.now();
-  var mode = this.getAttribute("data-mode");
+  var mode = this.dataset.mode;
 }
 ...codeblock
 
@@ -298,7 +298,7 @@ All together, our animate function looks like this:
 @codeblock(js)...
 var animate = function() {
   var start = performance.now();
-  var mode = this.getAttribute("data-mode");
+  var mode = this.dataset.mode;
 
   var draw = function(t) {
     var elapsed = t - start;

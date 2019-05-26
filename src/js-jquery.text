@@ -12,6 +12,7 @@ On the web, a classic flavor is jQuery: the ur-library that tamed a wildly incon
 * Deferred - replaced by built-in Promise support
 * Effects - replaced by CSS animations and transitions
 * Offset and dimensions - replaced by `getBoundingClientRect()`
+* Data stored on elements - replaced by `dataset`
 
 That doesn't mean that jQuery is worthless&mdash;far from it! The fundamental pattern of selection and iteration is a good one, and we still need to be able to perform DOM manipulation to add and remove classes, or to listen for events. But let's see if we can make a "deconstructed jQuery" with a similar API flavor, but broken into micro-modules that we can mix and match as demanded. That way, we don't have to load a big library full of stuff we don't need just for basic tasks.
 
@@ -180,4 +181,4 @@ All told, our jQuery replacement is about 20 lines of code, not all of which we'
 
 That said, are there times when we should use jQuery? Absolutely. Our goal isn't to get rid of big libraries, just to only use them when we really need them. My rule of thumb is that if there are three or more jQuery features that would make your project substantially easier, you should go ahead and include it. One of those features might also be the normalization that jQuery still does for cross-browser hiccups, like automatically using prefixed styles in browsers that need them. So if you were working on something that involves Promises, JSONP, and setting lots of newer CSS properties, jQuery might make sense. Use your judgement!
 
-At the Seattle Times, we keep these jQuery-lite functions in three or four small library files, and include them as needed for any given project. After a while, it becomes second-nature. But at first, using the `$()` variable name might be confusing if you're used to jQuery. If so, it might make sense to import that function as `qsa()` (for "querySelectorAll" instead). However, for the rest of this book, whenever you see a `$()`, it'll mean this function, and not the original jQuery. Keep an eye out!
+At NPR, we keep these jQuery-lite functions in three or four small library files, and include them as needed for any given project. After a while, it becomes second-nature. But at first, using the `$()` variable name might be confusing if you're used to jQuery. If so, it might make sense to import that function as `qsa()` (for "querySelectorAll" instead). However, for the rest of this book, whenever you see a `$()`, it'll mean this function, and not the original jQuery. Keep an eye out!

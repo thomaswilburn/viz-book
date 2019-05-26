@@ -64,7 +64,7 @@ simpleContainers.forEach(function(container) {
     bgZones.forEach(function(zone) {
       var bounds = zone.getBoundingClientRect();
       if (bounds.top > 0 && bounds.top < window.innerHeight) {
-        container.style.background = zone.getAttribute("data-bg");
+        container.style.background = zone.dataset.bg;
         zone.classList.add("active");
       } else {
         zone.classList.remove("active");
@@ -81,7 +81,7 @@ window.addEventListener("scroll", debounce(function() {
     var zone = naiveZones[i];
     var bounds = zone.getBoundingClientRect();
     if (bounds.top > 0 && bounds.top < window.innerHeight) {
-      naiveContainer.style.background = zone.getAttribute("data-bg");
+      naiveContainer.style.background = zone.dataset.bg;
       zone.classList.add("active");
       break;
     }
@@ -96,7 +96,7 @@ window.addEventListener("scroll", debounce(function() {
     var zone = wiseZones[i];
     var bounds = zone.getBoundingClientRect();
     if (bounds.top > 0 && bounds.top < window.innerHeight * .8) {
-      wiseContainer.style.background = zone.getAttribute("data-bg");
+      wiseContainer.style.background = zone.dataset.bg;
       zone.classList.add("active");
       break;
     }

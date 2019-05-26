@@ -92,7 +92,7 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
   zones.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">zone</span>) </span>{
     <span class="hljs-keyword">var</span> bounds = zone.getBoundingClientRect();
     <span class="hljs-keyword">if</span> (bounds.top &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.top &lt; <span class="hljs-built_in">window</span>.innerHeight) {
-      <span class="hljs-keyword">var</span> bg = zone.getAttribute(<span class="hljs-string">"data-bg"</span>);
+      <span class="hljs-keyword">var</span> bg = zone.dataset.bg;
       <span class="hljs-built_in">document</span>.body.style.background = bg;
     }
   });
@@ -117,7 +117,7 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
     <span class="hljs-keyword">var</span> zone = zones[i];
     <span class="hljs-keyword">var</span> bounds = zone.getBoundingClientRect();
     <span class="hljs-keyword">if</span> (bounds.top &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.top &lt; <span class="hljs-built_in">window</span>.innerHeight) {
-      <span class="hljs-keyword">var</span> bg = zone.getAttribute(<span class="hljs-string">"data-bg"</span>);
+      <span class="hljs-keyword">var</span> bg = zone.dataset.bg;
       <span class="hljs-built_in">document</span>.body.style.background = bg;
       <span class="hljs-comment">//exit our loop</span>
       <span class="hljs-keyword">break</span>;
@@ -141,7 +141,7 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
     <span class="hljs-keyword">var</span> bounds = zone.getBoundingClientRect();
     <span class="hljs-comment">// note the .8 - ignore the bottom 20% of the window</span>
     <span class="hljs-keyword">if</span> (bounds.top &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.top &lt; <span class="hljs-built_in">window</span>.innerHeight * <span class="hljs-number">.8</span>) {
-      <span class="hljs-keyword">var</span> bg = zone.getAttribute(<span class="hljs-string">"data-bg"</span>);
+      <span class="hljs-keyword">var</span> bg = zone.dataset.bg;
       <span class="hljs-built_in">document</span>.body.style.background = <span class="hljs-string">`url(<span class="hljs-subst">${bg}</span>)`</span>;
       <span class="hljs-comment">//exit our loop</span>
       <span class="hljs-keyword">break</span>;
@@ -278,7 +278,7 @@ simpleContainers.forEach(function(container) {
     bgZones.forEach(function(zone) {
       var bounds = zone.getBoundingClientRect();
       if (bounds.top > 0 && bounds.top < window.innerHeight) {
-        container.style.background = zone.getAttribute("data-bg");
+        container.style.background = zone.dataset.bg;
         zone.classList.add("active");
       } else {
         zone.classList.remove("active");
@@ -295,7 +295,7 @@ window.addEventListener("scroll", debounce(function() {
     var zone = naiveZones[i];
     var bounds = zone.getBoundingClientRect();
     if (bounds.top > 0 && bounds.top < window.innerHeight) {
-      naiveContainer.style.background = zone.getAttribute("data-bg");
+      naiveContainer.style.background = zone.dataset.bg;
       zone.classList.add("active");
       break;
     }
@@ -310,7 +310,7 @@ window.addEventListener("scroll", debounce(function() {
     var zone = wiseZones[i];
     var bounds = zone.getBoundingClientRect();
     if (bounds.top > 0 && bounds.top < window.innerHeight * .8) {
-      wiseContainer.style.background = zone.getAttribute("data-bg");
+      wiseContainer.style.background = zone.dataset.bg;
       zone.classList.add("active");
       break;
     }

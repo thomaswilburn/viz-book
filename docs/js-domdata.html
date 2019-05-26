@@ -50,7 +50,7 @@ $(<span class="hljs-string">".person"</span>, container).forEach(<span class="hl
 <code class="language-js"><pre>people.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) </span>{
   <span class="hljs-keyword">var</span> div = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">"div"</span>);
   div.className = <span class="hljs-string">"person"</span>;
-  div.setAttribute(<span class="hljs-string">"data-person"</span>, person.id);
+  div.dataset.person = person.id;
   
   <span class="hljs-keyword">var</span> img = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">"img"</span>);
   img.src = person.mug;
@@ -145,12 +145,12 @@ people.forEach(<span class="hljs-function"><span class="hljs-keyword">function</
   element.addEventListener(<span class="hljs-string">"click"</span>, clickedPerson);
   container.appendChild(element);
 });</pre></code>
-<p>Now, however, we have a problem: we're sharing a single function across all our elements, which means that it can figure out which <em>element</em> was clicked, but it doesn't know what data is associated with that element, because it was defined outside of the loop where that data was available. Luckily, we've been setting the element's "data-person" attribute to be the same as the person's ID in our data. We could loop through the data to search for that identifier, but a little preparation can speed things up.</p>
+<p>Now, however, we have a problem: we're sharing a single function across all our elements, which means that it can figure out which <em>element</em> was clicked, but it doesn't know what data is associated with that element, because it was defined outside of the loop where that information was available. Luckily, we've been setting the element's "data-person" attribute to be the same as the person's ID in our data (and then we can access that through the <var>dataset</var> property on the JavaScript side). We could loop through the original source array to search for that identifier, but a little preparation can speed things up.</p>
 <p>Let's build a lookup table using a JavaScript object. During element creation, we'll add references to the object, with the keys being the person IDs and the values being the source data itself. Then, inside our listener, we can get the attribute value from <var>this</var> and ask the lookup table for the matching array object.</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> lookup = {};
 
 <span class="hljs-keyword">var</span> clickedPerson = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-  <span class="hljs-keyword">var</span> id = <span class="hljs-keyword">this</span>.getAttribute(<span class="hljs-string">"data-person"</span>);
+  <span class="hljs-keyword">var</span> id = <span class="hljs-keyword">this</span>.dataset.person;
   <span class="hljs-comment">// which person has that ID?</span>
   <span class="hljs-keyword">var</span> person = lookup[id];
   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`You clicked on <span class="hljs-subst">${person.name}</span>`</span>);
@@ -173,7 +173,7 @@ people.forEach(<span class="hljs-function"><span class="hljs-keyword">function</
 <code class="language-js"><pre><span class="hljs-keyword">var</span> lookup = {};
 
 <span class="hljs-keyword">var</span> clickedPerson = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-  <span class="hljs-keyword">var</span> id = <span class="hljs-keyword">this</span>.getAttribute(<span class="hljs-string">"data-person"</span>);
+  <span class="hljs-keyword">var</span> id = <span class="hljs-keyword">this</span>.dataset.person;
   <span class="hljs-comment">// which person has that ID?</span>
   <span class="hljs-keyword">var</span> person = lookup[id];
   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`You clicked on <span class="hljs-subst">${person.name}</span>`</span>);

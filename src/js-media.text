@@ -63,7 +63,7 @@ Then, based on our test, we may swap out that video with a sharper version at ru
 // it could be one or more of the above tests
 var swap = isHighBandwidth();
 if (swap) $(".responsive-video").forEach(function(video) {
-  video.src = video.getAttribute("data-src");
+  video.src = video.dataset.src;
 });
 ...codeblock
 
@@ -87,7 +87,7 @@ if (quality != "low") $(".responsive-video").forEach(function(img) {
   video.setAttribute("poster", img.src);
   video.setAttribute("autoplay", "");
   video.setAttribute("muted", "");
-  video.src = img.getAttribute(quality == "medium" ? "data-low" : "data-high");
+  video.src = quality == "medium" ? img.dataset.low : img.dataset.high;
   img.parentElement.replaceChild(video, img);
 });
 ...codeblock

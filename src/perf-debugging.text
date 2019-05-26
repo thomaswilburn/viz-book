@@ -4,7 +4,7 @@ type:chapter
 summary:Dev tools starting points | What to look for | Debugging mobile devices
 ...metadata
 
-Of all the things you learn on the web, there are some skills that have a disproportionate impact, in that they fundamentally change the way you work for the better. For me, one of those was templating, being able to generate HTML in an orderly way instead of haphazardly. Another was learning to write a build system, crucial for news app templates like Tarbell (or the template I've put together for the Seattle Times). But probably the biggest upgrade in my skillset was learning to use Firebug, the ur-developer toolkit first released in 2006 for Firefox.
+Of all the things you learn on the web, there are some skills that have a disproportionate impact, in that they fundamentally change the way you work for the better. For me, one of those was templating, being able to generate HTML in an orderly way instead of haphazardly. Another was learning to write a build system, crucial for news app templates like Tarbell (or the template we use at NPR). But probably the biggest upgrade in my skillset was learning to use Firebug, the ur-developer toolkit first released in 2006 for Firefox.
 
 Dev tools vary between browsers and are updated rapidly, so we won't try to cover everything under the sun. But there are common elements between them that you should know: how to use the DOM inspector, how to place and use breakpoints, and how to debug a mobile page.
 

@@ -129,7 +129,7 @@ To look back at our chart, however, we're simply allowing each dot to color itse
 controls.addEventListener("change", function() {
   //find the radio button that's currently checked
   var value = $.one(`input[name="dot-category"]:checked`).value;
-  container.setAttribute("data-category", value);
+  container.dataset.category = value;
 });
 ...codeblock
 

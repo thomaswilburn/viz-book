@@ -51,7 +51,7 @@ If you want a live reference to elements, so that you can immediately manipulate
 people.forEach(function(person) {
   var div = document.createElement("div");
   div.className = "person";
-  div.setAttribute("data-person", person.id);
+  div.dataset.person = person.id;
   
   var img = document.createElement("img");
   img.src = person.mug;
@@ -174,7 +174,7 @@ people.forEach(function(person) {
 });
 ...codeblock
 
-Now, however, we have a problem: we're sharing a single function across all our elements, which means that it can figure out which <em>element</em> was clicked, but it doesn't know what data is associated with that element, because it was defined outside of the loop where that data was available. Luckily, we've been setting the element's "data-person" attribute to be the same as the person's ID in our data. We could loop through the data to search for that identifier, but a little preparation can speed things up.
+Now, however, we have a problem: we're sharing a single function across all our elements, which means that it can figure out which <em>element</em> was clicked, but it doesn't know what data is associated with that element, because it was defined outside of the loop where that information was available. Luckily, we've been setting the element's "data-person" attribute to be the same as the person's ID in our data (and then we can access that through the `dataset` property on the JavaScript side). We could loop through the original source array to search for that identifier, but a little preparation can speed things up.
 
 Let's build a lookup table using a JavaScript object. During element creation, we'll add references to the object, with the keys being the person IDs and the values being the source data itself. Then, inside our listener, we can get the attribute value from `this` and ask the lookup table for the matching array object.
 
@@ -182,7 +182,7 @@ Let's build a lookup table using a JavaScript object. During element creation, w
 var lookup = {};
 
 var clickedPerson = function() {
-  var id = this.getAttribute("data-person");
+  var id = this.dataset.person;
   // which person has that ID?
   var person = lookup[id];
   console.log(`You clicked on ${person.name}`);
@@ -210,7 +210,7 @@ Of course, if you're using the `this` value and a lookup object, you can probabl
 var lookup = {};
 
 var clickedPerson = function() {
-  var id = this.getAttribute("data-person");
+  var id = this.dataset.person;
   // which person has that ID?
   var person = lookup[id];
   console.log(`You clicked on ${person.name}`);

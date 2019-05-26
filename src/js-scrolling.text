@@ -104,7 +104,7 @@ var listener = function() {
   zones.forEach(function(zone) {
     var bounds = zone.getBoundingClientRect();
     if (bounds.top > 0 && bounds.top < window.innerHeight) {
-      var bg = zone.getAttribute("data-bg");
+      var bg = zone.dataset.bg;
       document.body.style.background = bg;
     }
   });
@@ -141,7 +141,7 @@ var listener = function() {
     var zone = zones[i];
     var bounds = zone.getBoundingClientRect();
     if (bounds.top > 0 && bounds.top < window.innerHeight) {
-      var bg = zone.getAttribute("data-bg");
+      var bg = zone.dataset.bg;
       document.body.style.background = bg;
       //exit our loop
       break;
@@ -175,7 +175,7 @@ var listener = function() {
     var bounds = zone.getBoundingClientRect();
     // note the .8 - ignore the bottom 20% of the window
     if (bounds.top > 0 && bounds.top < window.innerHeight * .8) {
-      var bg = zone.getAttribute("data-bg");
+      var bg = zone.dataset.bg;
       document.body.style.background = `url(${bg})`;
       //exit our loop
       break;

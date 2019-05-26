@@ -60,6 +60,6 @@ grid.innerHTML = html;
 
 controls.addEventListener("change", function() {
   var value = document.querySelector(`input[name="dot-category"]:checked`).value;
-  container.setAttribute("data-category", value);
+  container.dataset.category = value;
 });
 </script>

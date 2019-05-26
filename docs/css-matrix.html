@@ -84,7 +84,7 @@ grid.innerHTML = html;
 
 controls.addEventListener("change", function() {
   var value = document.querySelector(`input[name="dot-category"]:checked`).value;
-  container.setAttribute("data-category", value);
+  container.dataset.category = value;
 });
 </script>
 <p>Surprisingly, the JavaScript code used to set up this example is less than 20 lines, and it's not out of misplaced minimalism (feel free to use the dev tools to check it out). Instead, we're mostly leveraging some basic, if obscure, features of HTML and CSS:</p>
@@ -176,7 +176,7 @@ grid.innerHTML = html;</pre></code>
 <code class="language-js"><pre>controls.addEventListener(<span class="hljs-string">"change"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-comment">//find the radio button that's currently checked</span>
   <span class="hljs-keyword">var</span> value = $.one(<span class="hljs-string">`input[name="dot-category"]:checked`</span>).value;
-  container.setAttribute(<span class="hljs-string">"data-category"</span>, value);
+  container.dataset.category = value;
 });</pre></code>
 <p>It's this modal nature that has made attributes one of the most useful tools in my CSS toolkit. Compared to re-coloring the dots via JavaScript, or trying to set only one category class, this code is clean, simple, and reliable in any number of other situations. Remember this technique whenever you need to add, remove, or update a large number of DOM elements in response to a single updated value, like a system mode or filter.</p>
   </main>
