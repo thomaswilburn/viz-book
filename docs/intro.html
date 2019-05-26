@@ -62,6 +62,14 @@
 <li>Rest and spread parameters</li>
 </ul>
 <p>For more information on writing these and other new features in this version of JavaScript, take a look at the <a href="https://babeljs.io/learn-es2015/">Learn ES2015</a> guide from Babel, a popular tool for transforming new JS features into backward-compatible code for old browsers.</p>
+<p>This book also takes advantage of some browser conveniences--namely, the <var>dataset</var> property, which gets and sets "data-" attributes on elements. The following code is equivalent:</p>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> v = element.getAttribute(<span class="hljs-string">"data-value"</span>);
+element.setAttribute(<span class="hljs-string">"data-value"</span>, v);
+
+<span class="hljs-comment">// is the same as</span>
+<span class="hljs-keyword">var</span> v = element.dataset.value;
+element.dataset.value = v;</pre></code>
+<p>One caveat to watch for: like the attributes themselves, dataset does not cast values from strings. If you store numbers or boolean values on an element using the dataset, you'll need to handle that conversion yourself.</p>
   </main>
   <nav class="chapter-links bottom">
     <ul>
