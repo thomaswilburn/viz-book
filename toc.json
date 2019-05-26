@@ -16,10 +16,10 @@
     "section": "section-css",
     "chapters": [
       "css-floats",
+      "css-flex",
       "css-positioning",
       "css-matrix",
-      "css-a11y",
-      "Building stacked graphs with flex"
+      "css-a11y"
     ]
   },
   {

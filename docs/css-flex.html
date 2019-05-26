@@ -1,0 +1,241 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Building stacked charts with flexbox</title>
+  <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans|Manuale" rel="stylesheet">
+  <link rel="stylesheet" href="static/style.css">
+  <link rel="stylesheet" href="static/highlight/hybrid.css">
+</head>
+<body class="css-flex chapter">
+  <nav class="chapter-links top">
+    <ul>
+      <li class="previous"> <a href="css-floats.html"> &laquo; Floats demystified</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href="css-positioning.html"> CSS-based scatter plots &raquo;</a>
+    </ul>
+  </nav>
+  <main>
+  <aside class="summary">
+    Flexbox basics | Assembling our chart | Stacking contexts
+  </aside>
+  <h1>Building stacked charts with flexbox</h1>
+<p>When the idea of building graphs in HTML and CSS instead of D3 and SVG comes up, some people are horrified. These aren't precision technologies, they say. How can you give up the option of non-linear scales? Why throw away easy access to grid lines and tick marks?</p>
+<p>These people aren't entirely wrong. HTML and CSS are relatively low-fidelity, compared to SVG. They're historically buggier. And it can be difficult to add decorative elements. If a graphic is well-suited to SVG, it obviously makes sense to use the most appropriate technology.</p>
+<p>But HTML and CSS also have advantages over vector-based graphics:</p>
+<ul>
+<li>They're easier to make <a href="css-a11y.html">accessible</a>.</li>
+<li>They can use media queries to adapt, in ways that SVG can't.</li>
+<li>They offer more powerful tools for text layout</li>
+</ul>
+<p>Bar charts--and especially stacked bar charts--are a natural match for flexbox, a layout tool added to CSS now shipping in every modern browser. And building a chart is also a great way to learn to use it for regular layout tasks, where it excels (want to vertically center something, or lay out side-by-side rows of cards? Flexbox is your best option).</p>
+<h2 id="flexbox-basics">Flexbox basics</h2>
+<p>Flex is all about laying out items in rows or columns. In this, it's not dissimilar from an old-school table layout. Its advantage over that (in addition to the fact that tables are not semantically meant as a layout tool) is its predictability: a little simple math can easily predict the sizing of a flex item.</p>
+<p>First, take the width or height of the flex container (for a row or a column, respectively). Then add up the sizes of the items inside, as determined by either the intrinsic size or by the <var>flex-basis</var> property.</p>
+<p>If the total is smaller than the container size, the additional space is allocated out to each item in proportion to its <var>flex-grow</var> property. Similarly, if the total is larger than the container, space is taken away in proportion to <var>flex-shrink</var>. These are ratio properties: a flex child with <var>flex-grow: 2</var> will gain twice as many pixels of space as one with <var>flex-grow: 1</var>. Setting <var>flex-grow</var> or <var>flex-shrink</var> to 0 will prevent that item from changing in size.</p>
+<p>Additionally, flexbox provides tools for aligning items along the dominant axis (<var>justify-content</var>, applied horizontally for a row or vertically for a column) and the cross axis (<var>align-items</var>), if there's empty space. We can use this to set a "gravity" within the container, or to stretch them to fill the space in the cross axis.</p>
+<h2 id="assembling-our-chart">Assembling our chart</h2>
+<p>With this in mind, let's put our stacked bars together. We're going to arrange them so that each bar forms a row, since this is often easier to read with many items on mobile: our labels can have plenty of room, and the vertical space extends as far as we can scroll.</p>
+<p>First, the markup for a row: there's a label inside, as well as a container for our stacked bars, each of has its flex-basis set to its percentage width.</p>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"row"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"label"</span>&gt;</span>
+    Category Label
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bar-container"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bar val-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 0 0 20%"</span>&gt;</span>20%<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bar val-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 0 0 70%"</span>&gt;</span>70%<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bar val-c"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 0 0 10%"</span>&gt;</span>10%<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
+<p>Next, we'll turn on styles for the bar layout:</p>
+<code class="language-css"><pre><span class="hljs-selector-class">.row</span> {
+  <span class="hljs-attribute">display</span>: flex;
+  <span class="hljs-attribute">align-items</span>: stretch;
+}
+
+<span class="hljs-selector-class">.row</span> <span class="hljs-selector-class">.label</span> {
+  <span class="hljs-attribute">flex</span>: <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">120px</span>;
+}
+
+<span class="hljs-selector-class">.row</span> <span class="hljs-selector-class">.bar-container</span> {
+  <span class="hljs-attribute">flex</span>: <span class="hljs-number">1</span>;
+  <span class="hljs-attribute">display</span>: flex;
+  <span class="hljs-attribute">align-items</span>: stretch;
+  <span class="hljs-attribute">justify-content</span>: flex-start;
+}
+
+<span class="hljs-selector-class">.row</span> <span class="hljs-selector-class">.bar</span> {
+  <span class="hljs-attribute">display</span>: flex;
+  <span class="hljs-attribute">justify-content</span>: center;
+  <span class="hljs-attribute">align-items</span>: center;
+}
+
+<span class="hljs-selector-class">.val-a</span> { <span class="hljs-attribute">background</span>: salmon }
+<span class="hljs-selector-class">.val-b</span> { <span class="hljs-attribute">background</span>: wheat }
+<span class="hljs-selector-class">.val-c</span> { <span class="hljs-attribute">background</span>: honeydew }</pre></code>
+<p>This layout actually uses nested flexboxes: one on the outside, with the labels set to a reasonable width for the text, and one inside that contains the stacked bars. Using <var>align-items: stretch</var> for both containers means that they'll automatically fill to the tallest item--if the text wraps to a new line, the bars will expand vertically to match. If you want them to stay uniform in height, you can set a manual height on <var>.bar-container</var> instead. The bars themselves are also flexed, in order to center the labels inside.</p>
+<p>Here it is in action:</p>
+<style>
+.row {
+  display: flex;
+  align-items: stretch;
+}
+
+.row .label {
+  flex: 0 0 120px;
+}
+
+.row .bar-container {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.row .bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.val-a { background: salmon }
+.val-b { background: wheat }
+.val-c { background: honeydew }
+</style>
+<div class="row">
+  <div class="label">
+    Category Label
+  </div>
+  <div class="bar-container">
+    <div class="bar val-a" style="flex-basis: 20%">20%</div>
+    <div class="bar val-b" style="flex-basis: 70%">70%</div>
+    <div class="bar val-c" style="flex-basis: 10%">10%</div>
+  </div>
+</div>
+<p>When building a chart like this, consider adding a readout of value details in a hidden list under the bar-container, give it a flex basis of 100%, and turn on <var>flex-wrap: wrap</var> for the row. A small JavaScript click listener can turn it off and on, and the flexbox will automatically put it under the label and bars. On mobile, you can even tweak the label <var>flex-basis</var> to be 100%, creating label/bars/value sub-rows on small screens.</p>
+<h2 id="rotating-to-vertical">Rotating to vertical</h2>
+<p>What if we wanted to create traditional column charts or histograms? Flex can make that possible as well, by switching the flex-direction for each bar to "column" and justifying content to "flex-end" (the bottom). We'll need to give the chart a manual height, since there's no content to create an implicit size, but that's easily doable using height units:</p>
+<style>
+/* horizontal row of bars */
+.columns {
+  display: flex;
+  height: 50vh;
+  max-height: 400px;
+  align-items: stretch;
+  max-width: 300px;
+  border: 1px solid #CCC;
+}
+
+.column-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-end;
+}
+
+.column-bar {
+  border-right: 1px solid white;
+}
+
+.series-a { background: salmon }
+.series-b { background: wheat; }
+</style>
+<div class="columns">
+  <div class="column-container">
+    <div class="column-bar series-b" style="flex-basis: 25%"></div>
+    <div class="column-bar series-a" style="flex-basis: 20%"></div>
+  </div>
+  <div class="column-container">
+    <div class="column-bar series-b" style="flex-basis: 45%"></div>
+    <div class="column-bar series-a" style="flex-basis: 40%"></div>
+  </div>
+  <div class="column-container">
+    <div class="column-bar series-b" style="flex-basis: 15%"></div>
+    <div class="column-bar series-a" style="flex-basis: 50%"></div>
+  </div>
+  <div class="column-container">
+    <div class="column-bar series-b" style="flex-basis: 5%"></div>
+    <div class="column-bar series-a" style="flex-basis: 60%"></div>
+  </div>
+  <div class="column-container">
+    <div class="column-bar series-b" style="flex-basis: 5%"></div>
+    <div class="column-bar series-a" style="flex-basis: 92%"></div>
+  </div>
+  <div class="column-container">
+    <div class="column-bar series-b" style="flex-basis: 15%"></div>
+    <div class="column-bar series-a" style="flex-basis: 30%"></div>
+  </div>
+  <div class="column-container">
+    <div class="column-bar series-b" style="flex-basis: 45%"></div>
+    <div class="column-bar series-a" style="flex-basis: 10%"></div>
+  </div>
+</div>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="css">
+<span class="hljs-comment">/* horizontal row of bars */</span>
+<span class="hljs-selector-class">.columns</span> {
+  <span class="hljs-attribute">display</span>: flex;
+  <span class="hljs-attribute">height</span>: <span class="hljs-number">50vh</span>;
+  <span class="hljs-attribute">max-height</span>: <span class="hljs-number">400px</span>;
+  <span class="hljs-attribute">align-items</span>: stretch;
+  <span class="hljs-attribute">max-width</span>: <span class="hljs-number">300px</span>;
+  <span class="hljs-attribute">border</span>: <span class="hljs-number">1px</span> solid <span class="hljs-number">#CCC</span>;
+}
+
+<span class="hljs-selector-class">.column-container</span> {
+  <span class="hljs-attribute">flex</span>: <span class="hljs-number">1</span>;
+  <span class="hljs-attribute">display</span>: flex;
+  <span class="hljs-attribute">flex-direction</span>: column;
+  <span class="hljs-attribute">align-items</span>: stretch;
+  <span class="hljs-attribute">justify-content</span>: flex-end;
+}
+
+<span class="hljs-selector-class">.column-bar</span> {
+  <span class="hljs-attribute">border-right</span>: <span class="hljs-number">1px</span> solid white;
+}
+
+<span class="hljs-selector-class">.series-a</span> { <span class="hljs-attribute">background</span>: salmon }
+<span class="hljs-selector-class">.series-b</span> { <span class="hljs-attribute">background</span>: wheat; }
+</span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"columns"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-container"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 25%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 20%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-container"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 45%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 40%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-container"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 15%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 50%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-container"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 5%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 60%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-container"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 5%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 92%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-container"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 15%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 30%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-container"</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 45%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 10%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
+<p>Nested flex layouts like this can be extremely powerful, not just for charts. If you're building an app-like set of panels, mixing columns and rows will fill space in a series of blocks--indeed, Firefox's XML-based UI toolkit has been built on a similar collection of "hbox" and "vbox" elements for years. If the layout becomes sufficiently complex, however, you may want to look at <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout/Basic_Concepts_of_Grid_Layout">grid layout</a> instead.</p>
+  </main>
+  <nav class="chapter-links bottom">
+    <ul>
+      <li class="previous"> <a href="css-floats.html"> &laquo; Floats demystified</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href="css-positioning.html"> CSS-based scatter plots &raquo;</a>
+    </ul>
+  </nav>
+</body>
+</html>
