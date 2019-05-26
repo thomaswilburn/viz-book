@@ -1,7 +1,7 @@
 @metadata...
 title: Building stacked charts with flexbox
 type: chapter
-summary: Flexbox basics | Assembling our chart | Stacking contexts
+summary: Assembling our chart | Columns over bars | Weird flex but okay
 ...metadata
 
 When the idea of building graphs in HTML and CSS instead of D3 and SVG comes up, some people are horrified. These aren't precision technologies, they say. How can you give up the option of non-linear scales? Why throw away easy access to grid lines and tick marks?
@@ -16,19 +16,11 @@ But HTML and CSS also have advantages over vector-based graphics:
 
 Bar charts--and especially stacked bar charts--are a natural match for flexbox, a layout tool added to CSS now shipping in every modern browser. And building a chart is also a great way to learn to use it for regular layout tasks, where it excels (want to vertically center something, or lay out side-by-side rows of cards? Flexbox is your best option).
 
-@subhead Flexbox basics
-
-Flex is all about laying out items in rows or columns. In this, it's not dissimilar from an old-school table layout. Its advantage over that (in addition to the fact that tables are not semantically meant as a layout tool) is its predictability: a little simple math can easily predict the sizing of a flex item.
-
-First, take the width or height of the flex container (for a row or a column, respectively). Then add up the sizes of the items inside, as determined by either the intrinsic size or by the `flex-basis` property.
-
-If the total is smaller than the container size, the additional space is allocated out to each item in proportion to its `flex-grow` property. Similarly, if the total is larger than the container, space is taken away in proportion to `flex-shrink`. These are ratio properties: a flex child with `flex-grow: 2` will gain twice as many pixels of space as one with `flex-grow: 1`. Setting `flex-grow` or `flex-shrink` to 0 will prevent that item from changing in size.
-
-Additionally, flexbox provides tools for aligning items along the dominant axis (`justify-content`, applied horizontally for a row or vertically for a column) and the cross axis (`align-items`), if there's empty space. We can use this to set a "gravity" within the container, or to stretch them to fill the space in the cross axis.
-
 @subhead Assembling our chart
 
-With this in mind, let's put our stacked bars together. We're going to arrange them so that each bar forms a row, since this is often easier to read with many items on mobile: our labels can have plenty of room, and the vertical space extends as far as we can scroll.
+In <a href="css-floats.html#floats">the last chapter</a>, we covered flexbox. Mostly what we care about are two abilities: using `justify-content` and `align-items` to set the "gravity" of the containers, and `flex-basis` to force the scale of each bar. 
+
+In this particular graphic, we're going to arrange our chart so that each bar forms a row, since this is often easier to read with many items on mobile: our labels can have plenty of room, and the vertical space extends as far as we can scroll.
 
 First, the markup for a row: there's a label inside, as well as a container for our stacked bars, each of has its flex-basis set to its percentage width.
 
@@ -131,3 +123,61 @@ What if we wanted to create traditional column charts or histograms? Flex can ma
 
 Nested flex layouts like this can be extremely powerful, not just for charts. If you're building an app-like set of panels, mixing columns and rows will fill space in a series of blocks--indeed, Firefox's XML-based UI toolkit has been built on a similar collection of "hbox" and "vbox" elements for years. If the layout becomes sufficiently complex, however, you may want to look at <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout/Basic_Concepts_of_Grid_Layout">grid layout</a> instead.
 
+@subhead Decoration
+
+The more elaborate our chart becomes, the more we should probably be thinking about SVG instead. But for the sake of argument, what if we wanted to add grid lines or labels to our graphic? There's a couple of ways we could make that happen. First, by using a repeating linear background to "draw" grid lines across the chart area:
+
+@html...
+<style>
+.background-grid {
+  height: 200px;
+  margin: 20px auto;
+  border: 1px solid #CCC;
+  border-bottom: none;
+  background-color: #E8E8E8;
+  background-image: repeating-linear-gradient(to top,
+    #CCC,
+    #CCC 1px,
+    white 1px,
+    white 10%,
+    #CCC 10%
+  )
+}
+</style>
+<div class="background-grid"></div>
+...html
+
+@codeblock(css)...
+.background-grid {
+  height: 200px;
+  margin: 20px auto;
+  border: 1px solid #CCC;
+  border-bottom: none;
+  background-color: #E8E8E8;
+  background-image: repeating-linear-gradient(to top,
+    #CCC,
+    #CCC 1px,
+    white 1px,
+    white 10%,
+    #CCC 10%
+  )
+}
+...codeblock
+
+This is a neat hack, as far as these things go. But it's prone to odd rendering bugs, and it feels fragile. It probably makes more sense to position grid lines as HTML elements, using absolute positioning within the container.
+
+@codeblock(css)...
+.background-grid {
+  position: relative;
+}
+
+.grid-line {
+  position: absolute;
+  width: 100%;
+  border-bottom: 1px solid #CCC;
+  text-align: right;
+  /* set border-bottom to the percentage for the line */
+}
+...codeblock
+
+Either way, I find that the best use of flexbox is for stacked charts where the message is the proportions of each bar segment, not the absolute length of the bar. They're great for budget graphics and poll results. They're also useful for the odd table layout, as long as you can <a href="css-a11y.html">keep accessibility in mind</a>.

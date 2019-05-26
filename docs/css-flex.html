@@ -18,7 +18,7 @@
   </nav>
   <main>
   <aside class="summary">
-    Flexbox basics | Assembling our chart | Stacking contexts
+    Assembling our chart | Columns over bars | Weird flex but okay
   </aside>
   <h1>Building stacked charts with flexbox</h1>
 <p>When the idea of building graphs in HTML and CSS instead of D3 and SVG comes up, some people are horrified. These aren't precision technologies, they say. How can you give up the option of non-linear scales? Why throw away easy access to grid lines and tick marks?</p>
@@ -30,13 +30,9 @@
 <li>They offer more powerful tools for text layout</li>
 </ul>
 <p>Bar charts--and especially stacked bar charts--are a natural match for flexbox, a layout tool added to CSS now shipping in every modern browser. And building a chart is also a great way to learn to use it for regular layout tasks, where it excels (want to vertically center something, or lay out side-by-side rows of cards? Flexbox is your best option).</p>
-<h2 id="flexbox-basics">Flexbox basics</h2>
-<p>Flex is all about laying out items in rows or columns. In this, it's not dissimilar from an old-school table layout. Its advantage over that (in addition to the fact that tables are not semantically meant as a layout tool) is its predictability: a little simple math can easily predict the sizing of a flex item.</p>
-<p>First, take the width or height of the flex container (for a row or a column, respectively). Then add up the sizes of the items inside, as determined by either the intrinsic size or by the <var>flex-basis</var> property.</p>
-<p>If the total is smaller than the container size, the additional space is allocated out to each item in proportion to its <var>flex-grow</var> property. Similarly, if the total is larger than the container, space is taken away in proportion to <var>flex-shrink</var>. These are ratio properties: a flex child with <var>flex-grow: 2</var> will gain twice as many pixels of space as one with <var>flex-grow: 1</var>. Setting <var>flex-grow</var> or <var>flex-shrink</var> to 0 will prevent that item from changing in size.</p>
-<p>Additionally, flexbox provides tools for aligning items along the dominant axis (<var>justify-content</var>, applied horizontally for a row or vertically for a column) and the cross axis (<var>align-items</var>), if there's empty space. We can use this to set a "gravity" within the container, or to stretch them to fill the space in the cross axis.</p>
 <h2 id="assembling-our-chart">Assembling our chart</h2>
-<p>With this in mind, let's put our stacked bars together. We're going to arrange them so that each bar forms a row, since this is often easier to read with many items on mobile: our labels can have plenty of room, and the vertical space extends as far as we can scroll.</p>
+<p>In <a href="css-floats.html#floats">the last chapter</a>, we covered flexbox. Mostly what we care about are two abilities: using <var>justify-content</var> and <var>align-items</var> to set the "gravity" of the containers, and <var>flex-basis</var> to force the scale of each bar.</p>
+<p>In this particular graphic, we're going to arrange our chart so that each bar forms a row, since this is often easier to read with many items on mobile: our labels can have plenty of room, and the vertical space extends as far as we can scroll.</p>
 <p>First, the markup for a row: there's a label inside, as well as a container for our stacked bars, each of has its flex-basis set to its percentage width.</p>
 <code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"row"</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"label"</span>&gt;</span>
@@ -229,6 +225,52 @@
   <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
 <p>Nested flex layouts like this can be extremely powerful, not just for charts. If you're building an app-like set of panels, mixing columns and rows will fill space in a series of blocks--indeed, Firefox's XML-based UI toolkit has been built on a similar collection of "hbox" and "vbox" elements for years. If the layout becomes sufficiently complex, however, you may want to look at <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout/Basic_Concepts_of_Grid_Layout">grid layout</a> instead.</p>
+<h2 id="decoration">Decoration</h2>
+<p>The more elaborate our chart becomes, the more we should probably be thinking about SVG instead. But for the sake of argument, what if we wanted to add grid lines or labels to our graphic? There's a couple of ways we could make that happen. First, by using a repeating linear background to "draw" grid lines across the chart area:</p>
+<style>
+.background-grid {
+  height: 200px;
+  margin: 20px auto;
+  border: 1px solid #CCC;
+  border-bottom: none;
+  background-color: #E8E8E8;
+  background-image: repeating-linear-gradient(to top,
+    #CCC,
+    #CCC 1px,
+    white 1px,
+    white 10%,
+    #CCC 10%
+  )
+}
+</style>
+<div class="background-grid"></div>
+<code class="language-css"><pre><span class="hljs-selector-class">.background-grid</span> {
+  <span class="hljs-attribute">height</span>: <span class="hljs-number">200px</span>;
+  <span class="hljs-attribute">margin</span>: <span class="hljs-number">20px</span> auto;
+  <span class="hljs-attribute">border</span>: <span class="hljs-number">1px</span> solid <span class="hljs-number">#CCC</span>;
+  <span class="hljs-attribute">border-bottom</span>: none;
+  <span class="hljs-attribute">background-color</span>: <span class="hljs-number">#E8E8E8</span>;
+  <span class="hljs-attribute">background-image</span>: <span class="hljs-built_in">repeating-linear-gradient</span>(to top,
+    #CCC,
+    #CCC 1px,
+    white 1px,
+    white 10%,
+    #CCC 10%
+  )
+}</pre></code>
+<p>This is a neat hack, as far as these things go. But it's prone to odd rendering bugs, and it feels fragile. It probably makes more sense to position grid lines as HTML elements, using absolute positioning within the container.</p>
+<code class="language-css"><pre><span class="hljs-selector-class">.background-grid</span> {
+  <span class="hljs-attribute">position</span>: relative;
+}
+
+<span class="hljs-selector-class">.grid-line</span> {
+  <span class="hljs-attribute">position</span>: absolute;
+  <span class="hljs-attribute">width</span>: <span class="hljs-number">100%</span>;
+  <span class="hljs-attribute">border-bottom</span>: <span class="hljs-number">1px</span> solid <span class="hljs-number">#CCC</span>;
+  <span class="hljs-attribute">text-align</span>: right;
+  <span class="hljs-comment">/* set border-bottom to the percentage for the line */</span>
+}</pre></code>
+<p>Either way, I find that the best use of flexbox is for stacked charts where the message is the proportions of each bar segment, not the absolute length of the bar. They're great for budget graphics and poll results. They're also useful for the odd table layout, as long as you can <a href="css-a11y.html">keep accessibility in mind</a>.</p>
   </main>
   <nav class="chapter-links bottom">
     <ul>

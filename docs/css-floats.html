@@ -78,7 +78,7 @@
   <span class="hljs-attribute">clear</span>: both;
 }</pre></code>
 <p>There's also a counter-intuitive trick that affects containers: their overflow property causes them to pay attention to floats. Specifically, if you set <var>overflow: hidden</var> on the container, it will extend to contain any floated elements inside. Of course, this also means that you can't take advantage of visible overflow, for scenarios like absolutely-positioned design elements. But if you have a common class that's used with floats, such as the sections of your article, setting overflow on the class that you're already using can help clean up markup.</p>
-<h2 id="well-maybe-not-all-of-us">Well, maybe not all of us.</h2>
+<h2 id="floats">Well, maybe not all of us.</h2>
 <p>Floats are a great tool for their intended purpose: creating variable-length boxes that can flexibly sit alongside&mdash;but not directly against&mdash;the main document content. And like inline-block elements, they have long been abused to create other layouts like grid systems. For years, they were the best option developers had, but they're still not great:</p>
 <ul>
 <li>When creating rows, you have to know how many items go into each row ahead of time, which is tougher to make responsive.</li>
@@ -120,7 +120,8 @@
   }
 }</pre></code>
 <p>Within a flex row, you can also organize your elements vertically and horizontally, using the "main" and "cross" axis. The main axis is horizontal for a row, vertical for a column, and is controlled with the <var>justify-content</var> property. The cross axis goes the other way, controlled by <var>align-items</var>. The easy way to remember this is that for flex rows (which is the default), justification is the same for items as it is for text.</p>
-<p><var>justify-content</var> is useful and important, but <var>align-items</var> is the real game-changer. If it's set to "stretch" for a container, elements will automatically have equal heights&mdash;no more ragged rows. And if it's set to "center" it will actually center row items along the row's central axis. That's right: vertical centering is now finally quick, easy, and reliable. If flexbox did nothing else, this alone would make it worthwhile.</p>
+<p><var>justify-content</var> is useful and important, but <var>align-items</var> is the real game-changer. If it's set to "stretch" for a container, elements will automatically have equal heights&mdash;no more ragged rows. And if it's set to "center" it will actually center row items along the row's central axis. That's right: vertical centering is now finally quick, easy, and reliable.</p>
+<p>If flexbox did nothing else, this alone would make it worthwhile. But as we'll see in the next chapter, you can actually use flexbox to create easy, simple stacked bar and column charts.</p>
   </main>
   <nav class="chapter-links bottom">
     <ul>
