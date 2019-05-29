@@ -1,0 +1,94 @@
+@metadata...
+title: How to read this book
+type: intermission
+...metadata
+
+@subhead About the code
+
+For this book, I'm going to be writing in ES2015, a new version of JavaScript that's supported by most modern browsers. However, I won't be using any features that can't be compiled back down to the well-supported ES5 standard using tools like Babel. It's also not hard to translate in your head. For example, the following ES2015 function definition:
+
+@codeblock(js)...
+
+var x = (a = 3, b = 4) => a + b;
+
+...codeblock
+would translate to something like this:
+
+@codeblock(js)...
+
+var x = function(a, b) {
+  //set default values
+  a = a || 3;
+  b = b || 4;
+  return a + b;
+};
+
+...codeblock
+
+To be specific, I'll be using the following ES2015 syntax additions for this book:
+
+* Arrow functions (`=>`)
+* Template strings
+* Destructuring
+* Enhanced object literals
+* Default parameters
+* Rest and spread parameters
+
+For more information on writing these and other new features in this version of JavaScript, take a look at the <a href="https://babeljs.io/learn-es2015/">Learn ES2015</a> guide from Babel, a popular tool for transforming new JS features into backward-compatible code for old browsers.
+
+@subhead Features to know about
+
+This book also takes advantage of some modern browser conveniences, such as the `dataset` property, which gets and sets "data-" attributes on elements. The following code is equivalent:
+
+@codeblock(js)...
+var v = element.getAttribute("data-value");
+element.setAttribute("data-value", v);
+
+// is the same as
+var v = element.dataset.value;
+element.dataset.value = v;
+...codeblock
+
+One caveat to watch for: like the attributes themselves, dataset does not cast values from strings. If you store numbers or boolean values on an element using the dataset, you'll need to handle that conversion yourself.
+
+Say what you like about the other DOM methods used in this text, but their names are largely self-explanatory (probably because they're so verbose). Calls like `Element.getAttribute()` or `document.createElement()` will not be documented inline--consult <a href="https://developer.mozilla.org">Mozilla Development Network</a> for more information about functions or properties that you don't recognize.
+
+@subhead Behind the scenes
+
+The code and text of this book is entirely open-source, and available in <a href="https://github.com/thomaswilburn/viz-book">a GitHub repo</a>. I welcome contributions and corrections via pull request. 
+
+To generate the actual output for this book, you'll need Node to run the build process, which includes a custom templating language and the syntax highlighting for code snippets. The structure of the book is defined by <a href="https://github.com/thomaswilburn/viz-book/blob/master/toc.json">`toc.json`</a>, and the actual text is in the <a href="https://github.com/thomaswilburn/viz-book/blob/master/src/">`src`</a> directory.
+
+Templating in .text files is based on directives, which are lines starting with an `@`, followed by the name of a directive, an optional list of arguments, and one or more lines of text input. For example, a subhead with a custom ID is written as:
+
+@codeblock(less)...
+@subhead(id-here) This space intentionally left blank.
+...codeblock
+
+Which generates:
+
+@codeblock(html)...
+<h2 id="id-here">This space intentionally left blank.</h2>
+...codeblock
+
+Direcitves also support a multiline form delimited by ellipses, like this `@html` block, which injects code directly into the HTML output:
+
+@codeblock(html)...
+@html...
+<div>
+  <h1>Hello, world!</h1>
+</div>
+...html
+...codeblock
+
+Directives are defined <a href="https://github.com/thomaswilburn/viz-book/blob/master/scripts/directives.js">in this file</a>, in case you want to look through them. Most are fairly simple:
+
+* `@metadata` defines the title and summary information for each file
+* `@codeblock` outputs syntax-highlighted source code
+* `@include` imports a snippet from another file
+* `@includeCode` imports a snippet and puts it into a code block
+* `@sidebar`, `@subhead`, and `@subsubhead` provide basic formatting
+
+There are also a small set of directives that aren't called directly, but are used to process paragraphs, lists, variables, and inline special characters. The goal is to provide a thin abstraction over HTML text, which can be punctured at any time for more power or control over the page.
+
+Why write this whole custom system for a book instead of using something off-the-shelf? In part, because it's fun. Working on a project like this requires a lot of time and effort, and I believe that it should reflect my personality and spirit, not only in the text, but at every stage of development. I believe it would be silly to write a book about bespoke data visualization and then produce it with a big-name, third-party page generator.

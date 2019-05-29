@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>How to read this book</title>
+  <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans|Manuale" rel="stylesheet">
+  <link rel="stylesheet" href="static/style.css">
+  <link rel="stylesheet" href="static/highlight/hybrid.css">
+</head>
+<body class="format intermission">
+  <nav class="chapter-links top">
+    <ul>
+      <li class="previous"> <a href="intro.html"> &laquo; Introduction</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href="section-js.html"> Writing Less JavaScript &raquo;</a>
+    </ul>
+  </nav>
+  <main>
+  <aside class="summary">
+    
+  </aside>
+  <h1>How to read this book</h1>
+<h2 id="about-the-code">About the code</h2>
+<p>For this book, I'm going to be writing in ES2015, a new version of JavaScript that's supported by most modern browsers. However, I won't be using any features that can't be compiled back down to the well-supported ES5 standard using tools like Babel. It's also not hard to translate in your head. For example, the following ES2015 function definition:</p>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> x = <span class="hljs-function">(<span class="hljs-params">a = <span class="hljs-number">3</span>, b = <span class="hljs-number">4</span></span>) =&gt;</span> a + b;</pre></code>
+<p>would translate to something like this:</p>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> x = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">a, b</span>) </span>{
+  <span class="hljs-comment">//set default values</span>
+  a = a || <span class="hljs-number">3</span>;
+  b = b || <span class="hljs-number">4</span>;
+  <span class="hljs-keyword">return</span> a + b;
+};</pre></code>
+<p>To be specific, I'll be using the following ES2015 syntax additions for this book:</p>
+<ul>
+<li>Arrow functions (<var>=&gt;</var>)</li>
+<li>Template strings</li>
+<li>Destructuring</li>
+<li>Enhanced object literals</li>
+<li>Default parameters</li>
+<li>Rest and spread parameters</li>
+</ul>
+<p>For more information on writing these and other new features in this version of JavaScript, take a look at the <a href="https://babeljs.io/learn-es2015/">Learn ES2015</a> guide from Babel, a popular tool for transforming new JS features into backward-compatible code for old browsers.</p>
+<h2 id="features-to-know-about">Features to know about</h2>
+<p>This book also takes advantage of some modern browser conveniences, such as the <var>dataset</var> property, which gets and sets "data-" attributes on elements. The following code is equivalent:</p>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> v = element.getAttribute(<span class="hljs-string">"data-value"</span>);
+element.setAttribute(<span class="hljs-string">"data-value"</span>, v);
+
+<span class="hljs-comment">// is the same as</span>
+<span class="hljs-keyword">var</span> v = element.dataset.value;
+element.dataset.value = v;</pre></code>
+<p>One caveat to watch for: like the attributes themselves, dataset does not cast values from strings. If you store numbers or boolean values on an element using the dataset, you'll need to handle that conversion yourself.</p>
+<p>Say what you like about the other DOM methods used in this text, but their names are largely self-explanatory (probably because they're so verbose). Calls like <var>Element.getAttribute()</var> or <var>document.createElement()</var> will not be documented inline--consult <a href="https://developer.mozilla.org">Mozilla Development Network</a> for more information about functions or properties that you don't recognize.</p>
+<h2 id="behind-the-scenes">Behind the scenes</h2>
+<p>The code and text of this book is entirely open-source, and available in <a href="https://github.com/thomaswilburn/viz-book">a GitHub repo</a>. I welcome contributions and corrections via pull request.</p>
+<p>To generate the actual output for this book, you'll need Node to run the build process, which includes a custom templating language and the syntax highlighting for code snippets. The structure of the book is defined by <a href="https://github.com/thomaswilburn/viz-book/blob/master/toc.json"><var>toc.json</var></a>, and the actual text is in the <a href="https://github.com/thomaswilburn/viz-book/blob/master/src/"><var>src</var></a> directory.</p>
+<p>Templating in .text files is based on directives, which are lines starting with an <var>@</var>, followed by the name of a directive, an optional list of arguments, and one or more lines of text input. For example, a subhead with a custom ID is written as:</p>
+<code class="language-less"><pre><span class="hljs-variable">@subhead</span>(id-here) This space intentionally left blank.</pre></code>
+<p>Which generates:</p>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">id</span>=<span class="hljs-string">"id-here"</span>&gt;</span>This space intentionally left blank.<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span></pre></code>
+<p>Direcitves also support a multiline form delimited by ellipses, like this <var>@html</var> block, which injects code directly into the HTML output:</p>
+<code class="language-html"><pre>@html...
+<span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Hello, world!<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+...html</pre></code>
+<p>Directives are defined <a href="https://github.com/thomaswilburn/viz-book/blob/master/scripts/directives.js">in this file</a>, in case you want to look through them. Most are fairly simple:</p>
+<ul>
+<li><var>@metadata</var> defines the title and summary information for each file</li>
+<li><var>@codeblock</var> outputs syntax-highlighted source code</li>
+<li><var>@include</var> imports a snippet from another file</li>
+<li><var>@includeCode</var> imports a snippet and puts it into a code block</li>
+<li><var>@sidebar</var>, <var>@subhead</var>, and <var>@subsubhead</var> provide basic formatting</li>
+</ul>
+<p>There are also a small set of directives that aren't called directly, but are used to process paragraphs, lists, variables, and inline special characters. The goal is to provide a thin abstraction over HTML text, which can be punctured at any time for more power or control over the page.</p>
+<p>Why write this whole custom system for a book instead of using something off-the-shelf? In part, because it's fun. Working on a project like this requires a lot of time and effort, and I believe that it should reflect my personality and spirit, not only in the text, but at every stage of development. I believe it would be silly to write a book about bespoke data visualization and then produce it with a big-name, third-party page generator.</p>
+  </main>
+  <nav class="chapter-links bottom">
+    <ul>
+      <li class="previous"> <a href="intro.html"> &laquo; Introduction</a>
+      <li> <a href="index.html">&bigstar;</a>
+      <li class="next"> <a href="section-js.html"> Writing Less JavaScript &raquo;</a>
+    </ul>
+  </nav>
+</body>
+</html>

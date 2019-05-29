@@ -1,5 +1,6 @@
 [
   "intro",
+  "format",
   {
     "section": "section-js",
     "chapters": [
