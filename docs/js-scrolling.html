@@ -7,6 +7,20 @@
   <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans|Manuale" rel="stylesheet">
   <link rel="stylesheet" href="static/style.css">
   <link rel="stylesheet" href="static/highlight/hybrid.css">
+
+  <!-- BEGIN TWITTER SUMMARY CARD -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Client Rects and Scroll Effects">
+  <meta name="twitter:site" content="@thomaswilburn">
+  <meta name="twitter:image" content="https://thomaswilburn.github.io/viz-book/static/social.jpg">
+  <meta name="twitter:description" content="Efficient scroll listeners | get rect | Scrolling sans JS">
+
+  <!-- Social sharing meta -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Client Rects and Scroll Effects">
+  <meta property="og:site_name" content="Web Components at Work">
+  <meta property="og:image" content="https://thomaswilburn.github.io/viz-book/static/social.jpg">
+  <meta property="og:description" content="Efficient scroll listeners | get rect | Scrolling sans JS">
 </head>
 <body class="js-scrolling chapter">
   <nav class="chapter-links top">
@@ -28,7 +42,7 @@
 <p>Reacting to the page scroll is not hard to do. Both the window and various elements themselves will fire a scroll event, and so we can just listen for it:</p>
 <code class="language-js"><pre><span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"Scroll event fired!"</span>);
-});</pre></code>
+});</pre></code>
 <p>That said, if you run this code in the console, you'll quickly find that depending on the browser, you may soon be up to your ears in scroll events&mdash;way more than you actually need. Worse, if your code involves making a lot of changes to the page or doing a lot of processing, you can kill your scroll performance. Here's a quick demo:</p>
 <div class="interactive-section">
   <button class="add-delay">Add delay</button>
@@ -75,7 +89,7 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
 });
 
 <span class="hljs-comment">// this will only log out every 150ms</span>
-<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, throttled);</pre></code>
+<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, throttled);</pre></code>
 <p>Our debounce function will run the submitted function on the initial call, but then it rejects further calls until the delay (defaulting to 150ms) expires.</p>
 <p>Debouncing is a great way to handle scroll listeners that trigger large, imprecise changes to the page, like adding a control class or triggering a CSS animation. Most of the time, that's the use case you should have in mind. On many of our big projects, we may want to pan or zoom around a map in response to the user's position in the document. Since the pan itself is animated and takes most of a second, updating on every single scroll event is overkill, and the animation would stutter as it was constantly restarted.</p>
 <p>That said, debouncing is inappropriate for fine-grained animations based on the scroll position. In those cases, your listener function itself will need to dump out as early as possible to keep from interfering with scroll behavior. For example, in <a href="http://projects.seattletimes.com/2017/eastside-prostitution-bust/">this story on prostitution rings in Bellevue, WA</a>, the animated sections are linked directly to the scroll distance, so a 150ms delay would have resulted in jerky transitions. Instead, each listener checks for the visibility of its designated section, and exits early to keep from performing expensive animation work on offscreen sections.</p>
@@ -84,7 +98,7 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
 <p>Let's say that we want to create a parallax background effect, where scrolling through the page causes the background image to change. We might define each zone using a common class, and force it to be 150% of the screen height in CSS, so that it feels like a reasonable distance regardless of device size:</p>
 <code class="language-css"><pre><span class="hljs-selector-class">.scroll-zone</span> {
   <span class="hljs-attribute">height</span>: <span class="hljs-number">150vh</span>;
-}</pre></code>
+}</pre></code>
 <p>Then, in our scroll listener, we're going to check the position of each zone relative to the screen, using a function called <var>getBoundingClientRect()</var>. This function, which is incredibly useful as an interactive developer, just tells you the location and size of a given element. If the top of the element is greater than zero, but less than the height of the screen, it must be somewhere in the viewport.</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> zones = $(<span class="hljs-string">".scroll-zone"</span>);
 
@@ -98,7 +112,7 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
   });
 };
 
-<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, debounce(listener));</pre></code>
+<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, debounce(listener));</pre></code>
 <div class="scroll-container simple">
   <div class="scroll-zone simple" data-bg="salmon"></div>
   <div class="scroll-zone simple" data-bg="papayawhip"></div>
@@ -124,7 +138,7 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
     }
   }
   <span class="hljs-comment">// we can still run code every iteration here, if need be</span>
-};</pre></code>
+};</pre></code>
 <p>Now our code is more efficient because it only checks as many positions as it needs to, but we'll still have a problem in any cases where there is more than one scroll zone in the viewport at a time.</p>
 <div class="scroll-container top-down">
   <div class="scroll-zone top-down" data-bg="peachpuff"></div>
@@ -147,7 +161,7 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
       <span class="hljs-keyword">break</span>;
     }
   }
-};</pre></code>
+};</pre></code>
 <div class="scroll-container bottom-up">
   <div class="scroll-zone bottom-up" data-bg="wheat"></div>
   <div class="scroll-zone bottom-up" data-bg="coral"></div>
@@ -161,12 +175,12 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
 <p>Is something completely in the viewport? This is as easy as checking the top and bottom against the window.</p>
 <code class="language-js"><pre><span class="hljs-keyword">if</span> (bounds.top &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.bottom &lt; <span class="hljs-built_in">window</span>.innerHeight) {
   <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
-}</pre></code>
+}</pre></code>
 <h3>Exclusion scissor test</h3>
 <p>It's also useful sometimes to know if something <em>isn't</em> in view. For example, on WebGL projects, I often skip rendering if you can't see the canvas anyway, so I don't burn power for no good reason.</p>
 <code class="language-js"><pre><span class="hljs-keyword">if</span> (bounds.bottom &lt; <span class="hljs-number">0</span> || bounds.top &gt; <span class="hljs-built_in">window</span>.innerHeight) {
   <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
-}</pre></code>
+}</pre></code>
 <h3>Activating sections once</h3>
 <p>A common task is to cause an effect to trigger an effect only once per section, per page load. Using an array filter is a simple way to do this, since it actually just removes the element from the bounds check. With a little extra work, we can even kill the listener when we're out of single-use elements.</p>
 <code class="language-js"><pre><span class="hljs-comment">//elements is an array of scroll zones</span>
@@ -185,7 +199,7 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
   <span class="hljs-keyword">if</span> (!elements.length) <span class="hljs-built_in">window</span>.removeListener(<span class="hljs-string">"scroll"</span>, scrollCheck);
 };
 
-<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, scrollCheck);</pre></code>
+<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, scrollCheck);</pre></code>
 <h3>Measuring progress</h3>
 <p>Many scroll-linked animations require you to know how far you've scrolled through any given element&mdash;meaning, between the element entering at the very bottom of the screen and leaving at the top, what's the progress between those two points? Parallax scrolls often rely on this information. To do so, we'll find the normalized delta as a number between 0 and 1, where 1 is "leaving the top" and 0 is "entering at the bottom."</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> vh = <span class="hljs-built_in">window</span>.innerHeight;
@@ -196,7 +210,7 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
 <span class="hljs-comment">// normalize to a 0...1 range</span>
 <span class="hljs-keyword">var</span> progress = -scrolled / cover
 <span class="hljs-comment">// you can also convert to -1...1 for some effects</span>
-<span class="hljs-keyword">var</span> viewRelative = progress * <span class="hljs-number">2</span> - <span class="hljs-number">1</span>;</pre></code>
+<span class="hljs-keyword">var</span> viewRelative = progress * <span class="hljs-number">2</span> - <span class="hljs-number">1</span>;</pre></code>
 <h2 id="home:-stuck">Home: stuck</h2>
 <p>The fastest code is the code we never run, and nowhere is that more true than when it comes to reacting to page scroll. For some use cases, it's increasingly possible to create effects purely in CSS.</p>
 <p>Take the persistent menubar, for example. On many pages, you may want a menu to be a part of the normal page layout, but to adhere to the viewport as the page scrolls. It's tempting to do this as a JavaScript page effect, but doing so will often cause choppy scrolling, because it requires multiple layouts to check and update the position of the menu element:</p>
@@ -210,7 +224,7 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
     <span class="hljs-comment">// normal document flow</span>
     menu.classList.remove(<span class="hljs-string">"fixed-position"</span>);
   }
-};</pre></code>
+};</pre></code>
 <p>A simpler solution is just to let the browser handle the fixed positioning by setting the menu's CSS to <var>position: sticky</var>. Supported in pretty much everything except for IE, this leaves the element in place until it hits the boundary defined by <var>top</var> or <var>bottom</var> styles, and then locks it as though it was <var>position: fixed</var>. In IE, the menu won't fix, which is unfortunate but does at least fulfill the principles of graceful degradation. Sticky elements are also limited to the bounds of their containers, which means they can easily slide offscreen once you scroll past a given point. It's a long overdue part of the CSS toolkit.</p>
 <style>
 

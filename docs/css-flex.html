@@ -7,6 +7,20 @@
   <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans|Manuale" rel="stylesheet">
   <link rel="stylesheet" href="static/style.css">
   <link rel="stylesheet" href="static/highlight/hybrid.css">
+
+  <!-- BEGIN TWITTER SUMMARY CARD -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Building stacked charts with flexbox">
+  <meta name="twitter:site" content="@thomaswilburn">
+  <meta name="twitter:image" content="https://thomaswilburn.github.io/viz-book/static/social.jpg">
+  <meta name="twitter:description" content="Assembling our chart | Columns over bars | Weird flex but okay">
+
+  <!-- Social sharing meta -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Building stacked charts with flexbox">
+  <meta property="og:site_name" content="Web Components at Work">
+  <meta property="og:image" content="https://thomaswilburn.github.io/viz-book/static/social.jpg">
+  <meta property="og:description" content="Assembling our chart | Columns over bars | Weird flex but okay">
 </head>
 <body class="css-flex chapter">
   <nav class="chapter-links top">
@@ -43,7 +57,7 @@
     <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bar val-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 0 0 70%"</span>&gt;</span>70%<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bar val-c"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 0 0 10%"</span>&gt;</span>10%<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
+<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
 <p>Next, we'll turn on styles for the bar layout:</p>
 <code class="language-css"><pre><span class="hljs-selector-class">.row</span> {
   <span class="hljs-attribute">display</span>: flex;
@@ -69,7 +83,7 @@
 
 <span class="hljs-selector-class">.val-a</span> { <span class="hljs-attribute">background</span>: salmon }
 <span class="hljs-selector-class">.val-b</span> { <span class="hljs-attribute">background</span>: wheat }
-<span class="hljs-selector-class">.val-c</span> { <span class="hljs-attribute">background</span>: honeydew }</pre></code>
+<span class="hljs-selector-class">.val-c</span> { <span class="hljs-attribute">background</span>: honeydew }</pre></code>
 <p>This layout actually uses nested flexboxes: one on the outside, with the labels set to a reasonable width for the text, and one inside that contains the stacked bars. Using <var>align-items: stretch</var> for both containers means that they'll automatically fill to the tallest item--if the text wraps to a new line, the bars will expand vertically to match. If you want them to stay uniform in height, you can set a manual height on <var>.bar-container</var> instead. The bars themselves are also flexed, in order to center the labels inside.</p>
 <p>Here it is in action:</p>
 <style>
@@ -257,7 +271,7 @@
     white 10%,
     #CCC 10%
   )
-}</pre></code>
+}</pre></code>
 <p>This is a neat hack, as far as these things go. But it's prone to odd rendering bugs, and it feels fragile. It probably makes more sense to position grid lines as HTML elements, using absolute positioning within the container.</p>
 <code class="language-css"><pre><span class="hljs-selector-class">.background-grid</span> {
   <span class="hljs-attribute">position</span>: relative;
@@ -269,7 +283,7 @@
   <span class="hljs-attribute">border-bottom</span>: <span class="hljs-number">1px</span> solid <span class="hljs-number">#CCC</span>;
   <span class="hljs-attribute">text-align</span>: right;
   <span class="hljs-comment">/* set border-bottom to the percentage for the line */</span>
-}</pre></code>
+}</pre></code>
 <p>Either way, I find that the best use of flexbox is for stacked charts where the message is the proportions of each bar segment, not the absolute length of the bar. They're great for budget graphics and poll results. They're also useful for the odd table layout, as long as you can <a href="css-a11y.html">keep accessibility in mind</a>.</p>
   </main>
   <nav class="chapter-links bottom">

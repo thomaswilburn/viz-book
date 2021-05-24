@@ -7,6 +7,20 @@
   <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans|Manuale" rel="stylesheet">
   <link rel="stylesheet" href="static/style.css">
   <link rel="stylesheet" href="static/highlight/hybrid.css">
+
+  <!-- BEGIN TWITTER SUMMARY CARD -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="FLIP for smooth animations">
+  <meta name="twitter:site" content="@thomaswilburn">
+  <meta name="twitter:image" content="https://thomaswilburn.github.io/viz-book/static/social.jpg">
+  <meta name="twitter:description" content="From A to B | Using FLIP on many elements | Stack of reflow">
+
+  <!-- Social sharing meta -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="FLIP for smooth animations">
+  <meta property="og:site_name" content="Web Components at Work">
+  <meta property="og:image" content="https://thomaswilburn.github.io/viz-book/static/social.jpg">
+  <meta property="og:description" content="From A to B | Using FLIP on many elements | Stack of reflow">
 </head>
 <body class="perf-flip chapter">
   <nav class="chapter-links top">
@@ -62,7 +76,7 @@ element.style.transform = <span class="hljs-string">`translate(<span class="hljs
 requestAnimationFrame(<span class="hljs-function"><span class="hljs-params">_</span> =&gt;</span> {
   element.classList.add(<span class="hljs-string">"enable-transition"</span>);
   element.style.transform = <span class="hljs-string">""</span>;
-});</pre></code>
+});</pre></code>
 <p>The key to FLIP is that it prioritizes the CSS properties that browsers can animate smoothly, because they map cleanly to operations that can be offloaded to the GPU: fading opacity and transforming size or position without affecting layout. Other properties, like changing the color of a background or the layout dimensions of an element, require the browser to repaint element contents instead of re-using them in an composited layer. Paul Lewis' <a href="https://csstriggers.com/">CSS Triggers</a> can serve as a guide for which properties cause repaint, and which ones only need compositing.</p>
 <h2 id="making-flip-slow">Making FLIP slow</h2>
 <p>Here's the thing about doing FLIP: it's basically a process of moving the expensive parts of animation to the beginning of the process so that the rest can go smoothly. Those two calls to <var>getBoundingClientRect()</var> at the start of the process are relatively slow, but after that all animation is done by the browser without any script. For only one or two concurrent animations, that's fine.</p>
@@ -98,7 +112,7 @@ requestAnimationFrame(<span class="hljs-function"><span class="hljs-keyword">fun
     f.element.classList.add(<span class="hljs-string">"enable-transitions"</span>);
     f.element.style.transform = <span class="hljs-string">""</span>;
   });
-});</pre></code>
+});</pre></code>
 <p>This kind of batching is not new: Wilson Page's <a href="https://github.com/wilsonpage/fastdom">FastDOM</a> library (created at the Financial Times) has been offering tools for years that let developers prevent costly document reflow by combining reads and writes. But with FLIP, we need to make it very explicit, and account for the <a href="https://aerotwist.com/blog/the-anatomy-of-a-frame/">anatomy of a frame</a>. It may be possible, one day, that browsers will automatically make these kinds of performance improvements for us, but speaking from my limited experience with game engines, I doubt it.</p>
   </main>
   <nav class="chapter-links bottom">

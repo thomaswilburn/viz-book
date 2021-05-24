@@ -7,6 +7,20 @@
   <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans|Manuale" rel="stylesheet">
   <link rel="stylesheet" href="static/style.css">
   <link rel="stylesheet" href="static/highlight/hybrid.css">
+
+  <!-- BEGIN TWITTER SUMMARY CARD -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Scaling time and space">
+  <meta name="twitter:site" content="@thomaswilburn">
+  <meta name="twitter:image" content="https://thomaswilburn.github.io/viz-book/static/social.jpg">
+  <meta name="twitter:description" content="Sparklines from normal data | Timing and easing | The new face of zero and one">
+
+  <!-- Social sharing meta -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Scaling time and space">
+  <meta property="og:site_name" content="Web Components at Work">
+  <meta property="og:image" content="https://thomaswilburn.github.io/viz-book/static/social.jpg">
+  <meta property="og:description" content="Sparklines from normal data | Timing and easing | The new face of zero and one">
 </head>
 <body class="js-scaling chapter">
   <nav class="chapter-links top">
@@ -24,7 +38,7 @@
 <p>Almost all data visualizations are about expressing change or difference over one or more dimensions. The distinguishing factor of each visualization is what those dimensions are, and the units used. Are they a literal conversion of world space to display space? That's a map. Add another dimension, via color space, and now you have a cloropleth. Change the units to electoral votes instead of geographic area, and now you have a tile grid map.</p>
 <p>A universal feature of data visualizations, therefore, is figuring out the scaling function for your data: how do we transform data into a given dimension? Many frameworks will do this for you, but we're going to do it from scratch here. And we're going to do so in a very particular way: we're going to "normalize" our data range, creating a function that takes a value and returns a number in the range from 0 to 1, with 0 being "the low end of our data set" and 1 being "the highest value in our data set."</p>
 <p>The formula for a normalized linear scale is <strong>(value - minimum) / (maximum - minimum)</strong>. For example, let's imagine that we're charting the murder rate for a given city over time. At its highest, the murder rate was 12.5 homicides per 100,000 people, and the lowest point was 3.6. If we set those as the bounds for our scale, the function to give us our scaled value is:</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> scaleMurders = <span class="hljs-function"><span class="hljs-params">value</span> =&gt;</span> (value - <span class="hljs-number">3.6</span>) / (<span class="hljs-number">12.5</span> - <span class="hljs-number">3.6</span>);</pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> scaleMurders = <span class="hljs-function"><span class="hljs-params">value</span> =&gt;</span> (value - <span class="hljs-number">3.6</span>) / (<span class="hljs-number">12.5</span> - <span class="hljs-number">3.6</span>);</pre></code>
 <p>Essentially, we're writing a function to answer the question "given a number line stretching from the minimum to the maximum, where do we find this value?" Of course, writing individual scaling functions by hand can be frustrating, especially if our visualization has more than one axis. We might be better off writing a factory, which takes in a high and low value and returns a custom scaling function:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> scaleFactory = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">low, high</span>) </span>{
   <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">value</span>) </span>{
@@ -33,13 +47,13 @@
 };
 
 <span class="hljs-keyword">var</span> scaleMurders = scaleFactory(<span class="hljs-number">3.6</span>, <span class="hljs-number">12.5</span>);
-scaleMurders(<span class="hljs-number">9.2</span>); <span class="hljs-comment">//0.6292...</span></pre></code>
+scaleMurders(<span class="hljs-number">9.2</span>); <span class="hljs-comment">//0.6292...</span></pre></code>
 <p>Why do we use 0 and 1 as the limits of our range? Basically, the math is convenient. Once your value is normalized, you can convert it to another range via the formula <strong>value * range + minimum</strong>. You might want to graph a value on a 600px wide canvas, but reserve the left 20px for drawing the axis. No problem: multiply your normalized value by 580 and add 20 to get the x coordinate in pixels. Normalization, therefore, creates useful intermediate values for going between "data space" and "screen space."</p>
 <h2 id="a-brief-digression-into-the-math-object">A brief digression into the <var>Math</var> object</h2>
 <p>But how do we figure out the min and the max of the data in the first place? One complication of data visualizations in the browser is that they're often fed with an array of objects&mdash;say, a series of rows from a spreadsheet, or a JSON dump from a database. We may also want to change the property that we use as the basis for our chart based on user input, like changing the display from murder rate to robberies. So here's a trick for getting the minimum and maximum quickly.</p>
 <p>First, let's use the <var>map()</var> function to convert an array of objects into an array of values. A map is just a transformation from one list to another, based on a function you pass in. The following function takes an array of objects with many properties and converts it to just the values for the <var>murder</var> property:</p>
 <code class="language-js"><pre><span class="hljs-comment">//cityData is an array of row objects</span>
-<span class="hljs-keyword">var</span> values = cityData.map(<span class="hljs-function"><span class="hljs-params">d</span> =&gt;</span> d.murder);</pre></code>
+<span class="hljs-keyword">var</span> values = cityData.map(<span class="hljs-function"><span class="hljs-params">d</span> =&gt;</span> d.murder);</pre></code>
 <p>If we need to change the field that we're using for our chart values, we can change the code a little bit so that it's a reusable function, getting a property via the array operator (<var>[]</var>) instead of a dot operator:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> getValues = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">mode</span>) </span>{
   <span class="hljs-keyword">return</span> cityData.map(<span class="hljs-function"><span class="hljs-params">d</span> =&gt;</span> d[mode]);
@@ -49,7 +63,7 @@ scaleMurders(<span class="hljs-number">9.2</span>); <span class="hljs-comment">/
 <span class="hljs-keyword">var</span> values = getValues(<span class="hljs-string">"murder"</span>);
 
 <span class="hljs-comment">//get robbery data instead</span>
-values = getValues(<span class="hljs-string">"robbery"</span>);</pre></code>
+values = getValues(<span class="hljs-string">"robbery"</span>);</pre></code>
 <p>Now the clever part: instead of looping through those values and figuring out the minimum and maximum by hand, we'll use JavaScript's built-in math functions. <var>Math.min()</var> and <var>Math.max()</var> accept an arbitrary number of arguments, and will then tell you the lowest and highest value from those arguments. We can use the <var>apply()</var> function method to treat our array of values as individual arguments:</p>
 <code class="language-js"><pre><span class="hljs-comment">// apply() takes two arguments:</span>
 <span class="hljs-comment">// the "this" value, and an arguments array</span>
@@ -58,17 +72,17 @@ values = getValues(<span class="hljs-string">"robbery"</span>);</pre></code>
 
 <span class="hljs-comment">// In ES2015, we can just use the spread operator</span>
 <span class="hljs-keyword">var</span> min = <span class="hljs-built_in">Math</span>.min(...values);
-<span class="hljs-keyword">var</span> max = <span class="hljs-built_in">Math</span>.max(...values);</pre></code>
+<span class="hljs-keyword">var</span> max = <span class="hljs-built_in">Math</span>.max(...values);</pre></code>
 <h2 id="sparklines-in-a-flash">Sparklines in a flash</h2>
 <p>A sparkline is a tiny graphic that's intended to be displayed inline, and illustrate a trend. You might use it in a business story, for example, to visualize the stock price of a company next to its ticker symbol. Let's use our scaling function to dynamically create sparklines for a story. First, we'll start with some quarterly data for each company:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> stocks = {
   <span class="hljs-attr">ACME</span>: [<span class="hljs-number">20.4</span>, <span class="hljs-number">30.2</span>, <span class="hljs-number">25.5</span>, <span class="hljs-number">14.9</span>, <span class="hljs-number">7.2</span>],
   <span class="hljs-attr">BRDX</span>: [<span class="hljs-number">14.1</span>, <span class="hljs-number">15.1</span>, <span class="hljs-number">16.3</span>, <span class="hljs-number">18.0</span>, <span class="hljs-number">17.7</span>]
-};</pre></code>
+};</pre></code>
 <p>And in our markup, we'll create placeholders for our script to find, using spans with a "ticker" class:</p>
 <code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>
   Meanwhile, Acme Products (<span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"ticker"</span>&gt;</span>ACME<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span>) continues its plunge, due mostly to the loss of the valuable "coyote" market.
-<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span></pre></code>
+<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span></pre></code>
 <p>We'll also need to style our sparkline blocks, so that they're visible:</p>
 <code class="language-css"><pre><span class="hljs-selector-class">.sparkline</span> {
   <span class="hljs-attribute">display</span>: inline-block;
@@ -79,7 +93,7 @@ values = getValues(<span class="hljs-string">"robbery"</span>);</pre></code>
   <span class="hljs-attribute">background</span>: orange;
   <span class="hljs-attribute">border-top</span>: <span class="hljs-number">1px</span> solid darkorange;
   <span class="hljs-attribute">width</span>: <span class="hljs-number">4px</span>;
-}</pre></code>
+}</pre></code>
 <p>Finally, we'll look through the page (using our <a href="js-jquery.html">deconstructed jQuery</a>) for our ticker spans, create a scaling function, and then add a series of sparkline blocks to the span. The height of each block will be the normalized value multiplied by the maximum height. In this case, we're going to be using <var>2ex</var>&mdash; an "ex" is the height of an "x" character, so two of them is a decent stand-in for the total height of a line of text.</p>
 <code class="language-js"><pre>$(<span class="hljs-string">".ticker"</span>).forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">span</span>) </span>{
   <span class="hljs-comment">// get the ticker symbol</span>
@@ -98,7 +112,7 @@ values = getValues(<span class="hljs-string">"robbery"</span>);</pre></code>
   });
   sparkHTML += <span class="hljs-string">"&lt;/div&gt;"</span>;
   span.innerHTML += sparkHTML;
-});</pre></code>
+});</pre></code>
 <p>Here it is in action:</p>
 <blockquote>
   Meanwhile, Acme Products (<span class="ticker">ACME</span>) continues its plunge, due mostly to the loss of the valuable "coyote" market.
@@ -201,14 +215,14 @@ $(".trigger-tween").forEach(el => el.addEventListener("click", animate));
 <code class="language-js"><pre><span class="hljs-keyword">var</span> animate = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">var</span> start = performance.now();
   <span class="hljs-keyword">var</span> mode = <span class="hljs-keyword">this</span>.dataset.mode;
-}</pre></code>
+}</pre></code>
 <p>Now, inside of animate, we'll add a "draw" function, which will be called during every frame of the animation. We're going to schedule it using the <var>requestAnimationFrame</var> function, so it'll be passed the current time as its argument. We can compare that time to the start time we recorded when <var>animate</var> was first called, to get the number of elapsed milliseconds:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> draw = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">t</span>) </span>{
   <span class="hljs-keyword">var</span> elapsed = t - start;
   <span class="hljs-keyword">var</span> dt = elapsed / <span class="hljs-number">1000</span>;
   <span class="hljs-keyword">if</span> (dt &gt;= <span class="hljs-number">1</span>) dt = <span class="hljs-number">1</span>;
   <span class="hljs-comment">/* ... */</span>
-};</pre></code>
+};</pre></code>
 <p>This animation will run for 1000 milliseconds, and we want to know how far through that we are now (remember, this function will be called over and over again throughout the animation). So our scaling equation above is <strong>number of milliseconds / duration</strong>, or <var>elapsed / 1000</var>. This is basically the same as our normalized scale, but we don't have to subtract a minimum from either side for this version of the equation, because unless you have a time machine available, the minimum is always 0ms.</p>
 <p>If the scaled value goes over 1, we'll "clamp" the value to that maximum&mdash;because we're not in control of the browser's framerate, it's almost certain that our function won't be called exactly at 1000 milliseconds, and if it gets called late we don't want the animation to overshoot its end point.</p>
 <p>Now we'll continue the function by converting the scaled time, <var>dt</var>, into an x coordinate that we can use to draw a circle. Just as with a chart, we can scale our position by multiplying the normalized <var>dt</var> by the maximum value in the animation (<var>canvas.width</var>).</p>
@@ -230,10 +244,10 @@ $(".trigger-tween").forEach(el => el.addEventListener("click", animate));
   <span class="hljs-keyword">if</span> (dt &lt; <span class="hljs-number">1</span>) {
     requestAnimationFrame(draw);
   }
-};</pre></code>
+};</pre></code>
 <p>At the end of the function, we check our scaled time value. Remember, we clamped the time value, so even if the browser calls <var>draw()</var> a little late, it'll still be limited to 1 as a max value. If it's less than one, we're still in the middle of the animation, and we'll schedule our drawing function for another tick using <var>requestAnimationFrame</var>.</p>
 <p>Did you notice the "swing" check in the middle there? That's a reference to an <em>easing function</em>, which tweaks our normalized value into an acceleration curve. Without it, <var>dt</var> moves linearly from 0 to 1, which tends to feel "robotic" in motion. The swing function is taken from jQuery, and uses cosine to make our circle move slower at the beginning and end.</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> swing = <span class="hljs-function"><span class="hljs-params">p</span> =&gt;</span> <span class="hljs-number">0.5</span> - <span class="hljs-built_in">Math</span>.cos(p * <span class="hljs-built_in">Math</span>.PI) / <span class="hljs-number">2</span>;</pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> swing = <span class="hljs-function"><span class="hljs-params">p</span> =&gt;</span> <span class="hljs-number">0.5</span> - <span class="hljs-built_in">Math</span>.cos(p * <span class="hljs-built_in">Math</span>.PI) / <span class="hljs-number">2</span>;</pre></code>
 <p>There are a lot of easing functions, and each of them has a different feel. Many of them are also defined in CSS, as options for the "transition" property. When doing animations, you should almost always apply an easing function to give movements a feeling of physical weight. The MDN page on <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function">transition-timing-function</a> has more details, and demonstrations so you can see what each easing value looks like in CSS.</p>
 <p>All together, our animate function looks like this:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> animate = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
@@ -261,7 +275,7 @@ $(".trigger-tween").forEach(el => el.addEventListener("click", animate));
   };
 
   requestAnimationFrame(draw);
-}</pre></code>
+}</pre></code>
 <p>Clicking a button calls this function, and triggers the animation. In this case, it just moves a circle around. But it should be easy to imagine using a similar function to animate points between two positions on a scatterplot, or to animate the heights of a bar chart in response to a filter. I've used it to tween the position of a camera for a 3D visualization. You can even use a similar technique to transition the RGB components of two colors, creating a color fade on a canvas. The possibilities are endless&mdash;until we normalize them, at least.</p>
   </main>
   <nav class="chapter-links bottom">

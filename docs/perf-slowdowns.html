@@ -7,6 +7,20 @@
   <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans|Manuale" rel="stylesheet">
   <link rel="stylesheet" href="static/style.css">
   <link rel="stylesheet" href="static/highlight/hybrid.css">
+
+  <!-- BEGIN TWITTER SUMMARY CARD -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Fixing common slowdowns">
+  <meta name="twitter:site" content="@thomaswilburn">
+  <meta name="twitter:image" content="https://thomaswilburn.github.io/viz-book/static/social.jpg">
+  <meta name="twitter:description" content="The easy stuff | Deferred loading | Shrink your JavaScript">
+
+  <!-- Social sharing meta -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Fixing common slowdowns">
+  <meta property="og:site_name" content="Web Components at Work">
+  <meta property="og:image" content="https://thomaswilburn.github.io/viz-book/static/social.jpg">
+  <meta property="og:description" content="The easy stuff | Deferred loading | Shrink your JavaScript">
 </head>
 <body class="perf-slowdowns chapter">
   <nav class="chapter-links top">
@@ -27,7 +41,7 @@
 <p>Images should be sized appropriately, close to the size that they'll actually be on the page and probably no larger than 1600px for full-bleed backgrounds. It's easy to forget this, and accidentally put an image thousands of pixels wide into a thumbnail spot--don't do that. You should be using JPG for the image format, and compressing them as far as you can tolerate. You can use the Imagemagick command line tools to resize images in bulk, with a little Bash scripting:</p>
 <code class="language-sh"><pre><span class="hljs-keyword">for</span> jpg <span class="hljs-keyword">in</span> *.jpg; <span class="hljs-keyword">do</span> 
   convert <span class="hljs-variable">$jppg</span> -resize 1600x\&gt; -quality 60 resized/<span class="hljs-variable">$jpg</span>
-<span class="hljs-keyword">done</span></pre></code>
+<span class="hljs-keyword">done</span></pre></code>
 <p>Using this command, all images will be sized down to 1600px wide (but not scaled up, if it's already smaller), compressed, and placed in a "resized" subfolder.</p>
 <h3>Animations</h3>
 <p>When possible, use MP4 video instead of .gif files, since it'll look better and be smaller. But if you can avoid either, do that: an animation using CSS and image layers will be much more performant than the equivalent movie file.</p>
@@ -47,10 +61,10 @@
 <span class="hljs-keyword">if</span> (isDesktop.matches) {
   <span class="hljs-comment">// &lt;video src="small.mp4" data-desktop="large.mp4"&gt;&lt;/video&gt;</span>
   videoTags.forEach(<span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> v.src = v.dataset.desktop);
-}</pre></code>
+}</pre></code>
 <h2 id="deferred-loading-strategies">Deferred loading strategies</h2>
 <p>In another chapter, we talked about <a href="js-scrolling.html">building interactive scrolling pages</a>. The same strategy can be used to lazy-load images and media files in browsers that don't suppoprt <var>loading="lazy"</var> (currently, most of them). By creating our images with a placeholder source, and replacing those with the actual image only when they're close the viewport, we can substantially reduce the amount that the page requests up-front.</p>
-<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"placeholder.jpg"</span> <span class="hljs-attr">data-src</span>=<span class="hljs-string">"actual.jpg"</span>&gt;</span></pre></code>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"placeholder.jpg"</span> <span class="hljs-attr">data-src</span>=<span class="hljs-string">"actual.jpg"</span>&gt;</span></pre></code>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> responsiveImages = $(<span class="hljs-string">"[data-src]"</span>);
 <span class="hljs-keyword">var</span> onScroll = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
   responsiveImages = responsiveImages.filter(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">img</span>) </span>{
@@ -66,7 +80,7 @@
   <span class="hljs-comment">// remove listener when all images are loaded</span>
   <span class="hljs-keyword">if</span> (!responsiveImages.length) <span class="hljs-built_in">window</span>.removeEventListener(<span class="hljs-string">"scroll"</span>, onScroll);
 };
-<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, onScroll);</pre></code>
+<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, onScroll);</pre></code>
 <p>Similar code works for deferring the load of videos, complicated interactives, or (perhaps most importantly) ad code.</p>
 <h2 id="shrink-your-javascript">Shrink your JavaScript</h2>
 <p>In many ways, the substance of this book is about reducing our JavaScript footprint. In this, we're not just fighting our bad old habits, but also the natural tendencies of the tools we use. Build systems like Webpack make it easy to include third-party JavaScript libraries in our bundles, as well as images, stylesheets, and even larger data files. After all, it's just an <var>import</var> or a <var>require()</var> away.</p>
@@ -92,7 +106,7 @@
 
 xhr(<span class="hljs-string">"map.geojson"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">err, data</span>) </span>{
   <span class="hljs-comment">// do whatever with our map data</span>
-})</pre></code>
+})</pre></code>
 <p>Writing asynchronous code this way makes loading a bit more difficult, since initialization code that requires the data must run in the callback, not in the normal script execution flow. However, if you're targeting modern browsers, you can use the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API">Fetch API</a> to make it easier:</p>
 <code class="language-js"><pre><span class="hljs-comment">// the await keyword only works in async functions</span>
 <span class="hljs-keyword">var</span> init = <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
@@ -101,7 +115,7 @@ xhr(<span class="hljs-string">"map.geojson"</span>, <span class="hljs-function">
   <span class="hljs-comment">// use our data as normal, no callbacks</span>
 };
 
-init();</pre></code>
+init();</pre></code>
 <p>Splitting data and code into separate bundles and initializing them on demand is an entirely different challenge, one that depends largely on your loader. Not every project requires that kind of optimization. But if you're working on something that depends on large JS bundled libraries, such as Three.JS, it may be worth taking the time, especially if you're making your graphics available to people who don't have the newest and most powerful devices.</p>
   </main>
   <nav class="chapter-links bottom">

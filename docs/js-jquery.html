@@ -7,6 +7,20 @@
   <link href="https://fonts.googleapis.com/css?family=Fira+Mono|Noto+Sans|Manuale" rel="stylesheet">
   <link rel="stylesheet" href="static/style.css">
   <link rel="stylesheet" href="static/highlight/hybrid.css">
+
+  <!-- BEGIN TWITTER SUMMARY CARD -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="jQuery in Vanilla JavaScript">
+  <meta name="twitter:site" content="@thomaswilburn">
+  <meta name="twitter:image" content="https://thomaswilburn.github.io/viz-book/static/social.jpg">
+  <meta name="twitter:description" content="Selecting and iterating in the DOM | Events at a distance | A toast to John Resig">
+
+  <!-- Social sharing meta -->
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="jQuery in Vanilla JavaScript">
+  <meta property="og:site_name" content="Web Components at Work">
+  <meta property="og:image" content="https://thomaswilburn.github.io/viz-book/static/social.jpg">
+  <meta property="og:description" content="Selecting and iterating in the DOM | Events at a distance | A toast to John Resig">
 </head>
 <body class="js-jquery chapter">
   <nav class="chapter-links top">
@@ -40,10 +54,10 @@
 <h2 id="making-selections">Making selections</h2>
 <p>Let's start by making some selections. After jQuery's popularity skyrocketed, browsers added a similar <var>querySelectorAll</var> function for searching the document. Unfortunately, this function wasn't as useful as a regular jQuery search was, because the object wasn't an array that you could loop through. Instead, it was a NodeList, an array-<em>like</em> object that had numbered items and a length, but lacked important methods like <var>forEach</var> or <var>map</var>.</p>
 <p>Luckily, it's pretty easy to convert a NodeList into a JavaScript array. In newer browsers, you can use <var>Array.from()</var>, but for broader compatibility we can "borrow" the Array prototype's <var>slice</var> method to make a copy, which even works on array-likes. Here's the code for a jQuery-like <var>$()</var> function that can search within either the document or a chosen child node:</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> $ = <span class="hljs-function">(<span class="hljs-params">selector, d = <span class="hljs-built_in">document</span></span>) =&gt;</span> <span class="hljs-built_in">Array</span>.prototype.slice.call(d.querySelectorAll(selector));</pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> $ = <span class="hljs-function">(<span class="hljs-params">selector, d = <span class="hljs-built_in">document</span></span>) =&gt;</span> <span class="hljs-built_in">Array</span>.prototype.slice.call(d.querySelectorAll(selector));</pre></code>
 <p>This function returns an array containing all the selected nodes. If you call it with a different node as the second argument, it'll use that as the root of the search, instead of looking through the entire document. Pretty handy!</p>
 <p>In jQuery, once you made a selection, any methods you called on the object would be applied to everything in it. Our function isn't quite as powerful, but since it returns an array, we can use the <var>forEach()</var> method to iterate through it with an arrow function. For example, to change the style of every link on the page, we might do this:</p>
-<code class="language-js"><pre>$(<span class="hljs-string">"a"</span>).forEach(<span class="hljs-function"><span class="hljs-params">a</span> =&gt;</span> a.style.color = <span class="hljs-string">"red"</span>);</pre></code>
+<code class="language-js"><pre>$(<span class="hljs-string">"a"</span>).forEach(<span class="hljs-function"><span class="hljs-params">a</span> =&gt;</span> a.style.color = <span class="hljs-string">"red"</span>);</pre></code>
 <p>Let's try a more realistic example. jQuery make it easy to add or remove classes from a group of elements. Browser developers knew that manually manipulating the <var>className</var> property of an element was too cumbersome, so they added the <var>classList</var> property, which supports operations for <var>add</var>, <var>remove</var>, <var>contains</var>, and <var>toggle</var> operations. So, for example, to update a few classes on the page:</p>
 <code class="language-js"><pre><span class="hljs-comment">//jQuery version</span>
 $(<span class="hljs-string">"tab.selected"</span>).removeClass(<span class="hljs-string">"hidden"</span>);
@@ -51,13 +65,13 @@ $(<span class="hljs-string">"tab.disabled"</span>).addClass(<span class="hljs-st
 
 <span class="hljs-comment">//Our module</span>
 $(<span class="hljs-string">"tab.selected"</span>).forEach(<span class="hljs-function"><span class="hljs-params">el</span> =&gt;</span> el.classList.remove(<span class="hljs-string">"hidden"</span>));
-$(<span class="hljs-string">"tab.disabled"</span>).forEach(<span class="hljs-function"><span class="hljs-params">el</span> =&gt;</span> el.classList.add(<span class="hljs-string">"hidden"</span>));</pre></code>
+$(<span class="hljs-string">"tab.disabled"</span>).forEach(<span class="hljs-function"><span class="hljs-params">el</span> =&gt;</span> el.classList.add(<span class="hljs-string">"hidden"</span>));</pre></code>
 <p>It's a little more verbose, sure. But I would argue that the meaning is more clear, and that it's easier to think about what you can "do" to our version of the object, since the answer is "anything I can do to an array."</p>
 <p>Of course, sometimes, you just want one element, and then iterating over an array with just one item doesn't make a lot of sense. So let's add a method to our <var>$()</var> function that grabs just one item from the page:</p>
 <code class="language-js"><pre>$.one = <span class="hljs-function">(<span class="hljs-params">s, d = <span class="hljs-built_in">document</span></span>) =&gt;</span> d.querySelector(s);
 
 <span class="hljs-comment">//changing just one item is easy</span>
-$.one(<span class="hljs-string">"tab.active"</span>).classList.toggle(<span class="hljs-string">"active"</span>);</pre></code>
+$.one(<span class="hljs-string">"tab.active"</span>).classList.toggle(<span class="hljs-string">"active"</span>);</pre></code>
 <h2 id="listening-for-events">Listening for events</h2>
 <p>Another traditional use for jQuery is to register for events. Event handling used to be very inconsistent between browsers, with some passing an event into the listener function, and others (well, just IE) setting a <var>window.event</var> property instead (this worked, because JS is single-threaded, but it's an ugly way to write code).</p>
 <p>These days, however, pretty much everything supports the standard <var>addEventListener</var> function, and jQuery's habit of "normalizing" properties on the event object can actually backfire when we want to pay attention to non-input events, like media playback or file drag/drop. Binding an event listener to a selection of elements using our new <var>$</var> function turns out to be pretty easy:</p>
@@ -66,7 +80,7 @@ $.one(<span class="hljs-string">"tab.active"</span>).classList.toggle(<span clas
   <span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">this</span>, e);
 };
 
-$(<span class="hljs-string">".event-handlers"</span>).forEach(<span class="hljs-function"><span class="hljs-params">el</span> =&gt;</span> el.addEventListener(<span class="hljs-string">"click"</span>, listener);</pre></code>
+$(<span class="hljs-string">".event-handlers"</span>).forEach(<span class="hljs-function"><span class="hljs-params">el</span> =&gt;</span> el.addEventListener(<span class="hljs-string">"click"</span>, listener);</pre></code>
 <p>When you click on the elements that we selected, the browser should log out the specific element clicked (that's the <var>this</var> value) and an event with additional details (mouse position, event type, and so on). I like to define the listener as a separate variable outside of the loop: if you define it inline, you're technically creating a new function for each individual element, which wastes memory. Defined separately, each element shares the same listener, but we can still react to the specific item by using <var>this</var>.</p>
 <h2 id="walking-up-the-tree">Walking up the tree</h2>
 <p>A wrapper for <var>querySelectorAll()</var> is fine for searching down into a tree, but what if we want to search upward instead? That's the functionality of jQuery's <var>closest()</var> method, and we'll want some sort of equivalent in our deconstructed library. Luckily, it's easy to check if an element matches a given selector using the <var>matches</var> method (implemented in IE as <var>matchesSelector</var>). So to duplicate <var>closest</var>, we'll write a function that starts at a given element, and walks up the tree checking each parent, until it hits a root element (usually the document's <var>html</var> tag).</p>
@@ -81,7 +95,7 @@ $(<span class="hljs-string">".event-handlers"</span>).forEach(<span class="hljs-
   <span class="hljs-comment">//if we hit the root, that's not a match</span>
   <span class="hljs-keyword">if</span> (element == root) <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
   <span class="hljs-keyword">return</span> element;
-};</pre></code>
+};</pre></code>
 <p>Now we can start at any given spot in the tree, and find the nearest element (including the original) that matches a given class or attribute. This is very useful for setting a class on a container in response to an event:</p>
 <code class="language-js"><pre><span class="hljs-comment">//define our listener once</span>
 <span class="hljs-keyword">var</span> onClick = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
@@ -91,7 +105,7 @@ $(<span class="hljs-string">".event-handlers"</span>).forEach(<span class="hljs-
 };
 
 <span class="hljs-comment">//add the listener to all list buttons</span>
-$(<span class="hljs-string">".list-item .select-button"</span>).forEach(<span class="hljs-function"><span class="hljs-params">el</span> =&gt;</span> el.addEventListener(<span class="hljs-string">"click"</span>, onClick));</pre></code>
+$(<span class="hljs-string">".list-item .select-button"</span>).forEach(<span class="hljs-function"><span class="hljs-params">el</span> =&gt;</span> el.addEventListener(<span class="hljs-string">"click"</span>, onClick));</pre></code>
 <p>Now any time that a user clicks a ".select-button" in the list, the containing list item will have the "selected" class toggled, visually indicating its state.</p>
 <h2 id="delegation">Delegating events</h2>
 <p>Let's put all of this code together to duplicate one of jQuery's most useful features, event delegation. Of course, to understand delegation, we have to understand how events work.</p>
@@ -104,7 +118,7 @@ $(<span class="hljs-string">".list-item .select-button"</span>).forEach(<span cl
       <span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">section</span>&gt;</span>
-<span class="hljs-tag">&lt;/<span class="hljs-name">main</span>&gt;</span></pre></code>
+<span class="hljs-tag">&lt;/<span class="hljs-name">main</span>&gt;</span></pre></code>
 <p>Now, imagine that a user clicks the button. We often think about events taking place "on" an element, as if they start there directly. But that's not actually what happens, as the <a href="https://www.w3.org/TR/DOM-Level-3-Events/#event-flow">event flow section of the W3C spec</a> shows. Instead, the event starts at the top of the document and travels down into the tree. This is the "capture" phase, and although you can technically "trap" an event during this phase, it's pretty rare that you'd want to.</p>
 <p>Once it reaches the actual target element where the event "occurred," the real action starts: it triggers any listeners there, and then (for most events) it enters the "bubble" phase: the event walks back up the tree to the document root, visiting each parent node along the way. Each ancestor element gets a copy of the event and an opportunity to respond to it in turn. If you think about it, this makes sense: clicking an image inside of a link should still trigger the link, after all. Containing elements need to be able to respond when you interact with their children in order to be consistent.</p>
 <p>Most events do not trigger listeners in the capture phase, so we tend to ignore it. And not all events bubble &mdash; media events, for example, fire only on their target element and then vanish. But event bubbling can be a powerful tool, because we can attach a single listener to a common ancestor element (say, the "primary" section in the code above) and be notified of any clicks inside. We can even replace the contents of that section entirely, and still pick up on events from elements inside. That's why we call it <em>event delegation</em>: instead of attaching listeners directly to the elements themselves, which might come and go, we "delegate" to a single listener higher in the tree, which then fires the event in the correct context.</p>
@@ -131,7 +145,7 @@ $(<span class="hljs-string">".list-item .select-button"</span>).forEach(<span cl
 delegate(container, <span class="hljs-string">"button.event-target"</span>, <span class="hljs-string">"click"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-comment">// when clicked, we should see the button on the console</span>
   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"clicked!"</span>, <span class="hljs-keyword">this</span>);
-});</pre></code>
+});</pre></code>
 <p>Once this listener is registered, we can blow away the existing contents of the primary section, or add new buttons, and our listener will still work whenever a button with a class of "event-target" is clicked inside. If you've ever run into problems with "vanishing" event listeners, delegation is a powerful tool&mdash;and now it's ours, without having to load all of jQuery just for a few functions.</p>
 <h2 id="wrapping-up">Wrapping up</h2>
 <p>All told, our jQuery replacement is about 20 lines of code, not all of which we'll need on every project, and yet we're able to find multiple elements (or just one), search up the tree for an arbitrary selector, and delegate event listeners with ease. For modifying classes or styles, registering events, and other basic DOM functions, we just use the browser's built-in functionality. It may be a little more verbose, but it's much lighter and faster.</p>
