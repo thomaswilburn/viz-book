@@ -30,9 +30,9 @@ First, the markup for a row: there's a label inside, as well as a container for 
     Category Label
   </div>
   <div class="bar-container">
-    <div class="bar val-a" style="flex-basis: 0 0 20%">20%</div>
-    <div class="bar val-b" style="flex-basis: 0 0 70%">70%</div>
-    <div class="bar val-c" style="flex-basis: 0 0 10%">10%</div>
+    <div class="bar val-a" style="flex-basis: 20%">20%</div>
+    <div class="bar val-b" style="flex-basis: 70%">70%</div>
+    <div class="bar val-c" style="flex-basis: 10%">10%</div>
   </div>
 </div>
 ...codeblock
