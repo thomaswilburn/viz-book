@@ -94,7 +94,7 @@ var pan = function(svg, final, duration = 1000) {
 }
 ...codeblock
 
-Inside of that function, we'll define a function that can be called each frame, figure out where we are along the elapsed time (from 0 to 1) and then scale the values to match. The details of this kind of animation are covered in more detail in <a href="">this chapter [[TODO: ADD REAL CHAPTER LINK]]</a>.
+Inside of that function, we'll define a function that can be called each frame, figure out where we are along the elapsed time (from 0 to 1) and then scale the values to match. The details of this kind of animation are covered in more detail in <a href="./js-scaling.html">this chapter</a>.
 
 @codeblock(js)...
 var frame = function(t) {
