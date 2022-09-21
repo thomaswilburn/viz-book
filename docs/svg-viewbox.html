@@ -37,9 +37,9 @@
   <h1>Art direction with viewBox</h1>
 <p>An SVG image, whether included inline or loaded via an image tag, is just an XML file. Here, for example, is a typical SVG graphic with a few shapes:</p>
 <code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">width</span>=<span class="hljs-string">100</span> <span class="hljs-attr">height</span>=<span class="hljs-string">100</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">rect</span> <span class="hljs-attr">x</span>=<span class="hljs-string">20</span> <span class="hljs-attr">y</span>=<span class="hljs-string">20</span> <span class="hljs-attr">width</span>=<span class="hljs-string">40</span> <span class="hljs-attr">height</span>=<span class="hljs-string">60</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"fill: blue"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">rect</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">circle</span> <span class="hljs-attr">cx</span>=<span class="hljs-string">60</span> <span class="hljs-attr">cy</span>=<span class="hljs-string">60</span> <span class="hljs-attr">r</span>=<span class="hljs-string">30</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"fill: purple"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">circle</span>&gt;</span>
-<span class="hljs-tag">&lt;/<span class="hljs-name">svg</span>&gt;</span></pre></code>
+  <span class="hljs-tag">&lt;<span class="hljs-name">rect</span> <span class="hljs-attr">x</span>=<span class="hljs-string">20</span> <span class="hljs-attr">y</span>=<span class="hljs-string">20</span> <span class="hljs-attr">width</span>=<span class="hljs-string">40</span> <span class="hljs-attr">height</span>=<span class="hljs-string">60</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;fill: blue&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">rect</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">circle</span> <span class="hljs-attr">cx</span>=<span class="hljs-string">60</span> <span class="hljs-attr">cy</span>=<span class="hljs-string">60</span> <span class="hljs-attr">r</span>=<span class="hljs-string">30</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;fill: purple&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">circle</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">svg</span>&gt;</span></pre></code>
 <p>And here's what that looks like, rendered onto the page. I've outlined it in gray, so you can see the bounds of the image.</p>
 <svg width=100 height=100 style="outline: 1px solid gray">
   <rect x=20 y=20 width=40 height=60 style="fill: blue"></rect>
@@ -160,28 +160,28 @@ update();
 <p>There are probably cases where "slice" makes sense, but for our purposes, "meet" is usually a better choice. By setting a view box around a given element, and using a "meet" value, you'll make sure that whole element is always in view. This is a great technique to use when creating SVG images that "re-frame" themselves on mobile, or in response to interaction. It's also especially handy when we take the next step: animating the view box to move around the image.</p>
 <h2 id="ready-for-your-closeup">Ready for your closeup?</h2>
 <p>Unfortunately, although it is a regular request from people who use SVG regularly, it's not possible to define the view box from CSS, which means that we can't use CSS transitions to alter its value smoothly. Instead, we're going to have to use JavaScript to split the attribute into its four component values, then interpolate between them. We'll first declare a function that we can call, passing in the SVG and an object containing the desired view box values:</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> pan = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">svg, final, duration = <span class="hljs-number">1000</span></span>) </span>{
+<code class="language-js"><pre><span class="hljs-keyword">var</span> pan = <span class="hljs-keyword">function</span>(<span class="hljs-params">svg, final, duration = <span class="hljs-number">1000</span></span>) {
   <span class="hljs-comment">//Get the current viewBox value and convert to numbers</span>
-  <span class="hljs-keyword">var</span> [x, y, w, h] = svg.getAttribute(<span class="hljs-string">"viewBox"</span>).split(<span class="hljs-string">" "</span>).map(<span class="hljs-built_in">Number</span>);
+  <span class="hljs-keyword">var</span> [x, y, w, h] = svg.<span class="hljs-title function_">getAttribute</span>(<span class="hljs-string">&quot;viewBox&quot;</span>).<span class="hljs-title function_">split</span>(<span class="hljs-string">&quot; &quot;</span>).<span class="hljs-title function_">map</span>(<span class="hljs-title class_">Number</span>);
   <span class="hljs-comment">//current timestamp, same format as requestAnimationFrame</span>
-  <span class="hljs-keyword">var</span> start = performance.now();
-}</pre></code>
+  <span class="hljs-keyword">var</span> start = performance.<span class="hljs-title function_">now</span>();
+}</pre></code>
 <p>Inside of that function, we'll define a function that can be called each frame, figure out where we are along the elapsed time (from 0 to 1) and then scale the values to match. The details of this kind of animation are covered in more detail in <a href="./js-scaling.html">this chapter</a>.</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> frame = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">t</span>) </span>{
+<code class="language-js"><pre><span class="hljs-keyword">var</span> frame = <span class="hljs-keyword">function</span>(<span class="hljs-params">t</span>) {
   <span class="hljs-keyword">var</span> elapsed = t - start;
   <span class="hljs-keyword">var</span> dt = elapsed / duration;
   <span class="hljs-keyword">if</span> (dt &gt; <span class="hljs-number">1</span>) dt = <span class="hljs-number">1</span>;
-  <span class="hljs-keyword">var</span> dx = x + (final.x - x) * dt;
-  <span class="hljs-keyword">var</span> dy = y + (final.y - y) * dt;
-  <span class="hljs-keyword">var</span> dw = w + (final.width - w) * dt;
-  <span class="hljs-keyword">var</span> dh = h + (final.height - h) * dt;
+  <span class="hljs-keyword">var</span> dx = x + (final.<span class="hljs-property">x</span> - x) * dt;
+  <span class="hljs-keyword">var</span> dy = y + (final.<span class="hljs-property">y</span> - y) * dt;
+  <span class="hljs-keyword">var</span> dw = w + (final.<span class="hljs-property">width</span> - w) * dt;
+  <span class="hljs-keyword">var</span> dh = h + (final.<span class="hljs-property">height</span> - h) * dt;
   <span class="hljs-comment">//create the new viewBox</span>
-  <span class="hljs-keyword">var</span> box = [dx, dy, dw, dh].join(<span class="hljs-string">" "</span>);
-  svg.setAttribute(<span class="hljs-string">"viewBox"</span>, box);
-  <span class="hljs-keyword">if</span> (dt &lt; <span class="hljs-number">1</span>) requestAnimationFrame(frame);
-};</pre></code>
+  <span class="hljs-keyword">var</span> box = [dx, dy, dw, dh].<span class="hljs-title function_">join</span>(<span class="hljs-string">&quot; &quot;</span>);
+  svg.<span class="hljs-title function_">setAttribute</span>(<span class="hljs-string">&quot;viewBox&quot;</span>, box);
+  <span class="hljs-keyword">if</span> (dt &lt; <span class="hljs-number">1</span>) <span class="hljs-title function_">requestAnimationFrame</span>(frame);
+};</pre></code>
 <p>Then, all that's left is to call the function in the next frame:</p>
-<code class="language-js"><pre>requestAnimationFrame(frame);</pre></code>
+<code class="language-js"><pre><span class="hljs-title function_">requestAnimationFrame</span>(frame);</pre></code>
 <p>And our transition should work. Try it out by clicking the buttons below to toggle between a couple of camera positions:</p>
 <svg width=100 height=100 class="camera-example" viewBox="0 0 100 100">
   <rect x=20 y=20 width=40 height=60 style="fill: blue"></rect>
@@ -233,10 +233,10 @@ button.addEventListener("click", function() {
 })();
 </script>
 <p>To really get the most use out of this, we might need a way to get the coordinates (in view box space) of a given shape. Then we can tell our camera to zoom in on that particular item, whether a particular shape or (more likely) a layer group defined by the artist in Illustrator or their tool of choice. Luckily, SVG elements provide a helpful method for doing just that: calling any SVG element's <var>getBBox()</var> method will tell you how big it is, including all its child elements if it's a group element.</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> circle = $.one(<span class="hljs-string">".camera-example"</span>);
-<span class="hljs-keyword">var</span> bounds = circle.getBBox();
+<code class="language-js"><pre><span class="hljs-keyword">var</span> circle = $.<span class="hljs-title function_">one</span>(<span class="hljs-string">&quot;.camera-example&quot;</span>);
+<span class="hljs-keyword">var</span> bounds = circle.<span class="hljs-title function_">getBBox</span>();
 <span class="hljs-comment">//pan to fit the circle</span>
-pan(svg, bounds);</pre></code>
+<span class="hljs-title function_">pan</span>(svg, bounds);</pre></code>
 <p>In 2016, Seattle voted on funding for Sound Transit 3, an enormous expansion of the existing bus and rail system for the city. In print, we spent a whole page on the additions, but online&mdash;and especially on a phone&mdash;that wasn't possible. However, because the page artist was able to break the Illustrator graphic into layers and then export those to SVG, it was easy to do a <a href="https://projects.seattletimes.com/2016/st3-guide/">voting guide</a> that zoomed and panned around the image as the user scrolled through the list of additions. It's a great example of how this technique can be let your newsroom re-use resources and still present a high-quality digital project.</p>
 <p>If you'd like to do something similar, we've abstracted the view box functionality into a micro-library called <a href="https://github.com/seattletimes/savage-camera/">Savage Camera</a>. Feel free to look through the code and take pieces that are helpful, or use it yourself!</p>
   </main>

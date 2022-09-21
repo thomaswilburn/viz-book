@@ -39,31 +39,31 @@
 <h2 id="makedom-revisited"><var>makeDOM</var> revisited</h2>
 <p>In our chapter on <a href="js-domdata.html">working with DOM and data</a>, we wrote a function called <var>makeDOM</var> that generates HTML programmatically in a similar way to React's <var>createElement</var> function. When working with raw SVG, a similar function is a good thing to have, especially because there actually isn't an easy way to just hand the browser an SVG string for rendering the same way as <var>innerHTML</var>. Elements must be created and appended using DOM function calls.</p>
 <p>To adapt our HTML generator to SVG, we'll need to make two changes. First, SVG elements have to be created with a "namespace" that identifies them as SVG, or they won't do anything when you insert them into the page. Second, if you want to set the contents of a <var>text</var> element, you have to use the <var>textContent</var> property instead of <var>innerText</var> or <var>innerHTML</var>.</p>
-<code class="language-js"><pre><span class="hljs-keyword">const</span> NS = <span class="hljs-string">"http://www.w3.org/2000/svg"</span>;
+<code class="language-js"><pre><span class="hljs-keyword">const</span> <span class="hljs-variable constant_">NS</span> = <span class="hljs-string">&quot;http://www.w3.org/2000/svg&quot;</span>;
 
-<span class="hljs-keyword">var</span> makeSVG = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">tagName, attrs, children</span>) </span>{
-  <span class="hljs-keyword">var</span> element = <span class="hljs-built_in">document</span>.createElementNS(NS, tagName);
-  <span class="hljs-keyword">if</span> (attrs <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Array</span> || <span class="hljs-keyword">typeof</span> attrs == <span class="hljs-string">"string"</span>) {
+<span class="hljs-keyword">var</span> makeSVG = <span class="hljs-keyword">function</span>(<span class="hljs-params">tagName, attrs, children</span>) {
+  <span class="hljs-keyword">var</span> element = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElementNS</span>(<span class="hljs-variable constant_">NS</span>, tagName);
+  <span class="hljs-keyword">if</span> (attrs <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">Array</span> || <span class="hljs-keyword">typeof</span> attrs == <span class="hljs-string">&quot;string&quot;</span>) {
     children = attrs;
     attrs = {};
   }
   <span class="hljs-keyword">if</span> (attrs) <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> a <span class="hljs-keyword">in</span> attrs) {
-    element.setAttribute(a, attrs[a]);
+    element.<span class="hljs-title function_">setAttribute</span>(a, attrs[a]);
   }
-  <span class="hljs-keyword">if</span> (children <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Array</span>) {
-    children.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">c</span>) </span>{
-      element.appendChild(c);
+  <span class="hljs-keyword">if</span> (children <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">Array</span>) {
+    children.<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">c</span>) {
+      element.<span class="hljs-title function_">appendChild</span>(c);
     });
-  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> children == <span class="hljs-string">"string"</span>) {
-    element.textContent = children;
+  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> children == <span class="hljs-string">&quot;string&quot;</span>) {
+    element.<span class="hljs-property">textContent</span> = children;
   }
   <span class="hljs-keyword">return</span> element;
 };</pre></code>
 <p>To use this function, you have to at least give it a tag name. The other two arguments are optional: an object containing attributes you want to set, and either an array of child elements, or a string for the text content. So to generate some simple SVG shapes, we might write the following:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> m = makeSVG;
-<span class="hljs-keyword">var</span> group = m(<span class="hljs-string">"g"</span>, [
-  m(<span class="hljs-string">"rect"</span>, { <span class="hljs-attr">x</span>: <span class="hljs-number">10</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">10</span>, <span class="hljs-attr">width</span>: <span class="hljs-number">20</span>, <span class="hljs-attr">height</span>: <span class="hljs-number">40</span> }),
-  m(<span class="hljs-string">"circle"</span>, { <span class="hljs-attr">cx</span>: <span class="hljs-number">30</span>, <span class="hljs-attr">cy</span>: <span class="hljs-number">30</span>, <span class="hljs-attr">r</span>: <span class="hljs-number">40</span> })
+<span class="hljs-keyword">var</span> group = <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;g&quot;</span>, [
+  <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;rect&quot;</span>, { <span class="hljs-attr">x</span>: <span class="hljs-number">10</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">10</span>, <span class="hljs-attr">width</span>: <span class="hljs-number">20</span>, <span class="hljs-attr">height</span>: <span class="hljs-number">40</span> }),
+  <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;circle&quot;</span>, { <span class="hljs-attr">cx</span>: <span class="hljs-number">30</span>, <span class="hljs-attr">cy</span>: <span class="hljs-number">30</span>, <span class="hljs-attr">r</span>: <span class="hljs-number">40</span> })
 ]);</pre></code>
 <h2 id="i-heard-you-like-svg">I heard you like SVG</h2>
 <script>
@@ -154,34 +154,34 @@ var m = function(tagName, attrs, children) {
 <p>Most of the time when I see people build a chart in an SVG, probably using something like D3, they set the width and the height of the element (but not the view box), and then figure out the amount of padding that they want on each side of the actual graph. By subtracting the padding from the SVG's dimensions, they get the width and height of the drawing area. All coordinates are scaled to that area, and then offset by the padding, so that the line is placed in the right location.</p>
 <p>However, there's an easier way to do this, rather than mucking around with all the offset math and working within an arbitrary graph area using pixels for measurement. We can take advantage of an interesting property of SVG tags, which is that they can be nested within each other. The inner image can have its own x/y position, its own width and height, and its own view box (meaning, <a href="https://www.sarasoueidan.com/blog/mimic-relative-positioning-in-svg/">its own internal coordinate space</a>). Instead of working with pixels, we can actually draw things just by projecting the data values directly into the graphic.</p>
 <p>Let's take a look at how to make this SVG inception happen. We'll start with our outer SVG, which is sized to a standard 640x480 canvas with a matching view box. These coordinates are arbitrary but chosen because within the outer image, we <em>do</em> want to work in pixels&mdash;it's easier to set visual padding that way.</p>
-<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"graph-container"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"640"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"480"</span> <span class="hljs-attr">viewBox</span>=<span class="hljs-string">"0 0 640 480"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">svg</span>&gt;</span></pre></code>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;graph-container&quot;</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;640&quot;</span> <span class="hljs-attr">height</span>=<span class="hljs-string">&quot;480&quot;</span> <span class="hljs-attr">viewBox</span>=<span class="hljs-string">&quot;0 0 640 480&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">svg</span>&gt;</span></pre></code>
 <p>Inside, we can add some "chart junk" to establish the space: a group containing a background rectangle with some color, and two lines to show the left and bottom axes. We'll put 20 pixels of padding on either side.</p>
 <code class="language-js"><pre><span class="hljs-comment">// shorten the makeSVG function for readability</span>
 <span class="hljs-keyword">var</span> m = makeSVG;
 
 <span class="hljs-keyword">var</span> padding = <span class="hljs-number">20</span>;
 
-<span class="hljs-keyword">var</span> backdrop = m(<span class="hljs-string">"g"</span>, [
-  m(<span class="hljs-string">"rect"</span>, {
+<span class="hljs-keyword">var</span> backdrop = <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;g&quot;</span>, [
+  <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;rect&quot;</span>, {
     <span class="hljs-attr">x</span>: padding, <span class="hljs-attr">y</span>: padding,
     <span class="hljs-attr">width</span>: <span class="hljs-number">640</span> - padding * <span class="hljs-number">2</span>,
     <span class="hljs-attr">height</span>: <span class="hljs-number">480</span> - padding * <span class="hljs-number">2</span>,
-    <span class="hljs-attr">fill</span>: <span class="hljs-string">"#EEE"</span>
+    <span class="hljs-attr">fill</span>: <span class="hljs-string">&quot;#EEE&quot;</span>
   }),
-  m(<span class="hljs-string">"line"</span>, {
+  <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;line&quot;</span>, {
     <span class="hljs-attr">x1</span>: padding, <span class="hljs-attr">y1</span>: padding,
     <span class="hljs-attr">x2</span>: padding, <span class="hljs-attr">y2</span>: <span class="hljs-number">480</span> - padding,
-    <span class="hljs-attr">stroke</span>: <span class="hljs-string">"#CCC"</span>
+    <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;#CCC&quot;</span>
   }),
-  m(<span class="hljs-string">"line"</span>, {
+  <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;line&quot;</span>, {
     <span class="hljs-attr">x1</span>: padding, <span class="hljs-attr">y1</span>: <span class="hljs-number">480</span> - padding,
     <span class="hljs-attr">x2</span>: <span class="hljs-number">640</span> - padding, <span class="hljs-attr">y2</span>: <span class="hljs-number">480</span> - padding,
-    <span class="hljs-attr">stroke</span>: <span class="hljs-string">"#CCC"</span>
+    <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;#CCC&quot;</span>
   })
 ]);
 
-<span class="hljs-keyword">var</span> container = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">".graph-container"</span>);
-container.appendChild(backdrop);</pre></code>
+<span class="hljs-keyword">var</span> container = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&quot;.graph-container&quot;</span>);
+container.<span class="hljs-title function_">appendChild</span>(backdrop);</pre></code>
 <div class="svg-container">
 <svg class="graph-backdrop" width="640" height="640" viewBox="0 0 640 480"></svg>
 </div>
@@ -211,40 +211,40 @@ container.appendChild(backdrop);
 })();
 </script>
 <p>Now we'll define our inner SVG. From the outside, it'll be the same size as the backing rectangle, but from the inside, its coordinate system's height will be scaled to match our data, which goes from zero to 100. From the height, we'll figure the width from the chart's aspect ratio, so that our internal space doesn't get distorted (although we could always use the "preserveAspectRatio" attribute to center it, it wouldn't fill the space that way, and our goal is to be more visually precise).</p>
-<code class="language-js"><pre><span class="hljs-comment">// 12 "months" of data</span>
+<code class="language-js"><pre><span class="hljs-comment">// 12 &quot;months&quot; of data</span>
 <span class="hljs-keyword">var</span> data = {
   <span class="hljs-attr">a</span>: [<span class="hljs-number">22</span>, <span class="hljs-number">11</span>, <span class="hljs-number">22</span>, <span class="hljs-number">55</span>, <span class="hljs-number">66</span>, <span class="hljs-number">44</span>, <span class="hljs-number">77</span>, <span class="hljs-number">99</span>, <span class="hljs-number">77</span>, <span class="hljs-number">88</span>, <span class="hljs-number">88</span>, <span class="hljs-number">55</span>],
   <span class="hljs-attr">b</span>: [<span class="hljs-number">55</span>, <span class="hljs-number">33</span>, <span class="hljs-number">44</span>, <span class="hljs-number">66</span>, <span class="hljs-number">22</span>, <span class="hljs-number">44</span>, <span class="hljs-number">77</span>, <span class="hljs-number">88</span>, <span class="hljs-number">99</span>, <span class="hljs-number">44</span>, <span class="hljs-number">77</span>, <span class="hljs-number">55</span>]
 };
 
-<span class="hljs-keyword">var</span> h = <span class="hljs-built_in">Math</span>.max(
-  <span class="hljs-built_in">Math</span>.max(...data.a),
-  <span class="hljs-built_in">Math</span>.max(...data.b)
+<span class="hljs-keyword">var</span> h = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">max</span>(
+  <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">max</span>(...data.<span class="hljs-property">a</span>),
+  <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">max</span>(...data.<span class="hljs-property">b</span>)
 );
 <span class="hljs-comment">// find the proportional width</span>
 <span class="hljs-keyword">var</span> w = h / <span class="hljs-number">480</span> * <span class="hljs-number">640</span>;
 
 <span class="hljs-comment">// create horizontal scaling function</span>
-<span class="hljs-keyword">var</span> scaleX = <span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> v / (data.length - <span class="hljs-number">1</span>) * w;
+<span class="hljs-keyword">var</span> <span class="hljs-title function_">scaleX</span> = v =&gt; v / (data.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>) * w;
 
 <span class="hljs-comment">// place our SVG on top of the backdrop</span>
-<span class="hljs-keyword">var</span> bounds = backdrop.getBBox();
+<span class="hljs-keyword">var</span> bounds = backdrop.<span class="hljs-title function_">getBBox</span>();
 
-<span class="hljs-keyword">var</span> inner = m(<span class="hljs-string">"svg"</span>, {
-  <span class="hljs-attr">x</span>: bounds.x, <span class="hljs-attr">y</span>: bounds.y,
-  <span class="hljs-attr">width</span>: bounds.width, <span class="hljs-attr">height</span>: bounds.height,
+<span class="hljs-keyword">var</span> inner = <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;svg&quot;</span>, {
+  <span class="hljs-attr">x</span>: bounds.<span class="hljs-property">x</span>, <span class="hljs-attr">y</span>: bounds.<span class="hljs-property">y</span>,
+  <span class="hljs-attr">width</span>: bounds.<span class="hljs-property">width</span>, <span class="hljs-attr">height</span>: bounds.<span class="hljs-property">height</span>,
   <span class="hljs-attr">viewBox</span>: <span class="hljs-string">`0 0 <span class="hljs-subst">${w}</span> <span class="hljs-subst">${h}</span>`</span>,
-  <span class="hljs-attr">preserveAspectRatio</span>: <span class="hljs-string">"none"</span>
+  <span class="hljs-attr">preserveAspectRatio</span>: <span class="hljs-string">&quot;none&quot;</span>
 });
 
-svg.appendChild(inner);</pre></code>
+svg.<span class="hljs-title function_">appendChild</span>(inner);</pre></code>
 <p>Inside of this inner SVG, our coordinate space is much simpler to deal with. The Y coordinates for a data point are just that data point's value (albeit inverted by subtracting it from the height). The X coordinates go through our scaling function. And we can create those as points in a polyline by mapping the data through a very simple function:</p>
 <code class="language-js"><pre><span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> data) {
-  svg.appendChild(m(<span class="hljs-string">"polyline"</span>, {
-    <span class="hljs-comment">// polyline points look like "x,y x,y x,y"</span>
-    points: data[key].map(<span class="hljs-function">(<span class="hljs-params">v, i</span>) =&gt;</span> <span class="hljs-string">`<span class="hljs-subst">${scaleX(i)}</span>,<span class="hljs-subst">${h - v}</span>`</span>).join(<span class="hljs-string">" "</span>),
-    <span class="hljs-attr">fill</span>: <span class="hljs-string">"none"</span>,
-    <span class="hljs-attr">stroke</span>: <span class="hljs-string">"black"</span>
+  svg.<span class="hljs-title function_">appendChild</span>(<span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;polyline&quot;</span>, {
+    <span class="hljs-comment">// polyline points look like &quot;x,y x,y x,y&quot;</span>
+    <span class="hljs-attr">points</span>: data[key].<span class="hljs-title function_">map</span>(<span class="hljs-function">(<span class="hljs-params">v, i</span>) =&gt;</span> <span class="hljs-string">`<span class="hljs-subst">${scaleX(i)}</span>,<span class="hljs-subst">${h - v}</span>`</span>).<span class="hljs-title function_">join</span>(<span class="hljs-string">&quot; &quot;</span>),
+    <span class="hljs-attr">fill</span>: <span class="hljs-string">&quot;none&quot;</span>,
+    <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;black&quot;</span>
   }));
 }</pre></code>
 <div class="svg-container">
@@ -300,24 +300,24 @@ for (var key in data) {
 </script>
 <p>All in all, this is a pretty easy way to make a chart. Using an SVG view box to map our data domain to visual coordinates works pretty well. But what if we make it even easier? What if, in addition to mapping our data values directly to y-axis position, we also mapped the data's index and length to the x-axis? In that case, we don't need to scale at all: the SVG renderer will do it for us.</p>
 <p>Unfortunately, it's not possible to invert an SVG viewbox so that the coordinates go up from the bottom, because negative width/height values are disallowed. But we can set a viewbox that starts negative and ends at zero, and just flip our values by adding a negative sign, and that'll accomplish the same goal. Here's how we'd write that graph:</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> inner = m(<span class="hljs-string">"svg"</span>, {
-  <span class="hljs-attr">x</span>: bounds.x, <span class="hljs-attr">y</span>: bounds.y,
-  <span class="hljs-attr">width</span>: bounds.width, <span class="hljs-attr">height</span>: bounds.height,
+<code class="language-js"><pre><span class="hljs-keyword">var</span> inner = <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;svg&quot;</span>, {
+  <span class="hljs-attr">x</span>: bounds.<span class="hljs-property">x</span>, <span class="hljs-attr">y</span>: bounds.<span class="hljs-property">y</span>,
+  <span class="hljs-attr">width</span>: bounds.<span class="hljs-property">width</span>, <span class="hljs-attr">height</span>: bounds.<span class="hljs-property">height</span>,
   <span class="hljs-comment">// start at -height, and finish at 0</span>
-  viewBox: <span class="hljs-string">`0 <span class="hljs-subst">${-h}</span> <span class="hljs-subst">${data.a.length - <span class="hljs-number">1</span>}</span> <span class="hljs-subst">${h}</span>`</span>,
-  <span class="hljs-attr">preserveAspectRatio</span>: <span class="hljs-string">"none"</span>
+  <span class="hljs-attr">viewBox</span>: <span class="hljs-string">`0 <span class="hljs-subst">${-h}</span> <span class="hljs-subst">${data.a.length - <span class="hljs-number">1</span>}</span> <span class="hljs-subst">${h}</span>`</span>,
+  <span class="hljs-attr">preserveAspectRatio</span>: <span class="hljs-string">&quot;none&quot;</span>
 });
 
 <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> data) {
-  inner.appendChild(m(<span class="hljs-string">"polyline"</span>, {
+  inner.<span class="hljs-title function_">appendChild</span>(<span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;polyline&quot;</span>, {
     <span class="hljs-comment">// no scaling needed, only inverted Y</span>
-    points: data[key].map(<span class="hljs-function">(<span class="hljs-params">v, i</span>) =&gt;</span> <span class="hljs-string">`<span class="hljs-subst">${i}</span>,<span class="hljs-subst">${-v}</span>`</span>).join(<span class="hljs-string">" "</span>),
-    <span class="hljs-attr">fill</span>: <span class="hljs-string">"none"</span>,
-    <span class="hljs-attr">stroke</span>: <span class="hljs-string">"black"</span>
+    <span class="hljs-attr">points</span>: data[key].<span class="hljs-title function_">map</span>(<span class="hljs-function">(<span class="hljs-params">v, i</span>) =&gt;</span> <span class="hljs-string">`<span class="hljs-subst">${i}</span>,<span class="hljs-subst">${-v}</span>`</span>).<span class="hljs-title function_">join</span>(<span class="hljs-string">&quot; &quot;</span>),
+    <span class="hljs-attr">fill</span>: <span class="hljs-string">&quot;none&quot;</span>,
+    <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;black&quot;</span>
   }));
 }
 
-svg.appendChild(inner);</pre></code>
+svg.<span class="hljs-title function_">appendChild</span>(inner);</pre></code>
 <div class="svg-container">
   <svg width="640" height="480" viewBox="0 0 640 480" class="graph-distorted" preserveAspectRatio="none"></svg>
 </div>
@@ -369,12 +369,12 @@ for (var key in data) {
 </script>
 <p>Oops: because our internal coordinate system is now very small and also very distorted, our lines (and any other shape we put inside) are too big and skewed. Rather than scale down our stroke to something tiny and hope that the distortion isn't visible, we can take advantage of a new SVG property called "vector-effect" to tell the stroke that it should be drawn in screen pixels, not in SVG pixels.</p>
 <code class="language-js"><pre><span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> key <span class="hljs-keyword">in</span> data) {
-  inner.appendChild(m(<span class="hljs-string">"polyline"</span>, {
-    <span class="hljs-attr">points</span>: data[key].map(<span class="hljs-function">(<span class="hljs-params">v, i</span>) =&gt;</span> <span class="hljs-string">`<span class="hljs-subst">${i}</span>,<span class="hljs-subst">${<span class="hljs-number">0</span> - v}</span>`</span>).join(<span class="hljs-string">" "</span>),
-    <span class="hljs-attr">fill</span>: <span class="hljs-string">"none"</span>,
-    <span class="hljs-attr">stroke</span>: <span class="hljs-string">"black"</span>,
+  inner.<span class="hljs-title function_">appendChild</span>(<span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;polyline&quot;</span>, {
+    <span class="hljs-attr">points</span>: data[key].<span class="hljs-title function_">map</span>(<span class="hljs-function">(<span class="hljs-params">v, i</span>) =&gt;</span> <span class="hljs-string">`<span class="hljs-subst">${i}</span>,<span class="hljs-subst">${<span class="hljs-number">0</span> - v}</span>`</span>).<span class="hljs-title function_">join</span>(<span class="hljs-string">&quot; &quot;</span>),
+    <span class="hljs-attr">fill</span>: <span class="hljs-string">&quot;none&quot;</span>,
+    <span class="hljs-attr">stroke</span>: <span class="hljs-string">&quot;black&quot;</span>,
     <span class="hljs-comment">// draw strokes via screen coordinates, not SVG coordinates</span>
-    <span class="hljs-string">"vector-effect"</span>: <span class="hljs-string">"non-scaling-stroke"</span>
+    <span class="hljs-string">&quot;vector-effect&quot;</span>: <span class="hljs-string">&quot;non-scaling-stroke&quot;</span>
   }));
 }</pre></code>
 <div class="svg-container">

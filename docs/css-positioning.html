@@ -158,7 +158,7 @@ data.forEach(function(d, i) {
 
 <span class="hljs-selector-class">.scatter-area</span> <span class="hljs-selector-class">.dot</span> {
   <span class="hljs-attribute">border-radius</span>: <span class="hljs-number">100%</span>;
-  <span class="hljs-attribute">background</span>: <span class="hljs-built_in">rgba</span>(0, 0, 128, .4);
+  <span class="hljs-attribute">background</span>: <span class="hljs-built_in">rgba</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">128</span>, .<span class="hljs-number">4</span>);
   <span class="hljs-attribute">border</span>: <span class="hljs-number">1px</span> solid darkblue;
   <span class="hljs-attribute">position</span>: absolute;
   <span class="hljs-attribute">width</span>: <span class="hljs-number">20px</span>;
@@ -167,22 +167,22 @@ data.forEach(function(d, i) {
 }</pre></code>
 <p>Creating our dots is just a matter of looping through our data, generating an element for each dot, and adding it to the ".scatter-area" container. The <var>scaleX</var> and <var>scaleY</var> used below should look familiar from <a href="js-scaling.html">the section on scaling functions</a>, with one change: <var>scaleY</var> has to flip its axis by subtracting the scaled value from 100%. That's because the Y value of CSS starts at zero and increases as we move down, but our scatter plot puts zero at the bottom and increases as values move up.</p>
 <p>It's useful to have our scaling functions as common infrastructure, because they're useful for drawing more than just dots. If this were a real graphic, I would want to add grid lines to it, and those are just 1px wide/tall elements positioned behind the dots, using the same scaling as the scatter plot.</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> scaleX = <span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> v / bounds.x * <span class="hljs-number">100</span>;
-<span class="hljs-keyword">var</span> scaleY = <span class="hljs-function"><span class="hljs-params">v</span> =&gt;</span> <span class="hljs-number">100</span> - (v / bounds.y * <span class="hljs-number">100</span>);
+<code class="language-js"><pre><span class="hljs-keyword">var</span> <span class="hljs-title function_">scaleX</span> = v =&gt; v / bounds.<span class="hljs-property">x</span> * <span class="hljs-number">100</span>;
+<span class="hljs-keyword">var</span> <span class="hljs-title function_">scaleY</span> = v =&gt; <span class="hljs-number">100</span> - (v / bounds.<span class="hljs-property">y</span> * <span class="hljs-number">100</span>);
 
-data.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">d, i</span>) </span>{
-  <span class="hljs-keyword">var</span> dot = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">"div"</span>);
-  dot.className = <span class="hljs-string">"dot"</span>;
-  dot.style.left = scaleX(d.joy) + <span class="hljs-string">"%"</span>;
-  dot.style.top = scaleY(d.dogs) + <span class="hljs-string">"%"</span>;
-  grid.appendChild(dot);
+data.<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">d, i</span>) {
+  <span class="hljs-keyword">var</span> dot = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">&quot;div&quot;</span>);
+  dot.<span class="hljs-property">className</span> = <span class="hljs-string">&quot;dot&quot;</span>;
+  dot.<span class="hljs-property">style</span>.<span class="hljs-property">left</span> = <span class="hljs-title function_">scaleX</span>(d.<span class="hljs-property">joy</span>) + <span class="hljs-string">&quot;%&quot;</span>;
+  dot.<span class="hljs-property">style</span>.<span class="hljs-property">top</span> = <span class="hljs-title function_">scaleY</span>(d.<span class="hljs-property">dogs</span>) + <span class="hljs-string">&quot;%&quot;</span>;
+  grid.<span class="hljs-title function_">appendChild</span>(dot);
 });</pre></code>
 <p>We can add tooltips to each dot by placing inserting HTML into the dot with a ".tooltip" class, but hiding it unless the dot matches the <var>:hover</var> pseudo-class. Because the tooltips are also positioned absolutely, they take their positioning cues from the dot that contain them, but they don't distort its size (since <var>position: absolute</var> removes an element from layout calculation). The <var>pointer-events: none</var> also stops them from being too "sticky" in browsers that support it.</p>
 <code class="language-css"><pre><span class="hljs-selector-class">.scatter-area</span> <span class="hljs-selector-class">.tooltip</span> {
   <span class="hljs-attribute">position</span>: absolute;
   <span class="hljs-attribute">background</span>: white;
   <span class="hljs-attribute">padding</span>: <span class="hljs-number">8px</span>;
-  <span class="hljs-attribute">box-shadow</span>: <span class="hljs-number">0</span> <span class="hljs-number">8px</span> <span class="hljs-number">16px</span> -<span class="hljs-number">8px</span> <span class="hljs-built_in">rgba</span>(0, 0, 0, .2);
+  <span class="hljs-attribute">box-shadow</span>: <span class="hljs-number">0</span> <span class="hljs-number">8px</span> <span class="hljs-number">16px</span> -<span class="hljs-number">8px</span> <span class="hljs-built_in">rgba</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, .<span class="hljs-number">2</span>);
   <span class="hljs-attribute">font-size</span>: <span class="hljs-number">15px</span>;
   <span class="hljs-attribute">width</span>: <span class="hljs-number">100px</span>;
   <span class="hljs-attribute">display</span>: none;
@@ -202,9 +202,9 @@ data.forEach(<span class="hljs-function"><span class="hljs-keyword">function</sp
 <p>Other HTML elements, unfortunately, do not know how big they "should" be. If you change the width of these elements, by resizing the browser or placing them in a container, the height does not maintain a constant relationship. For the most part, this makes sense: you wouldn't want your paragraphs to get shorter just because they got skinnier, since that would cut off the text inside (or shrink it, which is equally bad). But sometimes we genuinely do want a non-image element, like an iframe containing a third-party video, to stay "frozen" at a certain aspect ratio, and there isn't an obvious style to make it happen.</p>
 <p>The trick, such as it is, comes from the "padding" property. In what seems like a bizarre (but helpful) choice, if you set an element's padding to be a percentage, the actual size of the padding will be determined by the width of the <em>parent</em> element. In other words, <var>padding-bottom: 100%</var> is equal to the width of your element's parent.</p>
 <p>Take the following markup:</p>
-<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"aspect-container"</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"aspect-inner"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">iframe</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://www.youtube.com/embed/a1Y73sPHKxw"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">iframe</span>&gt;</span>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;aspect-container&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;aspect-inner&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">iframe</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;https://www.youtube.com/embed/a1Y73sPHKxw&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">iframe</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
 <p>The iframe doesn't know how tall it wants to be, and if you set the width and height on it manually (as YouTube does by default), it'll either overflow small screens, or (if the max-width style is set) it won't resize the height when the width is restricted. However, setting the following styles will cause it to "lock" to 16:9, by positioning it absolutely within its container, and defining that container's height using its child's bottom padding.</p>
@@ -253,7 +253,7 @@ data.forEach(<span class="hljs-function"><span class="hljs-keyword">function</sp
 
 <span class="hljs-selector-class">.scatter-area</span><span class="hljs-selector-pseudo">::before</span> {
   <span class="hljs-attribute">display</span>: block;
-  <span class="hljs-attribute">content</span>: <span class="hljs-string">""</span>;
+  <span class="hljs-attribute">content</span>: <span class="hljs-string">&quot;&quot;</span>;
   <span class="hljs-attribute">padding-bottom</span>: <span class="hljs-number">100%</span>;
 }</pre></code>
 <p>100% padding is 100% of the container's width, creating a perfectly square block no matter how big or small the page gets (up to the container's max-width of 400px, of course). Once you start using this technique, it's not just good for plots and videos, but also for maps, canvas elements, and SVG graphics.</p>

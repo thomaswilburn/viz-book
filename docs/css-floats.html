@@ -87,7 +87,7 @@
 <p>There are two ways to make a container float-aware. The first, and most obvious, is to make the last item in the container an element that clears floats. Traditionally, this is usually done with a pseudo-element, so you don't need to actually write the markup. You've probably seen "clearfix" used as a class before:</p>
 <code class="language-css"><pre><span class="hljs-comment">/* put this on the container */</span>
 <span class="hljs-selector-class">.clearfix</span><span class="hljs-selector-pseudo">::after</span> {
-  <span class="hljs-attribute">content</span>: <span class="hljs-string">""</span>;
+  <span class="hljs-attribute">content</span>: <span class="hljs-string">&quot;&quot;</span>;
   <span class="hljs-attribute">display</span>: block;
   <span class="hljs-attribute">clear</span>: both;
 }</pre></code>
@@ -121,14 +121,14 @@
 }
 
 <span class="hljs-comment">/* fewer row items on tablet */</span>
-@<span class="hljs-keyword">media</span> (max-width: <span class="hljs-number">800px</span>) {
+<span class="hljs-keyword">@media</span> (<span class="hljs-attribute">max-width</span>: <span class="hljs-number">800px</span>) {
   <span class="hljs-selector-class">.grid-item</span> {
     <span class="hljs-attribute">flex</span>: <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">33%</span>;
   }
 }
 
 <span class="hljs-comment">/* turn off flex on mobile */</span>
-@<span class="hljs-keyword">media</span> (max-width: <span class="hljs-number">480px</span>) {
+<span class="hljs-keyword">@media</span> (<span class="hljs-attribute">max-width</span>: <span class="hljs-number">480px</span>) {
   <span class="hljs-selector-class">.grid-container</span> {
     <span class="hljs-attribute">display</span>: block;
   }

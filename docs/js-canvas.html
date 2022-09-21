@@ -40,42 +40,42 @@
 <p>Canvas lets us create bitmap images (meaning, composed of a grid of pixels) using a relatively simple drawing API. Compared to SVG, performance is relatively high, but it comes at a cost of abstraction: event handling, drawing state, and animations must all be manually programmed. When writing code that uses canvas, it may be worth it to quickly benchmark whether your requirements could be met with DOM and SVG techniques first, before shouldering the extra burden of writing interactive canvas code.</p>
 <h2 id="a-little-context">A little context</h2>
 <p>Canvas is a powerful tool, but we don't interact with it directly. This in part is because it only represents a bucket of pixels, and there might be multiple ways of setting those pixels. For example, browsers may support WebGL, which also draws to a canvas but uses a very different (and much more cumbersome) API to do so. So our first job is to ask the canvas for a <em>rendering context</em>, specifying that we want to use the regular 2D functions for drawing:</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> canvas = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">"canvas"</span>);
-<span class="hljs-keyword">var</span> context = canvas.getContext(<span class="hljs-string">"2d"</span>);</pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> canvas = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&quot;canvas&quot;</span>);
+<span class="hljs-keyword">var</span> context = canvas.<span class="hljs-title function_">getContext</span>(<span class="hljs-string">&quot;2d&quot;</span>);</pre></code>
 <p>One way to think about the distinction between the canvas and the context is the difference between a computer screen and a copy of Photoshop: the former provides a space for the latter to actually draw and render graphics. Just like the screen, we also need to set the "resolution" of our canvas, which goes through its width and height properties.</p>
-<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"640"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"480"</span>&gt;</span>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;640&quot;</span> <span class="hljs-attr">height</span>=<span class="hljs-string">&quot;480&quot;</span>&gt;</span>
   Fallback HTML can go here, but
   realistically, no modern browser
   needs a fallback.
 <span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span></pre></code>
 <p>Whenever possible, you should size canvas using CSS, not using the attributes, and then resize its internal display buffer to match. If you do not do this, the default size for your canvas is 300x150. Conveniently, setting the width and height of a canvas element will also clear its contents, so it's a good thing to do at the top of your render loop:</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> renderLoop = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+<code class="language-js"><pre><span class="hljs-keyword">var</span> renderLoop = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
   <span class="hljs-comment">// set the size to match CSS and clear contents</span>
-  canvas.width = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
+  canvas.<span class="hljs-property">width</span> = canvas.<span class="hljs-property">clientWidth</span>;
+  canvas.<span class="hljs-property">height</span> = canvas.<span class="hljs-property">clientHeight</span>;
   
   <span class="hljs-comment">// drawing code goes here</span>
 
   <span class="hljs-comment">// schedule the next animation frame</span>
-  requestAnimationFrame(renderLoop);
+  <span class="hljs-title function_">requestAnimationFrame</span>(renderLoop);
 };
 
-renderLoop();</pre></code>
+<span class="hljs-title function_">renderLoop</span>();</pre></code>
 <p>Once that's done, however, we'll use the context object to perform all actual drawing. Here's some simple code to draw a red rectangle with a blue outline.</p>
 <code class="language-js"><pre><span class="hljs-comment">// any CSS color string is permitted</span>
-context.fillStyle = <span class="hljs-string">"red"</span>;
-context.strokeStyle = <span class="hljs-string">"blue"</span>;
+context.<span class="hljs-property">fillStyle</span> = <span class="hljs-string">&quot;red&quot;</span>;
+context.<span class="hljs-property">strokeStyle</span> = <span class="hljs-string">&quot;blue&quot;</span>;
 <span class="hljs-comment">// start a path</span>
-context.beginPath();
+context.<span class="hljs-title function_">beginPath</span>();
 <span class="hljs-comment">// draw around the four corners</span>
-context.moveTo(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>);
-context.lineTo(<span class="hljs-number">10</span>, <span class="hljs-number">0</span>);
-context.lineTo(<span class="hljs-number">10</span>, <span class="hljs-number">10</span>);
-context.lineTo(<span class="hljs-number">0</span>, <span class="hljs-number">10</span>);
-context.closePath();
+context.<span class="hljs-title function_">moveTo</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>);
+context.<span class="hljs-title function_">lineTo</span>(<span class="hljs-number">10</span>, <span class="hljs-number">0</span>);
+context.<span class="hljs-title function_">lineTo</span>(<span class="hljs-number">10</span>, <span class="hljs-number">10</span>);
+context.<span class="hljs-title function_">lineTo</span>(<span class="hljs-number">0</span>, <span class="hljs-number">10</span>);
+context.<span class="hljs-title function_">closePath</span>();
 <span class="hljs-comment">// actually stroke and fill the shape</span>
-context.stroke();
-context.fill();</pre></code>
+context.<span class="hljs-title function_">stroke</span>();
+context.<span class="hljs-title function_">fill</span>();</pre></code>
 <p>A 2D context is what we call a "state machine API," in the sense that it retains a degree of global state between calls, and uses that to do its drawing. Settings like the fill or stroke style (the aptly-named <var>fillStyle</var> and <var>strokeStyle</var> properties) are persistent across drawing instructions&mdash;you set them once, and they continue in effect until they're altered. This is in contrast to an API where these settings are done explicitly for each function call (say, where drawing a rectangle takes a color argument in addition to size and position).</p>
 <p>Another part of the global state is the path: when we call <var>beginPath()</var> in the code above, the context starts tracking drawing instructions, but it doesn't actually render anything out to the screen until the <var>stroke()</var> and <var>fill()</var> calls are made. There's a good reason for this&mdash;it's more efficient to build up a complex shape from individual points, and then color it in with a single instruction&mdash;but it does mean that you should get into a routine whenever you use canvas:</p>
 <ul>
@@ -191,60 +191,60 @@ context.fill();</pre></code>
   requestAnimationFrame(render);
 </script>
 <p>In 2016, the NYT rolled out their election results page, complete with a set of dials showing the predicted popular vote. To reflect the margin of error at any given time, the needle of the dial wavered back and forth. It was incredibly nerve-wracking, but it does make for a great canvas demo. Here's our initial markup to create the canvas tag itself. Note that I leave the width and height off, because we're just going to set that every frame from JavaScript, and the actual size will be set from CSS.</p>
-<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"dial"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span></pre></code>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;dial&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span></pre></code>
 <p>In our JavaScript, we're going to get our canvas and its context, and then define a render function that will repeatedly schedule itself to be run every frame. Functions called with <var>requestAnimationFrame</var> are passed a high-precision timestamp as their initial parameter, which is useful for creating animations. Not shown is the actual election results data, which is updated separately from the animation (say, from a regular network request to the server). Currently, the render function just clears the canvas by resizing it to match its physical dimensions.</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> canvas = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">".dial"</span>);
-<span class="hljs-keyword">var</span> context = canvas.getContext(<span class="hljs-string">"2d"</span>);
+<code class="language-js"><pre><span class="hljs-keyword">var</span> canvas = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&quot;.dial&quot;</span>);
+<span class="hljs-keyword">var</span> context = canvas.<span class="hljs-title function_">getContext</span>(<span class="hljs-string">&quot;2d&quot;</span>);
 
-<span class="hljs-keyword">var</span> render = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">t</span>) </span>{
-  canvas.width = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
+<span class="hljs-keyword">var</span> render = <span class="hljs-keyword">function</span>(<span class="hljs-params">t</span>) {
+  canvas.<span class="hljs-property">width</span> = canvas.<span class="hljs-property">clientWidth</span>;
+  canvas.<span class="hljs-property">height</span> = canvas.<span class="hljs-property">clientHeight</span>;
 
-  requestAnimationFrame(render);
+  <span class="hljs-title function_">requestAnimationFrame</span>(render);
 };
 
-requestAnimationFrame(render);</pre></code>
+<span class="hljs-title function_">requestAnimationFrame</span>(render);</pre></code>
 <p>Now we'll need to set up our backdrop for the needle to move against, using a set of four arcs (dark red, light red, light blue, and dark blue). When you have a repeated graphic element like this, it's nice to be able to defined it from data, so that you don't have to write code for every single path. In this case, I'm defining the arcs as arrays, containing their start, end, and color values. Note that I can set the line width for the stroke before the loop, and simply leave it set for all of the arcs.</p>
 <code class="language-js"><pre><span class="hljs-comment">// inside of render(), after clearing canvas</span>
 <span class="hljs-keyword">var</span> arcs = [
-  [ <span class="hljs-number">1.25</span>, <span class="hljs-number">1.375</span>, <span class="hljs-string">"rgba(255, 0, 0, .5)"</span> ],
-  [ <span class="hljs-number">1.375</span>, <span class="hljs-number">1.5</span>, <span class="hljs-string">"rgba(255, 0, 0, .2)"</span> ],
-  [ <span class="hljs-number">1.5</span>, <span class="hljs-number">1.625</span>, <span class="hljs-string">"rgba(0, 0, 255, .2)"</span> ],
-  [ <span class="hljs-number">1.625</span>, <span class="hljs-number">1.75</span>, <span class="hljs-string">"rgba(0, 0, 255, .5)"</span> ]
+  [ <span class="hljs-number">1.25</span>, <span class="hljs-number">1.375</span>, <span class="hljs-string">&quot;rgba(255, 0, 0, .5)&quot;</span> ],
+  [ <span class="hljs-number">1.375</span>, <span class="hljs-number">1.5</span>, <span class="hljs-string">&quot;rgba(255, 0, 0, .2)&quot;</span> ],
+  [ <span class="hljs-number">1.5</span>, <span class="hljs-number">1.625</span>, <span class="hljs-string">&quot;rgba(0, 0, 255, .2)&quot;</span> ],
+  [ <span class="hljs-number">1.625</span>, <span class="hljs-number">1.75</span>, <span class="hljs-string">&quot;rgba(0, 0, 255, .5)&quot;</span> ]
 ];
 
 <span class="hljs-comment">//draw the background arcs</span>
-context.lineWidth = canvas.width * <span class="hljs-number">.1</span>;
-arcs.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">arc</span>) </span>{
+context.<span class="hljs-property">lineWidth</span> = canvas.<span class="hljs-property">width</span> * <span class="hljs-number">.1</span>;
+arcs.<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">arc</span>) {
   <span class="hljs-keyword">var</span> [ start, end, color ] = arc;
-  context.beginPath();
+  context.<span class="hljs-title function_">beginPath</span>();
   <span class="hljs-comment">// arc lets us draw a part of a circle</span>
-  context.arc(dialCoords.x, dialCoords.y, dialCoords.r, <span class="hljs-built_in">Math</span>.PI * start, <span class="hljs-built_in">Math</span>.PI * end);
-  context.strokeStyle = color;
-  context.stroke();
+  context.<span class="hljs-title function_">arc</span>(dialCoords.<span class="hljs-property">x</span>, dialCoords.<span class="hljs-property">y</span>, dialCoords.<span class="hljs-property">r</span>, <span class="hljs-title class_">Math</span>.<span class="hljs-property">PI</span> * start, <span class="hljs-title class_">Math</span>.<span class="hljs-property">PI</span> * end);
+  context.<span class="hljs-property">strokeStyle</span> = color;
+  context.<span class="hljs-title function_">stroke</span>();
 });</pre></code>
 <p>If you haven't used trig since high school, the use of Pi in the arc function above (and the sine/cosine functions we'll use below) might seem a little scary. No worries! All you need to know is that these functions act on <em>radians</em>, and there are 2 * Pi radians in a circle. That means that you can treat the circle as a range from 0 to 2, starting at the rightmost edge and proceeding clockwise, and we just have to remember to multiply by Pi before drawing.</p>
 <p>With that out of the way, we'll draw our needle, which is a fairly primitive line from the center of the dial to 120% of its radius. To do so, we'll add the error (multiplied by a sine wave to create jiggle) to the result value, and then scale it to match our dial (using a bounds object that runs from 1.25 to 1.75 times Pi). This math gets a little hairy, but it's fairly short.</p>
 <code class="language-js"><pre><span class="hljs-comment">// figure the needle position</span>
 <span class="hljs-comment">// value is Math.sin() * the error rate + the current scaled value</span>
-<span class="hljs-keyword">var</span> jiggle = <span class="hljs-built_in">Math</span>.sin(t / <span class="hljs-number">100</span>) * result.margin;
-<span class="hljs-keyword">var</span> value = result.value + jiggle;
+<span class="hljs-keyword">var</span> jiggle = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">sin</span>(t / <span class="hljs-number">100</span>) * result.<span class="hljs-property">margin</span>;
+<span class="hljs-keyword">var</span> value = result.<span class="hljs-property">value</span> + jiggle;
 <span class="hljs-comment">// now adjust to the visual range</span>
 <span class="hljs-comment">// it starts at 1.25 radians and extends for another .5 radians</span>
-<span class="hljs-comment">// that means it's a quarter of a circle</span>
+<span class="hljs-comment">// that means it&#x27;s a quarter of a circle</span>
 <span class="hljs-keyword">var</span> scaled = value / <span class="hljs-number">100</span> * <span class="hljs-number">.5</span> + <span class="hljs-number">1.25</span>;
 
 
 <span class="hljs-comment">// draw the needle</span>
-context.beginPath();
-context.moveTo(dialCoords.x, dialCoords.y);
-<span class="hljs-comment">// x/y is the line's endpoint, using sin/cos to walk around the circle</span>
-<span class="hljs-keyword">var</span> x = <span class="hljs-built_in">Math</span>.cos(scaled) * dialCoords.r * <span class="hljs-number">1.2</span> + dialCoords.x;
-<span class="hljs-keyword">var</span> y = <span class="hljs-built_in">Math</span>.sin(scaled) * dialCoords.r * <span class="hljs-number">1.2</span> + dialCoords.y;
-context.lineTo(x, y);
-context.lineWidth = <span class="hljs-number">2</span>;
-context.strokeStyle = <span class="hljs-string">"black"</span>;
-context.stroke();</pre></code>
+context.<span class="hljs-title function_">beginPath</span>();
+context.<span class="hljs-title function_">moveTo</span>(dialCoords.<span class="hljs-property">x</span>, dialCoords.<span class="hljs-property">y</span>);
+<span class="hljs-comment">// x/y is the line&#x27;s endpoint, using sin/cos to walk around the circle</span>
+<span class="hljs-keyword">var</span> x = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">cos</span>(scaled) * dialCoords.<span class="hljs-property">r</span> * <span class="hljs-number">1.2</span> + dialCoords.<span class="hljs-property">x</span>;
+<span class="hljs-keyword">var</span> y = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">sin</span>(scaled) * dialCoords.<span class="hljs-property">r</span> * <span class="hljs-number">1.2</span> + dialCoords.<span class="hljs-property">y</span>;
+context.<span class="hljs-title function_">lineTo</span>(x, y);
+context.<span class="hljs-property">lineWidth</span> = <span class="hljs-number">2</span>;
+context.<span class="hljs-property">strokeStyle</span> = <span class="hljs-string">&quot;black&quot;</span>;
+context.<span class="hljs-title function_">stroke</span>();</pre></code>
 <p>The <var>Math.sin()</var> and <var>Math.cos()</var> functions convert a measurement in radians (which, remember, goes from 0 to 2 around the circle) to the vertical and horizontal position of a point at that angle, respectively. By taking our scaled value, which ranges from 1.25 radians to 1.75 radians, and feeding it to these trig functions, we get the position on a unit circle, which we then multiply by our distance (1.2x the circle's radius) to find the final endpoint of the needle.</p>
 <p>Ultimately, though, don't worry too much about the trigonometry. The important parts of this code are the structure of the rendering loop, the correct order of draw operations, and managing context state properly. If you can manage those, you're well on your way.</p>
 <h2 id="events-without-dom">Events without DOM</h2>
@@ -252,19 +252,19 @@ context.stroke();</pre></code>
 <p>The tough part of handling events when using canvas is that you no longer have distinct "targets" to which you can attach listeners. Visually, there may be objects drawn onscreen, but they're just pixels in the image buffer, not actual elements. How do we react appropriately to clicks or taps? Let's break this problem down into two parts to solve it: finding the location of the event relative to the canvas, and then strategies for hit detection.</p>
 <p>Our first problem is to figure out where <em>on the canvas</em> the event occurred. Unfortunately, this is not a simple way to solve across mobile and desktop browsers. Most modern browsers support the <var>offsetX/Y</var> properties on mouse events (it finally shipped in Firefox in mid-2015). However, touch events do not provide an offset from the targeted element, probably because touch movement is treated much differently from mouse movement. Instead, we have to recreate it, using <var>getBoundingClientRect()</var>:</p>
 <code class="language-js"><pre><span class="hljs-comment">// expects an event with clientX/Y properties</span>
-<span class="hljs-keyword">var</span> listener = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) </span>{
-  <span class="hljs-keyword">var</span> bounds = canvas.getBoundingClientRect();
+<span class="hljs-keyword">var</span> listener = <span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) {
+  <span class="hljs-keyword">var</span> bounds = canvas.<span class="hljs-title function_">getBoundingClientRect</span>();
   <span class="hljs-comment">// these coordinates are relative to the canvas</span>
-  <span class="hljs-keyword">var</span> x = e.clientX - bounds.left;
-  <span class="hljs-keyword">var</span> y = e.clientY - bounds.top;
+  <span class="hljs-keyword">var</span> x = e.<span class="hljs-property">clientX</span> - bounds.<span class="hljs-property">left</span>;
+  <span class="hljs-keyword">var</span> y = e.<span class="hljs-property">clientY</span> - bounds.<span class="hljs-property">top</span>;
 };
 
 <span class="hljs-comment">// register for mouse directly</span>
-canvas.addEventListener(<span class="hljs-string">"click"</span>, listener);
+canvas.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&quot;click&quot;</span>, listener);
 
 <span class="hljs-comment">// touch events hide this info in the touches list</span>
 <span class="hljs-comment">// extract first touch and pass it on</span>
-canvas.addEventListener(<span class="hljs-string">"touchstart"</span>, e =&gt; listener(e.touches[<span class="hljs-number">0</span>]));</pre></code>
+canvas.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&quot;touchstart&quot;</span>, <span class="hljs-function"><span class="hljs-params">e</span> =&gt;</span> <span class="hljs-title function_">listener</span>(e.<span class="hljs-property">touches</span>[<span class="hljs-number">0</span>]));</pre></code>
 <p>We should note that on certain touch events (such as movement), the list of finger contacts is called <var>changedTouches</var> instead of just <var>touches</var>, because Apple delights in making these APIs as precious as possible at the cost of usability. Regardless, once we have a position that's in the same coordinate space as our canvas, we can convert back from that pixel location into some kind of meaningful event target.</p>
 <p>The classical method for handing this kind of thing, indeed the way that the browser itself handles it, is by creating a render tree in which display objects can contain other display objects, and each specifies its position in the coordinate system. The same process is then used for both drawing and input: walk the tree, rendering or testing as we go, until either drawing is complete or you find the deepest element at the input coordinates. This is how the DOM works, as well as how older technologies like Flash worked, and how frameworks like ThreeJS display a scene.</p>
 <p>For interactives, however, this is usually overkill. Most of the time, our needs are (or should be) much simpler. For example, in a bar graph, we might ask ourselves which column is currently closest to the mouse, then highlight and show detail for that specific column. In this case, we don't really care about how high the mouse is&mdash;there's no value in making the reader specifically mouse over the bar itself. We just care whether the mouse is over the graph area, and if so, what the index of the closest column would be based on its horizontal position.</p>
@@ -278,15 +278,15 @@ canvas.addEventListener(<span class="hljs-string">"touchstart"</span>, e =&gt; l
 <code class="language-js"><pre><span class="hljs-comment">// scissor test</span>
 <span class="hljs-keyword">var</span> pad = <span class="hljs-number">20</span>;
 <span class="hljs-keyword">if</span> (
-  x &lt; padding || x &gt; canvas.width - padding ||
-  y &lt; padding || y &gt; canvas.height - padding
+  x &lt; padding || x &gt; canvas.<span class="hljs-property">width</span> - padding ||
+  y &lt; padding || y &gt; canvas.<span class="hljs-property">height</span> - padding
 ) {
   <span class="hljs-comment">// redraw, but without a highlight</span>
-  render();
+  <span class="hljs-title function_">render</span>();
 } <span class="hljs-keyword">else</span> {
-  <span class="hljs-comment">// find the column we're in using the floor</span>
-  <span class="hljs-keyword">var</span> index = <span class="hljs-built_in">Math</span>.floor((x - padding) / data.length);
-  render(index);
+  <span class="hljs-comment">// find the column we&#x27;re in using the floor</span>
+  <span class="hljs-keyword">var</span> index = <span class="hljs-title class_">Math</span>.<span class="hljs-title function_">floor</span>((x - padding) / data.<span class="hljs-property">length</span>);
+  <span class="hljs-title function_">render</span>(index);
 }</pre></code>
 <p>Not every interactive can be reduced to such a simple code path. But in my experience, it's much easier to treat input as a relatively imprecise and crude variable, especially on touch screens, rather than spend a lot of time doing intersection tests&mdash;especially on deadline.</p>
   </main>

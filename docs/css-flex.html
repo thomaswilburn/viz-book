@@ -48,14 +48,14 @@
 <p>In <a href="css-floats.html#floats">the last chapter</a>, we covered flexbox. Mostly what we care about are two abilities: using <var>justify-content</var> and <var>align-items</var> to set the "gravity" of the containers, and <var>flex-basis</var> to force the scale of each bar.</p>
 <p>In this particular graphic, we're going to arrange our chart so that each bar forms a row, since this is often easier to read with many items on mobile: our labels can have plenty of room, and the vertical space extends as far as we can scroll.</p>
 <p>First, the markup for a row: there's a label inside, as well as a container for our stacked bars, each of has its flex-basis set to its percentage width.</p>
-<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"row"</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"label"</span>&gt;</span>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;row&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;label&quot;</span>&gt;</span>
     Category Label
   <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bar-container"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bar val-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 20%"</span>&gt;</span>20%<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bar val-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 70%"</span>&gt;</span>70%<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"bar val-c"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 10%"</span>&gt;</span>10%<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;bar-container&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;bar val-a&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 20%&quot;</span>&gt;</span>20%<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;bar val-b&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 70%&quot;</span>&gt;</span>70%<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;bar val-c&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 10%&quot;</span>&gt;</span>10%<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
 <p>Next, we'll turn on styles for the bar layout:</p>
@@ -182,7 +182,7 @@
     <div class="column-bar series-a" style="flex-basis: 10%"></div>
   </div>
 </div>
-<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="css">
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="language-css">
 <span class="hljs-comment">/* horizontal row of bars */</span>
 <span class="hljs-selector-class">.columns</span> {
   <span class="hljs-attribute">display</span>: flex;
@@ -208,34 +208,34 @@
 <span class="hljs-selector-class">.series-a</span> { <span class="hljs-attribute">background</span>: salmon }
 <span class="hljs-selector-class">.series-b</span> { <span class="hljs-attribute">background</span>: wheat; }
 </span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span>
-<span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"columns"</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-container"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 25%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 20%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;columns&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-container&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-bar series-b&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 25%&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-bar series-a&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 20%&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-container"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 45%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 40%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-container&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-bar series-b&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 45%&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-bar series-a&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 40%&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-container"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 15%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 50%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-container&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-bar series-b&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 15%&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-bar series-a&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 50%&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-container"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 5%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 60%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-container&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-bar series-b&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 5%&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-bar series-a&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 60%&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-container"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 5%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 92%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-container&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-bar series-b&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 5%&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-bar series-a&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 92%&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-container"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 15%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 30%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-container&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-bar series-b&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 15%&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-bar series-a&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 30%&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-container"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-b"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 45%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"column-bar series-a"</span> <span class="hljs-attr">style</span>=<span class="hljs-string">"flex-basis: 10%"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-container&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-bar series-b&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 45%&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;column-bar series-a&quot;</span> <span class="hljs-attr">style</span>=<span class="hljs-string">&quot;flex-basis: 10%&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
 <p>Nested flex layouts like this can be extremely powerful, not just for charts. If you're building an app-like set of panels, mixing columns and rows will fill space in a series of blocks--indeed, Firefox's XML-based UI toolkit has been built on a similar collection of "hbox" and "vbox" elements for years. If the layout becomes sufficiently complex, however, you may want to look at <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout/Basic_Concepts_of_Grid_Layout">grid layout</a> instead.</p>
@@ -265,11 +265,11 @@
   <span class="hljs-attribute">border-bottom</span>: none;
   <span class="hljs-attribute">background-color</span>: <span class="hljs-number">#E8E8E8</span>;
   <span class="hljs-attribute">background-image</span>: <span class="hljs-built_in">repeating-linear-gradient</span>(to top,
-    #CCC,
-    #CCC 1px,
-    white 1px,
-    white 10%,
-    #CCC 10%
+    <span class="hljs-number">#CCC</span>,
+    <span class="hljs-number">#CCC</span> <span class="hljs-number">1px</span>,
+    white <span class="hljs-number">1px</span>,
+    white <span class="hljs-number">10%</span>,
+    <span class="hljs-number">#CCC</span> <span class="hljs-number">10%</span>
   )
 }</pre></code>
 <p>This is a neat hack, as far as these things go. But it's prone to odd rendering bugs, and it feels fragile. It probably makes more sense to position grid lines as HTML elements, using absolute positioning within the container.</p>

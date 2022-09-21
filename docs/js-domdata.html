@@ -38,177 +38,177 @@
 <p>At the end of the day, as a news developer, the technical part of our job boils down to having data on the one hand, a web page on the other, and trying to get the two of them to communicate. This is not as easy as it sounds, and it can be a daunting task when you're staring at a blank text editor on deadline. So in this chapter, we're going to talk about all the ways that you can transform data into markup, and how to reverse the process when a user interacts with the page.</p>
 <h2 id="making-markup">Making markup</h2>
 <p>Let's imagine that we have an array containing a set of objects, each of which is the biographical details of a person in our story. How do we turn that data into web markup that people can actually see, just using the standard browser APIs? Usually, there are two methods we can pick from: generating HTML as a string, or creating actual element nodes. For either one, however, we'll want a placeholder element where our dynamic content will go:</p>
-<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"rogues"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;rogues&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
 <p>By setting the <var>innerHTML</var> property of this element, the browser will parse and generate elements for us. I like to do this using a single big string, to which we add the markup for each item, like so. Note that for this and all the other examples, we'll be using the selector functions from our <a href="js-jquery.html">Deconstructed jQuery</a> chapter.</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> container = $.one(<span class="hljs-string">".rogues"</span>);
-<span class="hljs-keyword">var</span> html = <span class="hljs-string">""</span>;
+<code class="language-js"><pre><span class="hljs-keyword">var</span> container = $.<span class="hljs-title function_">one</span>(<span class="hljs-string">&quot;.rogues&quot;</span>);
+<span class="hljs-keyword">var</span> html = <span class="hljs-string">&quot;&quot;</span>;
 
 <span class="hljs-comment">// people is our data array</span>
-people.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) </span>{
+people.<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) {
   html += <span class="hljs-string">`
-&lt;div class="person" data-person="<span class="hljs-subst">${person.id}</span>"&gt;
-  &lt;img src="<span class="hljs-subst">${person.mug}</span>"&gt;
+&lt;div class=&quot;person&quot; data-person=&quot;<span class="hljs-subst">${person.id}</span>&quot;&gt;
+  &lt;img src=&quot;<span class="hljs-subst">${person.mug}</span>&quot;&gt;
   &lt;h2&gt;<span class="hljs-subst">${person.name}</span>&lt;/h2&gt;
 &lt;/div&gt;
 `</span>;
 });
 
-container.innerHTML = html;</pre></code>
+container.<span class="hljs-property">innerHTML</span> = html;</pre></code>
 <p>You can also add the markup to the <var>innerHTML</var> property one unit at a time, using the <var>+=</var> operator, but it's faster for the browser to get it and parse it all in one big chunk.</p>
 <p>Creating markup this way is fast and easy, but it does have a flaw: because the elements don't exist until the string is handed over to the browser, we can't add event listeners or retain references right away. Instead, we have to generate a big string, use that to create the container's contents, and then query the newly-created elements in order to manipulate them. It's not very convenient, it's slower (since we have to query for all the elements), and we have to write a second loop:</p>
 <code class="language-js"><pre><span class="hljs-comment">/* generate elements as a string, then... */</span>
-$(<span class="hljs-string">".person"</span>, container).forEach(<span class="hljs-function"><span class="hljs-params">el</span> =&gt;</span> el.addEventListener(<span class="hljs-string">"click"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"You've clicked on:"</span>, el);
+$(<span class="hljs-string">&quot;.person&quot;</span>, container).<span class="hljs-title function_">forEach</span>(<span class="hljs-function"><span class="hljs-params">el</span> =&gt;</span> el.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&quot;click&quot;</span>, <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;You&#x27;ve clicked on:&quot;</span>, el);
 }));</pre></code>
 <p>If you want a live reference to elements, so that you can immediately manipulate them, you'll need to use the DOM APIs and then append the resulting elements to the document tree. Unfortunately, creating elements this way is way too verbose (a common problem for built-in browser functions):</p>
-<code class="language-js"><pre>people.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) </span>{
-  <span class="hljs-keyword">var</span> div = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">"div"</span>);
-  div.className = <span class="hljs-string">"person"</span>;
-  div.dataset.person = person.id;
+<code class="language-js"><pre>people.<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) {
+  <span class="hljs-keyword">var</span> div = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">&quot;div&quot;</span>);
+  div.<span class="hljs-property">className</span> = <span class="hljs-string">&quot;person&quot;</span>;
+  div.<span class="hljs-property">dataset</span>.<span class="hljs-property">person</span> = person.<span class="hljs-property">id</span>;
   
-  <span class="hljs-keyword">var</span> img = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">"img"</span>);
-  img.src = person.mug;
-  div.appendChild(img);
+  <span class="hljs-keyword">var</span> img = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">&quot;img&quot;</span>);
+  img.<span class="hljs-property">src</span> = person.<span class="hljs-property">mug</span>;
+  div.<span class="hljs-title function_">appendChild</span>(img);
 
-  <span class="hljs-keyword">var</span> h2 = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">"h2"</span>);
-  h2.innerHTML = person.name;
-  div.appendChild(h2);
+  <span class="hljs-keyword">var</span> h2 = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(<span class="hljs-string">&quot;h2&quot;</span>);
+  h2.<span class="hljs-property">innerHTML</span> = person.<span class="hljs-property">name</span>;
+  div.<span class="hljs-title function_">appendChild</span>(h2);
 
-  container.appendChild(div);
+  container.<span class="hljs-title function_">appendChild</span>(div);
 });</pre></code>
 <p>What if we could make this a bit cleaner, writing JavaScript code that mimics the structure of the tree we're trying to create, similar to the HTML markup itself? That's absolutely possible if we steal a trick from React.</p>
 <p>React uses an embedded language called JSX, which puts HTML templates directly into the JavaScript. However, behind the scenes, that JSX is actually just translated into function calls&mdash;specifically <var>React.createElement()</var>. Our version of this will take three arguments: the tag that we want to create, an optional object containing attributes, and then the contents of the element as a string (for setting text contents) or an array of child elements.</p>
 <p>In practice, it doesn't look that much different from HTML itself:</p>
-<code class="language-js"><pre><span class="hljs-comment">// &lt;div class="container"&gt;</span>
-makeDOM(<span class="hljs-string">"div"</span>, { <span class="hljs-attr">class</span>: <span class="hljs-string">"container"</span> }, [
+<code class="language-js"><pre><span class="hljs-comment">// &lt;div class=&quot;container&quot;&gt;</span>
+<span class="hljs-title function_">makeDOM</span>(<span class="hljs-string">&quot;div&quot;</span>, { <span class="hljs-attr">class</span>: <span class="hljs-string">&quot;container&quot;</span> }, [
   <span class="hljs-comment">// &lt;figure&gt;</span>
-  makeDOM(<span class="hljs-string">"figure"</span>, [
-    <span class="hljs-comment">// &lt;img src="example.svg"&gt;</span>
-    makeDOM(<span class="hljs-string">"img"</span>, { <span class="hljs-attr">src</span>: <span class="hljs-string">"example.svg"</span> }),
+  <span class="hljs-title function_">makeDOM</span>(<span class="hljs-string">&quot;figure&quot;</span>, [
+    <span class="hljs-comment">// &lt;img src=&quot;example.svg&quot;&gt;</span>
+    <span class="hljs-title function_">makeDOM</span>(<span class="hljs-string">&quot;img&quot;</span>, { <span class="hljs-attr">src</span>: <span class="hljs-string">&quot;example.svg&quot;</span> }),
     <span class="hljs-comment">// &lt;caption&gt;Hello, world!&lt;/caption&gt;</span>
-    makeDOM(<span class="hljs-string">"caption"</span>, <span class="hljs-string">"Hello, World!"</span>)
+    <span class="hljs-title function_">makeDOM</span>(<span class="hljs-string">&quot;caption&quot;</span>, <span class="hljs-string">&quot;Hello, World!&quot;</span>)
   ])
   <span class="hljs-comment">// &lt;/figure&gt;</span>
 ]);
 <span class="hljs-comment">// &lt;/div&gt;</span></pre></code>
 <p>Here's the actual code to implement <var>makeDOM</var>. Most of the complication here is the code to support different argument combinations (attributes but no children, no attributes and string contents, no attributes and child elements, both attributes and text or child elements), but the ergonomics are much better that way.</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> makeDOM = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">tagName, attributes = {}, children = []</span>) </span>{
+<code class="language-js"><pre><span class="hljs-keyword">var</span> makeDOM = <span class="hljs-keyword">function</span>(<span class="hljs-params">tagName, attributes = {}, children = []</span>) {
   <span class="hljs-comment">// generate the element</span>
-  <span class="hljs-keyword">var</span> element = <span class="hljs-built_in">document</span>.createElement(tagName);
-  <span class="hljs-comment">// did you skip attributes, meaning that it's actually children?</span>
-  <span class="hljs-keyword">if</span> (attributes <span class="hljs-keyword">instanceof</span> <span class="hljs-built_in">Array</span> || <span class="hljs-keyword">typeof</span> attributes == <span class="hljs-string">"string"</span>) {
+  <span class="hljs-keyword">var</span> element = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">createElement</span>(tagName);
+  <span class="hljs-comment">// did you skip attributes, meaning that it&#x27;s actually children?</span>
+  <span class="hljs-keyword">if</span> (attributes <span class="hljs-keyword">instanceof</span> <span class="hljs-title class_">Array</span> || <span class="hljs-keyword">typeof</span> attributes == <span class="hljs-string">&quot;string&quot;</span>) {
     children = attributes;
     attributes = {};
   }
   <span class="hljs-comment">// set attributes on our element</span>
   <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> attr <span class="hljs-keyword">in</span> attributes) {
     <span class="hljs-keyword">var</span> value = attributes[attr];
-    element.setAttribute(attr, value);
+    element.<span class="hljs-title function_">setAttribute</span>(attr, value);
   }
   <span class="hljs-comment">// is children actually a string for the inner HTML?</span>
-  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> children == <span class="hljs-string">"string"</span>) {
-    element.innerHTML = children;
+  <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> children == <span class="hljs-string">&quot;string&quot;</span>) {
+    element.<span class="hljs-property">innerHTML</span> = children;
   } <span class="hljs-keyword">else</span> {
     <span class="hljs-comment">// append children</span>
-    children.forEach(<span class="hljs-function"><span class="hljs-params">c</span> =&gt;</span> element.appendChild(c));
+    children.<span class="hljs-title function_">forEach</span>(<span class="hljs-function"><span class="hljs-params">c</span> =&gt;</span> element.<span class="hljs-title function_">appendChild</span>(c));
   }
   <span class="hljs-comment">// hand back the constructed DOM</span>
   <span class="hljs-keyword">return</span> element
 };</pre></code>
 <p>As above, because <var>makeDOM</var> accepts an array of elements to be children, we can nest multiple calls to this inside the arguments, and build a whole subtree on the spot. Here's our loop through the bio data using this function instead of manually calling the DOM API, which is much more readable:</p>
-<code class="language-js"><pre>people.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) </span>{
+<code class="language-js"><pre>people.<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) {
   <span class="hljs-comment">//shorten the function name for readability</span>
   <span class="hljs-keyword">var</span> m = makeDOM;
-  <span class="hljs-comment">// &lt;div class="person" data-person="..."&gt;</span>
-  <span class="hljs-keyword">var</span> element = m(<span class="hljs-string">"div"</span>, { <span class="hljs-attr">class</span>: <span class="hljs-string">"person"</span>, <span class="hljs-string">"data-person"</span>: person.id }, [
-    <span class="hljs-comment">// &lt;img src="..."&gt;</span>
-    m(<span class="hljs-string">"img"</span>, { <span class="hljs-attr">src</span>: person.mug }),
+  <span class="hljs-comment">// &lt;div class=&quot;person&quot; data-person=&quot;...&quot;&gt;</span>
+  <span class="hljs-keyword">var</span> element = <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;div&quot;</span>, { <span class="hljs-attr">class</span>: <span class="hljs-string">&quot;person&quot;</span>, <span class="hljs-string">&quot;data-person&quot;</span>: person.<span class="hljs-property">id</span> }, [
+    <span class="hljs-comment">// &lt;img src=&quot;...&quot;&gt;</span>
+    <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;img&quot;</span>, { <span class="hljs-attr">src</span>: person.<span class="hljs-property">mug</span> }),
     <span class="hljs-comment">// &lt;h2&gt;...&lt;/h2&gt;</span>
-    m(<span class="hljs-string">"h2"</span>, person.name)
+    <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;h2&quot;</span>, person.<span class="hljs-property">name</span>)
   ]);
-  container.appendChild(element);
+  container.<span class="hljs-title function_">appendChild</span>(element);
 });</pre></code>
 <p>Our JavaScript is now structured in a very similar way to our HTML markup, indentation and all, but it creates "live" DOM elements. Now it's time to associate those elements with data, by binding for events.</p>
 <h2 id="matching-dom-to-data">Matching DOM to data</h2>
 <p>Making HTML from our data is only half the challenge, and it's the easier half. We still have to be able to reverse that process whenever a user interacts with our page: for each element, we need to retrieve the corresponding data for display or manipulation.</p>
 <p>As mentioned above, one way to do this is by associating the data directly with the event listener for the element, using a closure inside of our loop. A "closure" is a function that incorporates outside variables from the context in which it was created. For example, the following loop has an event listener that "closes over" the <var>person</var> value.</p>
-<code class="language-js"><pre>people.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) </span>{
+<code class="language-js"><pre>people.<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) {
   <span class="hljs-keyword">var</span> m = makeDOM;
-  <span class="hljs-keyword">var</span> element = m(<span class="hljs-string">"div"</span>, { <span class="hljs-attr">class</span>: <span class="hljs-string">"person"</span>, <span class="hljs-string">"data-person"</span>: person.id }, [
-    m(<span class="hljs-string">"img"</span>, { <span class="hljs-attr">src</span>: person.mug }),
-    m(<span class="hljs-string">"h2"</span>, person.name)
+  <span class="hljs-keyword">var</span> element = <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;div&quot;</span>, { <span class="hljs-attr">class</span>: <span class="hljs-string">&quot;person&quot;</span>, <span class="hljs-string">&quot;data-person&quot;</span>: person.<span class="hljs-property">id</span> }, [
+    <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;img&quot;</span>, { <span class="hljs-attr">src</span>: person.<span class="hljs-property">mug</span> }),
+    <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;h2&quot;</span>, person.<span class="hljs-property">name</span>)
   ]);
-  <span class="hljs-comment">// this listener will remember the specific "person"</span>
-  element.addEventListener(<span class="hljs-string">"click"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`You clicked on: <span class="hljs-subst">${person.name}</span>`</span>);
+  <span class="hljs-comment">// this listener will remember the specific &quot;person&quot;</span>
+  element.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&quot;click&quot;</span>, <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`You clicked on: <span class="hljs-subst">${person.name}</span>`</span>);
   });
-  container.appendChild(element);
+  container.<span class="hljs-title function_">appendChild</span>(element);
 });</pre></code>
 <p>Unfortunately, by using individual listener functions for each element, you're adding some extra memory for every element you create. That may not be important, if you only have a few people in your graphic. But if you have a lot, or if you repeatedly remove and create new elements (say, because you allow the list of people to be filtered), you'll end up using a lot more memory, which may cause your application to stutter, slow down, or even become unresponsive.</p>
 <p>It's preferable instead to share a single listener function between all of your elements. By defining it outside the loop, you'll create the function once, and then it can use the <var>this</var> value to determine which specific element was clicked.</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> clickedPerson = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"You clicked this element:"</span>, <span class="hljs-keyword">this</span>);
+<code class="language-js"><pre><span class="hljs-keyword">var</span> clickedPerson = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;You clicked this element:&quot;</span>, <span class="hljs-variable language_">this</span>);
 };
 
-people.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) </span>{
+people.<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) {
   <span class="hljs-keyword">var</span> m = makeDOM;
-  <span class="hljs-keyword">var</span> element = m(<span class="hljs-string">"div"</span>, { <span class="hljs-attr">class</span>: <span class="hljs-string">"person"</span>, <span class="hljs-string">"data-person"</span>: person.id }, [
-    m(<span class="hljs-string">"img"</span>, { <span class="hljs-attr">src</span>: person.mug }),
-    m(<span class="hljs-string">"h2"</span>, person.name)
+  <span class="hljs-keyword">var</span> element = <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;div&quot;</span>, { <span class="hljs-attr">class</span>: <span class="hljs-string">&quot;person&quot;</span>, <span class="hljs-string">&quot;data-person&quot;</span>: person.<span class="hljs-property">id</span> }, [
+    <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;img&quot;</span>, { <span class="hljs-attr">src</span>: person.<span class="hljs-property">mug</span> }),
+    <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;h2&quot;</span>, person.<span class="hljs-property">name</span>)
   ]);
-  element.addEventListener(<span class="hljs-string">"click"</span>, clickedPerson);
-  container.appendChild(element);
+  element.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&quot;click&quot;</span>, clickedPerson);
+  container.<span class="hljs-title function_">appendChild</span>(element);
 });</pre></code>
 <p>Now, however, we have a problem: we're sharing a single function across all our elements, which means that it can figure out which <em>element</em> was clicked, but it doesn't know what data is associated with that element, because it was defined outside of the loop where that information was available. Luckily, we've been setting the element's "data-person" attribute to be the same as the person's ID in our data (and then we can access that through the <var>dataset</var> property on the JavaScript side). We could loop through the original source array to search for that identifier, but a little preparation can speed things up.</p>
 <p>Let's build a lookup table using a JavaScript object. During element creation, we'll add references to the object, with the keys being the person IDs and the values being the source data itself. Then, inside our listener, we can get the attribute value from <var>this</var> and ask the lookup table for the matching array object.</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> lookup = {};
 
-<span class="hljs-keyword">var</span> clickedPerson = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-  <span class="hljs-keyword">var</span> id = <span class="hljs-keyword">this</span>.dataset.person;
+<span class="hljs-keyword">var</span> clickedPerson = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-keyword">var</span> id = <span class="hljs-variable language_">this</span>.<span class="hljs-property">dataset</span>.<span class="hljs-property">person</span>;
   <span class="hljs-comment">// which person has that ID?</span>
   <span class="hljs-keyword">var</span> person = lookup[id];
-  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`You clicked on <span class="hljs-subst">${person.name}</span>`</span>);
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`You clicked on <span class="hljs-subst">${person.name}</span>`</span>);
 };
 
-people.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) </span>{
+people.<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) {
   <span class="hljs-comment">// store the person in our lookup table</span>
-  lookup[person.id] = person;
+  lookup[person.<span class="hljs-property">id</span>] = person;
 
   <span class="hljs-keyword">var</span> m = makeDOM;
-  <span class="hljs-keyword">var</span> element = m(<span class="hljs-string">"div"</span>, { <span class="hljs-attr">class</span>: <span class="hljs-string">"person"</span>, <span class="hljs-string">"data-person"</span>: person.id }, [
-    m(<span class="hljs-string">"img"</span>, { <span class="hljs-attr">src</span>: person.mug }),
-    m(<span class="hljs-string">"h2"</span>, person.name)
+  <span class="hljs-keyword">var</span> element = <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;div&quot;</span>, { <span class="hljs-attr">class</span>: <span class="hljs-string">&quot;person&quot;</span>, <span class="hljs-string">&quot;data-person&quot;</span>: person.<span class="hljs-property">id</span> }, [
+    <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;img&quot;</span>, { <span class="hljs-attr">src</span>: person.<span class="hljs-property">mug</span> }),
+    <span class="hljs-title function_">m</span>(<span class="hljs-string">&quot;h2&quot;</span>, person.<span class="hljs-property">name</span>)
   ]);
-  element.addEventListener(<span class="hljs-string">"click"</span>, clickedPerson);
-  container.appendChild(element);
+  element.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&quot;click&quot;</span>, clickedPerson);
+  container.<span class="hljs-title function_">appendChild</span>(element);
 });</pre></code>
 <p>As a rule of thumb, remember that when you're writing markup, you're leaving clues for your future self. Be generous! HTML generated via JavaScript doesn't cost the user in terms of download time or (barring extreme cases) parse time, so make sure that you place classes and attributes throughout to be helpful for yourself, instead of just using bare tags. You never know when you might need those hooks later.</p>
 <p>Of course, if you're using the <var>this</var> value and a lookup object, you can probably use <a href="js-jquery.html#delegation">event delegation</a>, which gives you the best of both worlds: easier-to-write string templating, low memory usage, and simple code. This is our most common methodology at the Seattle Times for its simplicity and speed under deadline.</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> lookup = {};
 
-<span class="hljs-keyword">var</span> clickedPerson = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-  <span class="hljs-keyword">var</span> id = <span class="hljs-keyword">this</span>.dataset.person;
+<span class="hljs-keyword">var</span> clickedPerson = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-keyword">var</span> id = <span class="hljs-variable language_">this</span>.<span class="hljs-property">dataset</span>.<span class="hljs-property">person</span>;
   <span class="hljs-comment">// which person has that ID?</span>
   <span class="hljs-keyword">var</span> person = lookup[id];
-  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`You clicked on <span class="hljs-subst">${person.name}</span>`</span>);
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`You clicked on <span class="hljs-subst">${person.name}</span>`</span>);
 };
 
-<span class="hljs-keyword">var</span> html = <span class="hljs-string">""</span>;
-people.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) </span>{
+<span class="hljs-keyword">var</span> html = <span class="hljs-string">&quot;&quot;</span>;
+people.<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">person</span>) {
   <span class="hljs-comment">// store the person in our lookup table</span>
-  lookup[person.id] = person;
+  lookup[person.<span class="hljs-property">id</span>] = person;
 
   html += <span class="hljs-string">`
-    &lt;div class="person" data-person="<span class="hljs-subst">${person.id}</span>"&gt;
-      &lt;img src="<span class="hljs-subst">${person.mug}</span>"&gt;
+    &lt;div class=&quot;person&quot; data-person=&quot;<span class="hljs-subst">${person.id}</span>&quot;&gt;
+      &lt;img src=&quot;<span class="hljs-subst">${person.mug}</span>&quot;&gt;
       &lt;h2&gt;<span class="hljs-subst">${person.name}</span>&lt;/h2&gt;
     &lt;/div&gt;
   `</span>
 });
-container.innerHTML = html;
+container.<span class="hljs-property">innerHTML</span> = html;
 
 <span class="hljs-comment">// see definition for delegate in the earlier chapter</span>
-delegate(container, <span class="hljs-string">"[data-person]"</span>, <span class="hljs-string">"click"</span>, clickedPerson);</pre></code>
+<span class="hljs-title function_">delegate</span>(container, <span class="hljs-string">&quot;[data-person]&quot;</span>, <span class="hljs-string">&quot;click&quot;</span>, clickedPerson);</pre></code>
 <p>Either way, the circle is now complete: we generate markup from the data, track the IDs that we've left on our elements, and then use those IDs to get the data back when events occur in the generated markup. This architecture is pretty consistent across every interactive I've ever created, with the real differences only being in where I get the data, and what I do in response to events. Learn to adapt these patterns, and they'll serve you well.</p>
   </main>
   <nav class="chapter-links bottom">

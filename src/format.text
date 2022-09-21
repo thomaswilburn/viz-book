@@ -71,7 +71,7 @@ Which generates:
 <h2 id="id-here">This space intentionally left blank.</h2>
 ...codeblock
 
-Direcitves also support a multiline form delimited by ellipses, like this `@html` block, which injects code directly into the HTML output:
+Directives also support a multiline form delimited by ellipses, like this `@html` block, which injects code directly into the HTML output:
 
 @codeblock(html)...
 @html...

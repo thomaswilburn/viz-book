@@ -58,33 +58,33 @@
 <h3>Lean on WAI-ARIA for state</h3>
 <p>The <a href="https://www.w3.org/TR/wai-aria-practices-1.1/">WAI-ARIA Authoring Practices</a> lay out expectations for how browser UI should act in order to meet consistent expectations. A set of extra attributes, prefixed with <var>ARIA-</var>, are used as additional hints for assistive tech. By leaning on attribute selectors in our CSS, we can integrate styling and accessibility into a single effort.</p>
 <p>For example, if we were to make a toggle button (say, a play/pause button in a media player), we'd normally add and remove a class from the button to indicate its state. But the spec for WAI-ARIA indicates that toggle buttons should be expressed in screen readers using <var>aria-pressed="true"</var> or <var>aria-pressed="false"</var>. Why not use that instead of an "active" class to update the button?</p>
-<code class="language-css"><pre><span class="hljs-selector-class">.play-button</span><span class="hljs-selector-attr">[aria-pressed="false"]</span> {
+<code class="language-css"><pre><span class="hljs-selector-class">.play-button</span><span class="hljs-selector-attr">[aria-pressed=<span class="hljs-string">&quot;false&quot;</span>]</span> {
   // styles for paused state
 }
 
-<span class="hljs-selector-class">.play-button</span><span class="hljs-selector-attr">[aria-pressed="true"]</span> {
+<span class="hljs-selector-class">.play-button</span><span class="hljs-selector-attr">[aria-pressed=<span class="hljs-string">&quot;true&quot;</span>]</span> {
   // styles for playing state
 }</pre></code>
 <h2 id="role-playing">Role playing</h2>
 <p>Behind the scenes, screen readers understand semantic HTML elements through "roles" that are assigned to each one. A button will always have the "button" role, for example. An <var>&lt;a&gt;</var> tag has a "link" role. Using the right elements means that the correct roles will be announced. All of these are defined by the Accessible Rich Internet Applications spec, or ARIA. If you must use a different element, HTML allows you to specify a role for an element. For our purposes, this tends to be useful in two separate cases: generated images and tables.</p>
 <p>If you work on a typical news graphics desk, you may build things that are "images," but are actually composed of HTML and SVG. In a screen reader, these will often be announced in odd ways: for example, the labels on the X axis might be read out without any context, leaving users confused. It's helpful instead to mark the entire block containing the visualization as an image, and giving it a description using ARIA (in place of the alt text all images should have):</p>
 <code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span>
-  <span class="hljs-attr">class</span>=<span class="hljs-string">"graphic"</span>
-  <span class="hljs-attr">role</span>=<span class="hljs-string">"img"</span>
-  <span class="hljs-attr">aria-label</span>=<span class="hljs-string">"A bar chart containing lots of child elements"</span>
+  <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;graphic&quot;</span>
+  <span class="hljs-attr">role</span>=<span class="hljs-string">&quot;img&quot;</span>
+  <span class="hljs-attr">aria-label</span>=<span class="hljs-string">&quot;A bar chart containing lots of child elements&quot;</span>
 &gt;</span>
-  <span class="hljs-comment">&lt;!-- complicated markup goes here, but won't be read --&gt;</span>
+  <span class="hljs-comment">&lt;!-- complicated markup goes here, but won&#x27;t be read --&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
 <p>One common technique for making HTML tables responsive is to change their display property in CSS based on the media query--turning rows into lists of header/value pairs. However, changing the CSS of a table means that it will cease to be a table as far as screen readers are concerned. In that case, we will need to use roles to reaffirm the table-ness of our markup:</p>
-<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">table</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"table"</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">thead</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"rowgroup"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">tr</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"row"</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">th</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"columnheader"</span>&gt;</span>A
-      <span class="hljs-tag">&lt;<span class="hljs-name">th</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"columnheader"</span>&gt;</span>B
-  <span class="hljs-tag">&lt;<span class="hljs-name">tbody</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"rowgroup"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">tr</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"row"</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"cell"</span>&gt;</span>1
-      <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">role</span>=<span class="hljs-string">"cell"</span>&gt;</span>2
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">table</span> <span class="hljs-attr">role</span>=<span class="hljs-string">&quot;table&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">thead</span> <span class="hljs-attr">role</span>=<span class="hljs-string">&quot;rowgroup&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">tr</span> <span class="hljs-attr">role</span>=<span class="hljs-string">&quot;row&quot;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">th</span> <span class="hljs-attr">role</span>=<span class="hljs-string">&quot;columnheader&quot;</span>&gt;</span>A
+      <span class="hljs-tag">&lt;<span class="hljs-name">th</span> <span class="hljs-attr">role</span>=<span class="hljs-string">&quot;columnheader&quot;</span>&gt;</span>B
+  <span class="hljs-tag">&lt;<span class="hljs-name">tbody</span> <span class="hljs-attr">role</span>=<span class="hljs-string">&quot;rowgroup&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">tr</span> <span class="hljs-attr">role</span>=<span class="hljs-string">&quot;row&quot;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">role</span>=<span class="hljs-string">&quot;cell&quot;</span>&gt;</span>1
+      <span class="hljs-tag">&lt;<span class="hljs-name">td</span> <span class="hljs-attr">role</span>=<span class="hljs-string">&quot;cell&quot;</span>&gt;</span>2
 <span class="hljs-tag">&lt;/<span class="hljs-name">table</span>&gt;</span></pre></code>
 <p>Is this obnoxious? You bet! But it means that you can restyle a data table to your heart's content, and it will still act like a table for users in a screen reader--meaning that headers will be announced for each cell, and it's possible to navigate around the grid.</p>
 <p>Here's the cool thing about table roles: you can also use them to create tables for screen readers where it doesn't exist normally. For example, here's a bar chart that's also a table. Inspect it to see the roles that are assigned. Many browsers now include a panel in the dev tools that exposes the accessibility roles assigned to the DOM tree.</p>

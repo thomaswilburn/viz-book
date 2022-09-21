@@ -40,8 +40,8 @@
 <p>These principles are the same for interactive news design: readers have to learn the verbs for complex interactives, whether as simple as clicking a quiz button or complex as filling in a trend graph. There are many designers who argue that news graphics should be reduced, if at all possible, to as few verbs as possible&mdash;all the way to a static image, if necessary. But scroll, particularly on touchscreens, is one verb that we never have to teach. It's instinctive, and that makes it deeply useful for our purposes.</p>
 <h2 id="registering-efficient-scroll-listeners">Registering efficient scroll listeners</h2>
 <p>Reacting to the page scroll is not hard to do. Both the window and various elements themselves will fire a scroll event, and so we can just listen for it:</p>
-<code class="language-js"><pre><span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"Scroll event fired!"</span>);
+<code class="language-js"><pre><span class="hljs-variable language_">window</span>.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&quot;scroll&quot;</span>, <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;Scroll event fired!&quot;</span>);
 });</pre></code>
 <p>That said, if you run this code in the console, you'll quickly find that depending on the browser, you may soon be up to your ears in scroll events&mdash;way more than you actually need. Worse, if your code involves making a lot of changes to the page or doing a lot of processing, you can kill your scroll performance. Here's a quick demo:</p>
 <div class="interactive-section">
@@ -72,24 +72,24 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
 <p>Clicking the "Add delay" button will register a scroll listener that churns in a loop for about 300 milliseconds, while triggering repeated page layouts. That's not a very long time. But it's long enough to drop frames: scrolling through the page using the page up/down keys should be noticeably less smooth than with the delay removed. You won't be writing a pointless loop like this, of course, and your code probably won't take 100 milliseconds to do its work. But if you change the page on every scroll event (say, adding or removing a class from the body), you'll trigger the browser's layout process, and that can easily take enough time to become choppy.</p>
 <p>Browser developers are aware of this, and so they've taken some steps to mitigate the effect. It's too late to change the behavior of keyboard scrolling, for example. But you may notice that on phones, or using a mouse or touchscreen, scrolling remains smooth, because those scroll listeners are triggered less frequently, without blocking viewport updates. <a href="https://blogs.windows.com/msedgedev/2017/03/08/scrolling-on-the-web/">This article</a> from Microsoft has more detail on how these events are handled across different browser engines.</p>
 <p>Regardless, you often don't need to take action on every single page scroll event. It's not only bad for your performance, but it also makes your effects feel overly-sensitive, and most of the time they just don't need to be that picky. To change this, we can throttle or debounce our scroll listener, so that it only actually runs a few times per second, no matter how often the scroll event fires. Utility functions to do this are included in many packages like Lodash, but a simple throttle is also easy to write:</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> debounce = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">originalFn, delay = <span class="hljs-number">150</span></span>) </span>{
+<code class="language-js"><pre><span class="hljs-keyword">var</span> debounce = <span class="hljs-keyword">function</span>(<span class="hljs-params">originalFn, delay = <span class="hljs-number">150</span></span>) {
   <span class="hljs-keyword">var</span> timeout = <span class="hljs-literal">null</span>;
-  <span class="hljs-comment">// return a new function that's throttled</span>
-  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">...args</span>) </span>{
+  <span class="hljs-comment">// return a new function that&#x27;s throttled</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">function</span>(<span class="hljs-params">...args</span>) {
     <span class="hljs-comment">// if currently in the timeout, return</span>
     <span class="hljs-keyword">if</span> (timeout) <span class="hljs-keyword">return</span>;
-    timeout = setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> timeout = <span class="hljs-literal">null</span>, delay);
-    originalFn(...args);
+    timeout = <span class="hljs-built_in">setTimeout</span>(<span class="hljs-function">() =&gt;</span> timeout = <span class="hljs-literal">null</span>, delay);
+    <span class="hljs-title function_">originalFn</span>(...args);
   };
 };
 
 <span class="hljs-comment">// example of use:</span>
-<span class="hljs-keyword">var</span> throttled = debounce(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">"scroll"</span>);
+<span class="hljs-keyword">var</span> throttled = <span class="hljs-title function_">debounce</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">&quot;scroll&quot;</span>);
 });
 
 <span class="hljs-comment">// this will only log out every 150ms</span>
-<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, throttled);</pre></code>
+<span class="hljs-variable language_">window</span>.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&quot;scroll&quot;</span>, throttled);</pre></code>
 <p>Our debounce function will run the submitted function on the initial call, but then it rejects further calls until the delay (defaulting to 150ms) expires.</p>
 <p>Debouncing is a great way to handle scroll listeners that trigger large, imprecise changes to the page, like adding a control class or triggering a CSS animation. Most of the time, that's the use case you should have in mind. On many of our big projects, we may want to pan or zoom around a map in response to the user's position in the document. Since the pan itself is animated and takes most of a second, updating on every single scroll event is overkill, and the animation would stutter as it was constantly restarted.</p>
 <p>That said, debouncing is inappropriate for fine-grained animations based on the scroll position. In those cases, your listener function itself will need to dump out as early as possible to keep from interfering with scroll behavior. For example, in <a href="http://projects.seattletimes.com/2017/eastside-prostitution-bust/">this story on prostitution rings in Bellevue, WA</a>, the animated sections are linked directly to the scroll distance, so a 150ms delay would have resulted in jerky transitions. Instead, each listener checks for the visibility of its designated section, and exits early to keep from performing expensive animation work on offscreen sections.</p>
@@ -100,19 +100,19 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
   <span class="hljs-attribute">height</span>: <span class="hljs-number">150vh</span>;
 }</pre></code>
 <p>Then, in our scroll listener, we're going to check the position of each zone relative to the screen, using a function called <var>getBoundingClientRect()</var>. This function, which is incredibly useful as an interactive developer, just tells you the location and size of a given element. If the top of the element is greater than zero, but less than the height of the screen, it must be somewhere in the viewport.</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> zones = $(<span class="hljs-string">".scroll-zone"</span>);
+<code class="language-js"><pre><span class="hljs-keyword">var</span> zones = $(<span class="hljs-string">&quot;.scroll-zone&quot;</span>);
 
-<span class="hljs-keyword">var</span> listener = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-  zones.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">zone</span>) </span>{
-    <span class="hljs-keyword">var</span> bounds = zone.getBoundingClientRect();
-    <span class="hljs-keyword">if</span> (bounds.top &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.top &lt; <span class="hljs-built_in">window</span>.innerHeight) {
-      <span class="hljs-keyword">var</span> bg = zone.dataset.bg;
-      <span class="hljs-built_in">document</span>.body.style.background = bg;
+<span class="hljs-keyword">var</span> listener = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+  zones.<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">zone</span>) {
+    <span class="hljs-keyword">var</span> bounds = zone.<span class="hljs-title function_">getBoundingClientRect</span>();
+    <span class="hljs-keyword">if</span> (bounds.<span class="hljs-property">top</span> &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.<span class="hljs-property">top</span> &lt; <span class="hljs-variable language_">window</span>.<span class="hljs-property">innerHeight</span>) {
+      <span class="hljs-keyword">var</span> bg = zone.<span class="hljs-property">dataset</span>.<span class="hljs-property">bg</span>;
+      <span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>.<span class="hljs-property">style</span>.<span class="hljs-property">background</span> = bg;
     }
   });
 };
 
-<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, debounce(listener));</pre></code>
+<span class="hljs-variable language_">window</span>.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&quot;scroll&quot;</span>, <span class="hljs-title function_">debounce</span>(listener));</pre></code>
 <div class="scroll-container simple">
   <div class="scroll-zone simple" data-bg="salmon"></div>
   <div class="scroll-zone simple" data-bg="papayawhip"></div>
@@ -126,13 +126,13 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
   <div class="scroll-zone simple short" data-bg="mistyrose"></div>
 </div>
 <p>Ideally, we should quit as soon as we locate an onscreen element, which prevents multiple "active" zones and doesn't waste valuable JS execution time. To do so, we'll switch from a functional loop, to a manual loop with a counter:</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> listener = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; zones.length; i++) {
+<code class="language-js"><pre><span class="hljs-keyword">var</span> listener = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; zones.<span class="hljs-property">length</span>; i++) {
     <span class="hljs-keyword">var</span> zone = zones[i];
-    <span class="hljs-keyword">var</span> bounds = zone.getBoundingClientRect();
-    <span class="hljs-keyword">if</span> (bounds.top &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.top &lt; <span class="hljs-built_in">window</span>.innerHeight) {
-      <span class="hljs-keyword">var</span> bg = zone.dataset.bg;
-      <span class="hljs-built_in">document</span>.body.style.background = bg;
+    <span class="hljs-keyword">var</span> bounds = zone.<span class="hljs-title function_">getBoundingClientRect</span>();
+    <span class="hljs-keyword">if</span> (bounds.<span class="hljs-property">top</span> &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.<span class="hljs-property">top</span> &lt; <span class="hljs-variable language_">window</span>.<span class="hljs-property">innerHeight</span>) {
+      <span class="hljs-keyword">var</span> bg = zone.<span class="hljs-property">dataset</span>.<span class="hljs-property">bg</span>;
+      <span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>.<span class="hljs-property">style</span>.<span class="hljs-property">background</span> = bg;
       <span class="hljs-comment">//exit our loop</span>
       <span class="hljs-keyword">break</span>;
     }
@@ -148,15 +148,15 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
 </div>
 <p>Our code exits after finding the top-most fully-visible element, but this means we're not technically checking for when elements become visible so much as when their predecessor leaves the viewport. The resulting interaction feels like it has a delay&mdash;users won't be able to predict where the line is for triggering a scroll effect.</p>
 <p>The most "natural" behavior for a browser is to react as an element comes into view at the bottom, even if there's another item onscreen. An easy solution is just to reverse the direction of our loop: instead of checking elements for visibility starting at the top and working down, we'll start at the bottom and work up. We'll also raise the bottom boundary for being considered visible, to a constant 80% of the viewport. This creates a consistent "visibility zone" for scroll effects, and makes sure we react instantly once they enter that zone from the bottom (which is, of course, the most common scroll direction).</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> listener = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
+<code class="language-js"><pre><span class="hljs-keyword">var</span> listener = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
   <span class="hljs-comment">// backward loop here</span>
-  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = zones.length - <span class="hljs-number">1</span>; i &gt;= <span class="hljs-number">0</span>; i--) {
+  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = zones.<span class="hljs-property">length</span> - <span class="hljs-number">1</span>; i &gt;= <span class="hljs-number">0</span>; i--) {
     <span class="hljs-keyword">var</span> zone = zones[i];
-    <span class="hljs-keyword">var</span> bounds = zone.getBoundingClientRect();
+    <span class="hljs-keyword">var</span> bounds = zone.<span class="hljs-title function_">getBoundingClientRect</span>();
     <span class="hljs-comment">// note the .8 - ignore the bottom 20% of the window</span>
-    <span class="hljs-keyword">if</span> (bounds.top &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.top &lt; <span class="hljs-built_in">window</span>.innerHeight * <span class="hljs-number">.8</span>) {
-      <span class="hljs-keyword">var</span> bg = zone.dataset.bg;
-      <span class="hljs-built_in">document</span>.body.style.background = <span class="hljs-string">`url(<span class="hljs-subst">${bg}</span>)`</span>;
+    <span class="hljs-keyword">if</span> (bounds.<span class="hljs-property">top</span> &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.<span class="hljs-property">top</span> &lt; <span class="hljs-variable language_">window</span>.<span class="hljs-property">innerHeight</span> * <span class="hljs-number">.8</span>) {
+      <span class="hljs-keyword">var</span> bg = zone.<span class="hljs-property">dataset</span>.<span class="hljs-property">bg</span>;
+      <span class="hljs-variable language_">document</span>.<span class="hljs-property">body</span>.<span class="hljs-property">style</span>.<span class="hljs-property">background</span> = <span class="hljs-string">`url(<span class="hljs-subst">${bg}</span>)`</span>;
       <span class="hljs-comment">//exit our loop</span>
       <span class="hljs-keyword">break</span>;
     }
@@ -173,22 +173,22 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
 <p>Given a <var>bounds</var> object from <var>getBoundingClientRect()</var>, what are some common applications?</p>
 <h3>Viewport scissor test</h3>
 <p>Is something completely in the viewport? This is as easy as checking the top and bottom against the window.</p>
-<code class="language-js"><pre><span class="hljs-keyword">if</span> (bounds.top &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.bottom &lt; <span class="hljs-built_in">window</span>.innerHeight) {
+<code class="language-js"><pre><span class="hljs-keyword">if</span> (bounds.<span class="hljs-property">top</span> &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.<span class="hljs-property">bottom</span> &lt; <span class="hljs-variable language_">window</span>.<span class="hljs-property">innerHeight</span>) {
   <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
 }</pre></code>
 <h3>Exclusion scissor test</h3>
 <p>It's also useful sometimes to know if something <em>isn't</em> in view. For example, on WebGL projects, I often skip rendering if you can't see the canvas anyway, so I don't burn power for no good reason.</p>
-<code class="language-js"><pre><span class="hljs-keyword">if</span> (bounds.bottom &lt; <span class="hljs-number">0</span> || bounds.top &gt; <span class="hljs-built_in">window</span>.innerHeight) {
+<code class="language-js"><pre><span class="hljs-keyword">if</span> (bounds.<span class="hljs-property">bottom</span> &lt; <span class="hljs-number">0</span> || bounds.<span class="hljs-property">top</span> &gt; <span class="hljs-variable language_">window</span>.<span class="hljs-property">innerHeight</span>) {
   <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
 }</pre></code>
 <h3>Activating sections once</h3>
 <p>A common task is to cause an effect to trigger an effect only once per section, per page load. Using an array filter is a simple way to do this, since it actually just removes the element from the bounds check. With a little extra work, we can even kill the listener when we're out of single-use elements.</p>
 <code class="language-js"><pre><span class="hljs-comment">//elements is an array of scroll zones</span>
-<span class="hljs-keyword">var</span> scrollCheck = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-  elements = elements.filter(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">el</span>) </span>{
+<span class="hljs-keyword">var</span> scrollCheck = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+  elements = elements.<span class="hljs-title function_">filter</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">el</span>) {
     <span class="hljs-comment">// require it to be halfway onscreen</span>
-    <span class="hljs-keyword">if</span> (bounds.top &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.top &lt; <span class="hljs-built_in">window</span>.innerHeight * <span class="hljs-number">.5</span>) {
-      el.classList.add(<span class="hljs-string">"activated-scroll"</span>);
+    <span class="hljs-keyword">if</span> (bounds.<span class="hljs-property">top</span> &gt; <span class="hljs-number">0</span> &amp;&amp; bounds.<span class="hljs-property">top</span> &lt; <span class="hljs-variable language_">window</span>.<span class="hljs-property">innerHeight</span> * <span class="hljs-number">.5</span>) {
+      el.<span class="hljs-property">classList</span>.<span class="hljs-title function_">add</span>(<span class="hljs-string">&quot;activated-scroll&quot;</span>);
       <span class="hljs-comment">// remove from the array</span>
       <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
     }
@@ -196,17 +196,17 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
     <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
   });
   <span class="hljs-comment">// remove listener when everything is activated</span>
-  <span class="hljs-keyword">if</span> (!elements.length) <span class="hljs-built_in">window</span>.removeListener(<span class="hljs-string">"scroll"</span>, scrollCheck);
+  <span class="hljs-keyword">if</span> (!elements.<span class="hljs-property">length</span>) <span class="hljs-variable language_">window</span>.<span class="hljs-title function_">removeListener</span>(<span class="hljs-string">&quot;scroll&quot;</span>, scrollCheck);
 };
 
-<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">"scroll"</span>, scrollCheck);</pre></code>
+<span class="hljs-variable language_">window</span>.<span class="hljs-title function_">addEventListener</span>(<span class="hljs-string">&quot;scroll&quot;</span>, scrollCheck);</pre></code>
 <h3>Measuring progress</h3>
 <p>Many scroll-linked animations require you to know how far you've scrolled through any given element&mdash;meaning, between the element entering at the very bottom of the screen and leaving at the top, what's the progress between those two points? Parallax scrolls often rely on this information. To do so, we'll find the normalized delta as a number between 0 and 1, where 1 is "leaving the top" and 0 is "entering at the bottom."</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> vh = <span class="hljs-built_in">window</span>.innerHeight;
-<span class="hljs-comment">// what's the total covered area?</span>
-<span class="hljs-keyword">var</span> total = vh + bounds.height;
+<code class="language-js"><pre><span class="hljs-keyword">var</span> vh = <span class="hljs-variable language_">window</span>.<span class="hljs-property">innerHeight</span>;
+<span class="hljs-comment">// what&#x27;s the total covered area?</span>
+<span class="hljs-keyword">var</span> total = vh + bounds.<span class="hljs-property">height</span>;
 <span class="hljs-comment">// how far have we gotten through that?</span>
-<span class="hljs-keyword">var</span> scrolled = bounds.top - vh;
+<span class="hljs-keyword">var</span> scrolled = bounds.<span class="hljs-property">top</span> - vh;
 <span class="hljs-comment">// normalize to a 0...1 range</span>
 <span class="hljs-keyword">var</span> progress = -scrolled / cover
 <span class="hljs-comment">// you can also convert to -1...1 for some effects</span>
@@ -214,15 +214,15 @@ document.querySelector(".remove-delay").addEventListener("click", () => window.r
 <h2 id="home:-stuck">Home: stuck</h2>
 <p>The fastest code is the code we never run, and nowhere is that more true than when it comes to reacting to page scroll. For some use cases, it's increasingly possible to create effects purely in CSS.</p>
 <p>Take the persistent menubar, for example. On many pages, you may want a menu to be a part of the normal page layout, but to adhere to the viewport as the page scrolls. It's tempting to do this as a JavaScript page effect, but doing so will often cause choppy scrolling, because it requires multiple layouts to check and update the position of the menu element:</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> onScroll = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-  <span class="hljs-keyword">var</span> bounds = menuContainer.getBoundingClientRect();
-  <span class="hljs-comment">// is the menu's containing element offscreen?</span>
-  <span class="hljs-keyword">if</span> (menuContainerBounds.top &lt; <span class="hljs-number">0</span>) {
+<code class="language-js"><pre><span class="hljs-keyword">var</span> onScroll = <span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+  <span class="hljs-keyword">var</span> bounds = menuContainer.<span class="hljs-title function_">getBoundingClientRect</span>();
+  <span class="hljs-comment">// is the menu&#x27;s containing element offscreen?</span>
+  <span class="hljs-keyword">if</span> (menuContainerBounds.<span class="hljs-property">top</span> &lt; <span class="hljs-number">0</span>) {
     <span class="hljs-comment">// adhere to viewport</span>
-    menu.classList.add(<span class="hljs-string">"fixed-position"</span>);
+    menu.<span class="hljs-property">classList</span>.<span class="hljs-title function_">add</span>(<span class="hljs-string">&quot;fixed-position&quot;</span>);
   } <span class="hljs-keyword">else</span> {
     <span class="hljs-comment">// normal document flow</span>
-    menu.classList.remove(<span class="hljs-string">"fixed-position"</span>);
+    menu.<span class="hljs-property">classList</span>.<span class="hljs-title function_">remove</span>(<span class="hljs-string">&quot;fixed-position&quot;</span>);
   }
 };</pre></code>
 <p>A simpler solution is just to let the browser handle the fixed positioning by setting the menu's CSS to <var>position: sticky</var>. Supported in pretty much everything except for IE, this leaves the element in place until it hits the boundary defined by <var>top</var> or <var>bottom</var> styles, and then locks it as though it was <var>position: fixed</var>. In IE, the menu won't fix, which is unfortunate but does at least fulfill the principles of graceful degradation. Sticky elements are also limited to the bounds of their containers, which means they can easily slide offscreen once you scroll past a given point. It's a long overdue part of the CSS toolkit.</p>

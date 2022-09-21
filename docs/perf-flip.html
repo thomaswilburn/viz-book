@@ -52,30 +52,30 @@
 </ul>
 <p>It's probably easier to understand as code, though:</p>
 <code class="language-js"><pre><span class="hljs-comment">// get the initial position</span>
-<span class="hljs-keyword">var</span> first = element.getBoundingClientRect();
+<span class="hljs-keyword">var</span> first = element.<span class="hljs-title function_">getBoundingClientRect</span>();
 
-<span class="hljs-comment">// you can mutate this element's position or size</span>
-<span class="hljs-comment">// you can even animate "into" a second element if you want</span>
-<span class="hljs-comment">// here we'll add a class</span>
-element.classList.add(<span class="hljs-string">"active"</span>);
+<span class="hljs-comment">// you can mutate this element&#x27;s position or size</span>
+<span class="hljs-comment">// you can even animate &quot;into&quot; a second element if you want</span>
+<span class="hljs-comment">// here we&#x27;ll add a class</span>
+element.<span class="hljs-property">classList</span>.<span class="hljs-title function_">add</span>(<span class="hljs-string">&quot;active&quot;</span>);
 
 <span class="hljs-comment">// measure the resulting position</span>
-<span class="hljs-keyword">var</span> last = element.getBoundingClientRect();
+<span class="hljs-keyword">var</span> last = element.<span class="hljs-title function_">getBoundingClientRect</span>();
 <span class="hljs-comment">// invert the position</span>
 <span class="hljs-keyword">var</span> t = {
-  <span class="hljs-attr">top</span>: first.top - last.top,
-  <span class="hljs-attr">left</span>: first.left - last.left,
-  <span class="hljs-attr">width</span>: last.width / first.width,
-  <span class="hljs-attr">height</span>: last.height / first.height
+  <span class="hljs-attr">top</span>: first.<span class="hljs-property">top</span> - last.<span class="hljs-property">top</span>,
+  <span class="hljs-attr">left</span>: first.<span class="hljs-property">left</span> - last.<span class="hljs-property">left</span>,
+  <span class="hljs-attr">width</span>: last.<span class="hljs-property">width</span> / first.<span class="hljs-property">width</span>,
+  <span class="hljs-attr">height</span>: last.<span class="hljs-property">height</span> / first.<span class="hljs-property">height</span>
 };
 <span class="hljs-comment">// this transform moves the element to its original position/size</span>
-element.style.transform = <span class="hljs-string">`translate(<span class="hljs-subst">${t.left}</span>px, <span class="hljs-subst">${t.top}</span>px) scale(<span class="hljs-subst">${t.width}</span>, <span class="hljs-subst">${t.height}</span>)`</span>;
+element.<span class="hljs-property">style</span>.<span class="hljs-property">transform</span> = <span class="hljs-string">`translate(<span class="hljs-subst">${t.left}</span>px, <span class="hljs-subst">${t.top}</span>px) scale(<span class="hljs-subst">${t.width}</span>, <span class="hljs-subst">${t.height}</span>)`</span>;
 
-<span class="hljs-comment">// turn on transitions and remove the transform to "play" it</span>
+<span class="hljs-comment">// turn on transitions and remove the transform to &quot;play&quot; it</span>
 <span class="hljs-comment">// we wait a frame to give the browser a chance to render</span>
-requestAnimationFrame(<span class="hljs-function"><span class="hljs-params">_</span> =&gt;</span> {
-  element.classList.add(<span class="hljs-string">"enable-transition"</span>);
-  element.style.transform = <span class="hljs-string">""</span>;
+<span class="hljs-title function_">requestAnimationFrame</span>(<span class="hljs-function"><span class="hljs-params">_</span> =&gt;</span> {
+  element.<span class="hljs-property">classList</span>.<span class="hljs-title function_">add</span>(<span class="hljs-string">&quot;enable-transition&quot;</span>);
+  element.<span class="hljs-property">style</span>.<span class="hljs-property">transform</span> = <span class="hljs-string">&quot;&quot;</span>;
 });</pre></code>
 <p>The key to FLIP is that it prioritizes the CSS properties that browsers can animate smoothly, because they map cleanly to operations that can be offloaded to the GPU: fading opacity and transforming size or position without affecting layout. Other properties, like changing the color of a background or the layout dimensions of an element, require the browser to repaint element contents instead of re-using them in an composited layer. Paul Lewis' <a href="https://csstriggers.com/">CSS Triggers</a> can serve as a guide for which properties cause repaint, and which ones only need compositing.</p>
 <h2 id="making-flip-slow">Making FLIP slow</h2>
@@ -83,34 +83,34 @@ requestAnimationFrame(<span class="hljs-function"><span class="hljs-params">_</s
 <p>However, if you're animating many elements&mdash;say, a scatterplot or a stacked bar chart that transitions between relative and absolute numbers&mdash;it's easy to blow through your frame budget by using FLIP naively. Each time you collect two measurements separated by a DOM mutation, it requires the browser to perform a full page layout and measurement, and you can't afford many of those.</p>
 <p>Instead, if you have many elements you're planning on animating, you'll want to batch reads and writes. The browser is smart enough to cache the layout data in between <var>getBoundingClientRect()</var> calls as long as you don't change the page in any way, and it also applies changes lazily if you let it. So the key is to use an array to associate intermediate values across animation phases for many elements.</p>
 <code class="language-js"><pre><span class="hljs-comment">// start with a set of elements</span>
-<span class="hljs-keyword">var</span> elements = $(<span class="hljs-string">".animation-targets"</span>);
+<span class="hljs-keyword">var</span> elements = $(<span class="hljs-string">&quot;.animation-targets&quot;</span>);
 
-<span class="hljs-comment">// Perform "First" step for all elements</span>
-<span class="hljs-keyword">var</span> flip = elements.map(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">element</span>) </span>{
+<span class="hljs-comment">// Perform &quot;First&quot; step for all elements</span>
+<span class="hljs-keyword">var</span> flip = elements.<span class="hljs-title function_">map</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">element</span>) {
   <span class="hljs-keyword">return</span> {
     element,
-    <span class="hljs-attr">first</span>: element.getBoundingClientRect()
+    <span class="hljs-attr">first</span>: element.<span class="hljs-title function_">getBoundingClientRect</span>()
   };
 });
 
 <span class="hljs-comment">// Mutate all elements at once</span>
-flip.forEach(<span class="hljs-function"><span class="hljs-params">el</span> =&gt;</span> el.classList.add(<span class="hljs-string">"active"</span>));
+flip.<span class="hljs-title function_">forEach</span>(<span class="hljs-function"><span class="hljs-params">el</span> =&gt;</span> el.<span class="hljs-property">classList</span>.<span class="hljs-title function_">add</span>(<span class="hljs-string">&quot;active&quot;</span>));
 
-<span class="hljs-comment">// Get the "Last" position and invert</span>
-flip.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">f</span>) </span>{
-  <span class="hljs-keyword">var</span> last = f.element.getBoundingClientRect();
+<span class="hljs-comment">// Get the &quot;Last&quot; position and invert</span>
+flip.<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">f</span>) {
+  <span class="hljs-keyword">var</span> last = f.<span class="hljs-property">element</span>.<span class="hljs-title function_">getBoundingClientRect</span>();
   <span class="hljs-keyword">var</span> invert = {
-    <span class="hljs-attr">top</span>: f.first.top - last.top,
-    <span class="hljs-attr">left</span>: f.left.top - last.left
+    <span class="hljs-attr">top</span>: f.<span class="hljs-property">first</span>.<span class="hljs-property">top</span> - last.<span class="hljs-property">top</span>,
+    <span class="hljs-attr">left</span>: f.<span class="hljs-property">left</span>.<span class="hljs-property">top</span> - last.<span class="hljs-property">left</span>
   };
-  f.element.style.transform = <span class="hljs-string">`translate(<span class="hljs-subst">${invert.left}</span>px, <span class="hljs-subst">${invert.top}</span>px)`</span>;
+  f.<span class="hljs-property">element</span>.<span class="hljs-property">style</span>.<span class="hljs-property">transform</span> = <span class="hljs-string">`translate(<span class="hljs-subst">${invert.left}</span>px, <span class="hljs-subst">${invert.top}</span>px)`</span>;
 });
 
 <span class="hljs-comment">// now after a frame to render, play all</span>
-requestAnimationFrame(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) </span>{
-  flip.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">f</span>) </span>{
-    f.element.classList.add(<span class="hljs-string">"enable-transitions"</span>);
-    f.element.style.transform = <span class="hljs-string">""</span>;
+<span class="hljs-title function_">requestAnimationFrame</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params"></span>) {
+  flip.<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">f</span>) {
+    f.<span class="hljs-property">element</span>.<span class="hljs-property">classList</span>.<span class="hljs-title function_">add</span>(<span class="hljs-string">&quot;enable-transitions&quot;</span>);
+    f.<span class="hljs-property">element</span>.<span class="hljs-property">style</span>.<span class="hljs-property">transform</span> = <span class="hljs-string">&quot;&quot;</span>;
   });
 });</pre></code>
 <p>This kind of batching is not new: Wilson Page's <a href="https://github.com/wilsonpage/fastdom">FastDOM</a> library (created at the Financial Times) has been offering tools for years that let developers prevent costly document reflow by combining reads and writes. But with FLIP, we need to make it very explicit, and account for the <a href="https://aerotwist.com/blog/the-anatomy-of-a-frame/">anatomy of a frame</a>. It may be possible, one day, that browsers will automatically make these kinds of performance improvements for us, but speaking from my limited experience with game engines, I doubt it.</p>

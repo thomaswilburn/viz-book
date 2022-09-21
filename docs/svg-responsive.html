@@ -43,23 +43,23 @@ img, svg {
 <p>We're naturally interested in SVG because it gives us an easy way to draw live vectors in the browser&mdash;shapes that can be manipulated, listen for events, and announce themselves in a screen reader. But SVG is also interesting because its presentation can be manipulated using CSS, including media queries and complex selectors. This opens up new possibilities, both for data visualization and art direction.</p>
 <p>To really understand how SVG interacts with CSS, we need to talk about how it gets included in the page. Thus far, we've been generating or working with inline SVG, which is content directly placed in an HTML page. The HTML5 parser guarantees that inline <var>&lt;svg&gt;</var> tags simply work, although we do need to use the correct namespace when <a href="svg-generation.html">generating new elements dynamically</a>. So this just works:</p>
 <code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"100"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"100"</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">rect</span> <span class="hljs-attr">x</span>=<span class="hljs-string">"10"</span> <span class="hljs-attr">y</span>=<span class="hljs-string">"10"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"40"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"40"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">rect</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;100&quot;</span> <span class="hljs-attr">height</span>=<span class="hljs-string">&quot;100&quot;</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">rect</span> <span class="hljs-attr">x</span>=<span class="hljs-string">&quot;10&quot;</span> <span class="hljs-attr">y</span>=<span class="hljs-string">&quot;10&quot;</span> <span class="hljs-attr">height</span>=<span class="hljs-string">&quot;40&quot;</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;40&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">rect</span>&gt;</span>
   <span class="hljs-tag">&lt;/<span class="hljs-name">svg</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></pre></code>
 <p>You can also include a separate SVG file in a page, same as a JPG or PNG file, using an <var>&lt;img&gt;</var> tag.</p>
-<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"filename.svg"</span>&gt;</span></pre></code>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;filename.svg&quot;</span>&gt;</span></pre></code>
 <p>However, when included through an image tag, the SVG is "opaque" to the rest of the page: it can't be inspected, you can't access its internal elements from scripts or styles, and it's not allowed to load external resources or run scripts. This makes them largely inert compared to inline elements, but they can still include internal CSS, and they can expose some manipulation capability through the URL used to load them.</p>
 <h2 id="the-media-is-the-message">The media is the message</h2>
 <p>When using media queries with SVG, the difference becomes clear. For example, here's the same SVG loaded twice: once through an inline tag, and once as an external resource. In both cases, the SVG contains a <var>&lt;style&gt;</var> tag that sets the fill of the rectangle with a 400px breakpoint:</p>
-<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"100"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"100"</span> <span class="hljs-attr">viewBox</span>=<span class="hljs-string">"0 0 100 100"</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="css">
-<span class="hljs-selector-tag">rect</span> { <span class="hljs-attribute">fill</span>: blue }
-@<span class="hljs-keyword">media</span> (min-width: <span class="hljs-number">400px</span>) {
-  <span class="hljs-selector-tag">rect</span> { <span class="hljs-attribute">fill</span>: green }
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">svg</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;100&quot;</span> <span class="hljs-attr">height</span>=<span class="hljs-string">&quot;100&quot;</span> <span class="hljs-attr">viewBox</span>=<span class="hljs-string">&quot;0 0 100 100&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">style</span>&gt;</span><span class="language-css">
+rect { fill: blue }
+<span class="hljs-keyword">@media</span> (<span class="hljs-attribute">min-width</span>: <span class="hljs-number">400px</span>) {
+  rect { fill: green }
 }
   </span><span class="hljs-tag">&lt;/<span class="hljs-name">style</span>&gt;</span>
-  <span class="hljs-tag">&lt;<span class="hljs-name">rect</span> <span class="hljs-attr">x</span>=<span class="hljs-string">"20"</span> <span class="hljs-attr">y</span>=<span class="hljs-string">"20"</span> <span class="hljs-attr">width</span>=<span class="hljs-string">"60"</span> <span class="hljs-attr">height</span>=<span class="hljs-string">"60"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">rect</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">rect</span> <span class="hljs-attr">x</span>=<span class="hljs-string">&quot;20&quot;</span> <span class="hljs-attr">y</span>=<span class="hljs-string">&quot;20&quot;</span> <span class="hljs-attr">width</span>=<span class="hljs-string">&quot;60&quot;</span> <span class="hljs-attr">height</span>=<span class="hljs-string">&quot;60&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">rect</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">svg</span>&gt;</span></pre></code>
 <p>If you're on a desktop machine, try resizing your window to see when the square changes color.</p>
 <svg width="100" height="100" viewBox="0 0 100 100">
@@ -78,39 +78,39 @@ img, svg {
 <h2 id="powering-small-multiples-with-css">Powering small multiples with CSS</h2>
 <p>Loading external SVG files can be helpful for static elements. But generally speaking, the most effective way to include an SVG into your page is still as inline elements. That doesn't mean you have to write them all in directly&mdash;I'm a big fan of using templating or a custom element like our <a href="https://github.com/seattletimes/savage-image">Savage Image</a> tag, which loads the SVG in a separate network request and then places it in the document for you. This gives you the best of both worlds: small page size and load time, combined with the ability to access and style elements directly.</p>
 <p>Let's take a look at one potential method for using inline SVG in data visualization. We'll create a graphic that uses a template and CSS classes to generate small multiples. In this case, the graphic represents injuries to a football team as a set of paper dolls, with injured limbs shaded. Here's our template function, which takes a string of injuries and then adds those to the <var>data-injuries</var> attribute of its output.</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> generatePlayer = <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">injuries</span>) </span>{
+<code class="language-js"><pre><span class="hljs-keyword">var</span> generatePlayer = <span class="hljs-keyword">function</span>(<span class="hljs-params">injuries</span>) {
 <span class="hljs-keyword">return</span> <span class="hljs-string">`
-&lt;svg width="100" height="140" data-injuries="<span class="hljs-subst">${injuries}</span>"&gt;
-  &lt;g class="head"&gt;
-    &lt;circle cx="50" cy="20" r="20" /&gt;
+&lt;svg width=&quot;100&quot; height=&quot;140&quot; data-injuries=&quot;<span class="hljs-subst">${injuries}</span>&quot;&gt;
+  &lt;g class=&quot;head&quot;&gt;
+    &lt;circle cx=&quot;50&quot; cy=&quot;20&quot; r=&quot;20&quot; /&gt;
   &lt;/g&gt;
-  &lt;g class="torso"&gt;
-    &lt;rect x="25" y="40" width="50" height="60" /&gt;
+  &lt;g class=&quot;torso&quot;&gt;
+    &lt;rect x=&quot;25&quot; y=&quot;40&quot; width=&quot;50&quot; height=&quot;60&quot; /&gt;
   &lt;/g&gt;
-  &lt;g class="right-arm"&gt;
-    &lt;rect x="0" y="40" width="25" height="20" /&gt;
+  &lt;g class=&quot;right-arm&quot;&gt;
+    &lt;rect x=&quot;0&quot; y=&quot;40&quot; width=&quot;25&quot; height=&quot;20&quot; /&gt;
   &lt;/g&gt;
-  &lt;g class="left-arm"&gt;
-    &lt;rect x="75" y="40" width="25" height="20" /&gt;
+  &lt;g class=&quot;left-arm&quot;&gt;
+    &lt;rect x=&quot;75&quot; y=&quot;40&quot; width=&quot;25&quot; height=&quot;20&quot; /&gt;
   &lt;/g&gt;
-  &lt;g class="right-leg"&gt;
-    &lt;rect x="25" y="100" width="15" height="40" /&gt;
-    &lt;rect x="10" y="120" width="25" height="20" /&gt;
+  &lt;g class=&quot;right-leg&quot;&gt;
+    &lt;rect x=&quot;25&quot; y=&quot;100&quot; width=&quot;15&quot; height=&quot;40&quot; /&gt;
+    &lt;rect x=&quot;10&quot; y=&quot;120&quot; width=&quot;25&quot; height=&quot;20&quot; /&gt;
   &lt;/g&gt;
-  &lt;g class="right-leg"&gt;
-    &lt;rect x="60" y="100" width="15" height="40" /&gt;
-    &lt;rect x="60" y="120" width="25" height="20" /&gt;
+  &lt;g class=&quot;right-leg&quot;&gt;
+    &lt;rect x=&quot;60&quot; y=&quot;100&quot; width=&quot;15&quot; height=&quot;40&quot; /&gt;
+    &lt;rect x=&quot;60&quot; y=&quot;120&quot; width=&quot;25&quot; height=&quot;20&quot; /&gt;
   &lt;/g&gt;
 &lt;/svg&gt;
   `</span>;
 };</pre></code>
 <p>A little CSS, meanwhile, will cause set the fill of shapes inside groups that match each injury string (see the chapter on <a href="css-matrix.html">attribute selectors</a> for more detail on how this works):</p>
-<code class="language-css"><pre><span class="hljs-selector-attr">[data-injuries~="head"]</span> <span class="hljs-selector-class">.head</span> * { <span class="hljs-attribute">fill</span>: red }
-<span class="hljs-selector-attr">[data-injuries~="torso"]</span> <span class="hljs-selector-class">.torso</span> * { <span class="hljs-attribute">fill</span>: red }
-<span class="hljs-selector-attr">[data-injuries~="left-arm"]</span> <span class="hljs-selector-class">.left-arm</span> * { <span class="hljs-attribute">fill</span>: red }
-<span class="hljs-selector-attr">[data-injuries~="right-arm"]</span> <span class="hljs-selector-class">.right-arm</span> * { <span class="hljs-attribute">fill</span>: red }
-<span class="hljs-selector-attr">[data-injuries~="left-leg"]</span> <span class="hljs-selector-class">.left-leg</span> * { <span class="hljs-attribute">fill</span>: red }
-<span class="hljs-selector-attr">[data-injuries~="right-leg"]</span> <span class="hljs-selector-class">.right-leg</span> * { <span class="hljs-attribute">fill</span>: red }</pre></code>
+<code class="language-css"><pre><span class="hljs-selector-attr">[data-injuries~=<span class="hljs-string">&quot;head&quot;</span>]</span> <span class="hljs-selector-class">.head</span> * { fill: red }
+<span class="hljs-selector-attr">[data-injuries~=<span class="hljs-string">&quot;torso&quot;</span>]</span> <span class="hljs-selector-class">.torso</span> * { fill: red }
+<span class="hljs-selector-attr">[data-injuries~=<span class="hljs-string">&quot;left-arm&quot;</span>]</span> <span class="hljs-selector-class">.left-arm</span> * { fill: red }
+<span class="hljs-selector-attr">[data-injuries~=<span class="hljs-string">&quot;right-arm&quot;</span>]</span> <span class="hljs-selector-class">.right-arm</span> * { fill: red }
+<span class="hljs-selector-attr">[data-injuries~=<span class="hljs-string">&quot;left-leg&quot;</span>]</span> <span class="hljs-selector-class">.left-leg</span> * { fill: red }
+<span class="hljs-selector-attr">[data-injuries~=<span class="hljs-string">&quot;right-leg&quot;</span>]</span> <span class="hljs-selector-class">.right-leg</span> * { fill: red }</pre></code>
 <p>Putting these two together, we can generate a set of paper dolls that will quickly color themselves based on the data we simply pass through:</p>
 <style>
 .doll { display: inline-block }

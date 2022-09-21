@@ -38,7 +38,7 @@ exports.subsubhead = (_, { lines }) => `<h3>${lines.map(inlines).join("\n").trim
 exports.codeblock = function(context, def) {
   var start = -1;
   var end = 0;
-  var { lines, arg } = def;
+  var { lines, arg: language } = def;
   //trim starting and ending blank lines
   for (var i = 0; i < lines.length; i++) {
     var l = lines[i].trim();
@@ -48,12 +48,12 @@ exports.codeblock = function(context, def) {
   lines = lines.slice(start, end);
   var contents = lines.join("\n");
   // we ignore illegal parses but that's not great.
-  var highlighted = hljs.highlight(def.arg || "html", contents, true);
-  if (highlighted.relevance == 0) {
+  var highlighted = hljs.highlight(contents, { language, ignoreIllegals: true });
+  if (!language && highlighted.relevance == 0) {
     console.log(`No highlight for: ${context.filename}`);
     console.log(contents);
   }
-  return `<code class="language-${def.arg}"><pre>${highlighted.value}</pre></code>`
+  return `<code class="language-${language}"><pre>${highlighted.value}</pre></code>`
 };
 
 exports.sidebar = (_, { lines }, process) => `<aside class="sidebar">
