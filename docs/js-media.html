@@ -40,7 +40,7 @@
 <p>This is arguably bad for software freedom (should you care about such a thing), but it's good for us as developers. Both media tags support a <var>src</var> attribute identical to an <var>img</var> tag, using either H.264 or MP3 encoding for video and audio, respectively. So putting a playable media file on your page is as simple as the following:</p>
 <code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">video</span> <span class="hljs-attr">controls</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;movie.mp4&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">video</span>&gt;</span>
 
-<span class="hljs-tag">&lt;<span class="hljs-name">audio</span> <span class="hljs-attr">controls</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;sound.mp3&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">video</span>&gt;</span></pre></code>
+<span class="hljs-tag">&lt;<span class="hljs-name">audio</span> <span class="hljs-attr">controls</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;sound.mp3&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">video</span>&gt;</span></pre></code>
 <p>There are a number of optional attributes you can add to these tags, such as the <var>controls</var> attribute (which provides a track scrubber, play button, and time display). Most media tag attributes are boolean, meaning that they're either there or not, but the value doesn't matter. Other useful options include:</p>
 <ul>
 <li><var>loop</var> - restart the clip when it finishes</li>
@@ -68,21 +68,21 @@
   <span class="hljs-attr">poster</span>=<span class="hljs-string">&quot;splash.jpg&quot;</span>
   <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;low-quality.mp4&quot;</span>
   <span class="hljs-attr">data-src</span>=<span class="hljs-string">&quot;high-quality.mp4&quot;</span>
-  <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;responsive-video&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">video</span>&gt;</span></pre></code>
+  <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;responsive-video&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">video</span>&gt;</span></pre></code>
 <p>Then, based on our test, we may swap out that video with a sharper version at runtime using JavaScript. For users with a fast connection, this should happen fast enough that they won't notice the change.</p>
 <code class="language-js"><pre><span class="hljs-comment">// isHighBandwidth() should return true if the user is considered &quot;fast&quot;</span>
 <span class="hljs-comment">// it could be one or more of the above tests</span>
 <span class="hljs-keyword">var</span> swap = <span class="hljs-title function_">isHighBandwidth</span>();
 <span class="hljs-keyword">if</span> (swap) $(<span class="hljs-string">&quot;.responsive-video&quot;</span>).<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">video</span>) {
   video.<span class="hljs-property">src</span> = video.<span class="hljs-property">dataset</span>.<span class="hljs-property">src</span>;
-});</pre></code>
+});</pre></code>
 <p>A relatively simple change, but potentially a big difference for our users. And as a bonus, if we're paying by the megabyte for traffic, it will save us money as well. If we want to get really aggressive, and the network connection API is available to tell us when users are on very poor connections, we could even make the default asset an image, and upgrade in multiple stages:</p>
 <code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">img</span>
   <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;responsive-video&quot;</span>
   <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;poster.jpg&quot;</span>
   <span class="hljs-attr">data-low</span>=<span class="hljs-string">&quot;low-quality.mp4&quot;</span>
   <span class="hljs-attr">data-high</span>=<span class="hljs-string">&quot;high-quality.mp4&quot;</span>
-&gt;</span></pre></code>
+&gt;</span></pre></code>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> quality = <span class="hljs-title function_">getConnectionQuality</span>();
 <span class="hljs-keyword">if</span> (quality != <span class="hljs-string">&quot;low&quot;</span>) $(<span class="hljs-string">&quot;.responsive-video&quot;</span>).<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword">function</span>(<span class="hljs-params">img</span>) {
   <span class="hljs-comment">// create a replacement video</span>
@@ -93,12 +93,12 @@
   video.<span class="hljs-title function_">setAttribute</span>(<span class="hljs-string">&quot;muted&quot;</span>, <span class="hljs-string">&quot;&quot;</span>);
   video.<span class="hljs-property">src</span> = quality == <span class="hljs-string">&quot;medium&quot;</span> ? img.<span class="hljs-property">dataset</span>.<span class="hljs-property">low</span> : img.<span class="hljs-property">dataset</span>.<span class="hljs-property">high</span>;
   img.<span class="hljs-property">parentElement</span>.<span class="hljs-title function_">replaceChild</span>(video, img);
-});</pre></code>
+});</pre></code>
 <p>Creating a design that can scale up or down to a user's capability adds some complexity to this process, and it does require us to re-encode the video into a couple of different files. But this seems like a small price to pay for accessibility.</p>
 <h2 id="live-updates">Live updates</h2>
 <p>It's great that the browser's media tags provide controls, and for the most part I strongly recommend using them: they're guaranteed to be accessible and well-tested. Building your own player controls will almost certainly be a more difficult task. That said, we may still want to synchronize other parts of the page with audio playback&mdash;say, for transcripts, slides, or special effects. To do so, we need to be able to handle media events.</p>
 <p>Let's say that we have an audio tag that we want to make "live":</p>
-<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">audio</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;recording.mp3&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">audio</span>&gt;</span></pre></code>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">audio</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;recording.mp3&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">audio</span>&gt;</span></pre></code>
 <p>One thing that's important to know from the start is that media events, unlike most UI events, do not bubble up through the DOM, so you can't <a href="js-jquery.html">delegate your event listeners</a>. We have to attach listeners directly to the element itself, such as these listeners on the <var>play</var> and <var>pause</var> events.</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> audio = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&quot;audio&quot;</span>);
 
@@ -112,7 +112,7 @@
 };
 
 <span class="hljs-comment">// monitor start/stop</span>
-[<span class="hljs-string">&quot;pause&quot;</span>, <span class="hljs-string">&quot;play&quot;</span>].<span class="hljs-title function_">forEach</span>(<span class="hljs-function"><span class="hljs-params">event</span> =&gt;</span> audio.<span class="hljs-title function_">addEventListener</span>(event, onPause));</pre></code>
+[<span class="hljs-string">&quot;pause&quot;</span>, <span class="hljs-string">&quot;play&quot;</span>].<span class="hljs-title function_">forEach</span>(<span class="hljs-function"><span class="hljs-params">event</span> =&gt;</span> audio.<span class="hljs-title function_">addEventListener</span>(event, onPause));</pre></code>
 <p>Our next task is to update whenever the audio changes location, either because the user used the scrubber to jump around (the <var>seek</var> event) or because of normal playback (<var>timeupdate</var>). To find the exact location within the file, we can look at the media element's <var>currentTime</var> property, which will contain the file's playback location in seconds:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> onUpdate = <span class="hljs-keyword">function</span>(<span class="hljs-params">e</span>) {
   <span class="hljs-keyword">var</span> element = e.<span class="hljs-property">target</span>;
@@ -120,7 +120,7 @@
   <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Playback currently at <span class="hljs-subst">${time}</span> seconds`</span>);
 };
 
-[<span class="hljs-string">&quot;timeupdate&quot;</span>, <span class="hljs-string">&quot;seek&quot;</span>].<span class="hljs-title function_">forEach</span>(<span class="hljs-function"><span class="hljs-params">event</span> =&gt;</span> audio.<span class="hljs-title function_">addEventListener</span>(event, onUpdate));</pre></code>
+[<span class="hljs-string">&quot;timeupdate&quot;</span>, <span class="hljs-string">&quot;seek&quot;</span>].<span class="hljs-title function_">forEach</span>(<span class="hljs-function"><span class="hljs-params">event</span> =&gt;</span> audio.<span class="hljs-title function_">addEventListener</span>(event, onUpdate));</pre></code>
 <p>One possible use from combining these four events is to create a live visual transcript of audio, with labels identifying speakers. For <a href="http://projects.seattletimes.com/2017/eastside-prostitution-bust/">one project with a recording from court</a>, we used the standard WebVTT caption file (which you can get from many video transcription services) to do just that, and reused it to provide readers with transcripts of 911 audio a few months later (<a href="https://github.com/seattletimes/train-derail-audio/blob/master/src/js/main.js">source code here</a>). Since many readers may not have headphones in, or if audio is garbled, this is a great way to present spoken material.</p>
   </main>
   <nav class="chapter-links bottom">

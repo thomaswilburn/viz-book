@@ -13,6 +13,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "highlight.js": "^11.6.0"
+    "highlight.js": "^11.10.0"
   }
 }

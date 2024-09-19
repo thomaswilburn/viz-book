@@ -19,12 +19,7 @@ Once complete, our very basic demo chart (measuring "joy" versus "dogs", for wha
   border-left: 1px solid black;
   max-width: 400px;
   margin: auto;
-}
-
-.scatter-area::before {
-  content: "";
-  display: block;
-  padding-bottom: 100%;
+  aspect-ratio: 1 / 1;
 }
 
 .scatter-area .dot {
@@ -127,7 +122,7 @@ There are two other position values that you might use, albeit more rarely than 
 
 @subhead Placing our dots
 
-Back to our scatter plot, we start with one element that will serve as our chart's background. It is positioned relative, so that our dots can be placed inside using absolute positioning. A negative margin of half the dot's height and width will "center" it on the desired coordinate.
+Back to our scatter plot, we start with one element that will serve as our chart's background. It is positioned relative, so that our dots can be placed inside using absolute positioning. A negative margin of half the dot's height and width will "center" it on the desired coordinate. The <var>aspect-ratio</var> property will also let us keep our scatter plot square, no matter how wide it ends up being.
 
 @codeblock(css)...
 
@@ -138,7 +133,7 @@ Back to our scatter plot, we start with one element that will serve as our chart
   border-left: 1px solid black;
   max-width: 400px;
   margin: auto;
-  height: 400px;
+  aspect-ratio: 1 / 1;
 }
 
 .scatter-area .dot {
@@ -197,94 +192,3 @@ We can add tooltips to each dot by placing inserting HTML into the dot with a ".
 ...codeblock
 
 The code shown above is not entirely complete, and you should use your developer tools to explore some of the other niceties (such as the tooltips that "flip" from left to right when they cross the x-axis). You can also adapt this technique any time that you need to place elements within a defined space&mdash;I like to use it, along with percentage-based widths and heights, to create "annotated" images, similar to the facial tagging seen on many social networks.
-
-Still, one more detail remains to be explained: because our dots are positioned using percentages, this graph is fully responsive, yet if you resize the window the example plot keeps its perfectly square shape no matter what. In the styles I've written above, it's defined as 400px high (which means it would distort on small screens), so clearly there's something else setting the graph's height. What's the change that makes a constant aspect ratio possible?
-
-@subhead Defining an aspect ratio
-
-Some HTML elements have aspect ratios built in, by virtue of their content. Images, for example, "know" how high and wide they should be, and that relationship holds constant even if you resize one axis. The same is true for videos, and for canvas tags with the width or height attributes set.
-
-Other HTML elements, unfortunately, do not know how big they "should" be. If you change the width of these elements, by resizing the browser or placing them in a container, the height does not maintain a constant relationship. For the most part, this makes sense: you wouldn't want your paragraphs to get shorter just because they got skinnier, since that would cut off the text inside (or shrink it, which is equally bad). But sometimes we genuinely do want a non-image element, like an iframe containing a third-party video, to stay "frozen" at a certain aspect ratio, and there isn't an obvious style to make it happen.
-
-The trick, such as it is, comes from the "padding" property. In what seems like a bizarre (but helpful) choice, if you set an element's padding to be a percentage, the actual size of the padding will be determined by the width of the <em>parent</em> element. In other words, `padding-bottom: 100%` is equal to the width of your element's parent.
-
-Take the following markup:
-
-@codeblock(html)...
-
-<div class="aspect-container">
-  <div class="aspect-inner">
-    <iframe src="https://www.youtube.com/embed/a1Y73sPHKxw"></iframe>
-  </div>
-</div>
-
-...codeblock
-
-The iframe doesn't know how tall it wants to be, and if you set the width and height on it manually (as YouTube does by default), it'll either overflow small screens, or (if the max-width style is set) it won't resize the height when the width is restricted. However, setting the following styles will cause it to "lock" to 16:9, by positioning it absolutely within its container, and defining that container's height using its child's bottom padding.
-
-@codeblock(css)...
-
-.aspect-container { position: relative }
-
-/* 56.25% is 9 / 16, or 16:9 aspect ratio */
-.aspect-inner { padding-bottom: 56.25% }
-
-.aspect-container iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-...codeblock
-
-Here's the live demo:
-
-@html...
-<style>
-.aspect-container {
-  position: relative;
-  max-width: 600px;
-  margin: auto;
-}
-
-/* 56.25% is 9 / 16, or 16:9 aspect ratio */
-.aspect-inner { padding-bottom: 56.25% }
-
-.aspect-container iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-</style>
-<div class="aspect-container">
-  <div class="aspect-inner">
-    <iframe src="https://www.youtube.com/embed/a1Y73sPHKxw"></iframe>
-  </div>
-</div>
-...html
-
-Even better, in the case of our scatter plot, we can use the `::before` pseudo-element to play the role of the inner padding, so that we don't need to add an additional tag to our markup just for some empty padding:
-
-@codeblock(css)...
-
-.scatter-area {
-  position: relative;
-  /* ... */
-}
-
-.scatter-area::before {
-  display: block;
-  content: "";
-  padding-bottom: 100%;
-}
-
-...codeblock
-
-100% padding is 100% of the container's width, creating a perfectly square block no matter how big or small the page gets (up to the container's max-width of 400px, of course). Once you start using this technique, it's not just good for plots and videos, but also for maps, canvas elements, and SVG graphics.
-
-Finally, a great advantage of setting sizes this way is that padding can be overridden from a media query, based either on screen width or (a little-known property) on the window's own aspect ratio. So small portrait screens can get a taller scatter plot, while big and wide screens get one that uses more horizontal space, all just by adjusting a single CSS property. So while it's a bizarre choice to match padding and parent width this way, it works out well for us in the end.

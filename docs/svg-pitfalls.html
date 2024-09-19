@@ -48,7 +48,7 @@ path.<span class="hljs-property">fill</span> = <span class="hljs-string">&quot;r
 <span class="hljs-comment">// do this:</span>
 rect.<span class="hljs-title function_">setAttribute</span>(<span class="hljs-string">&quot;class&quot;</span>, rect.<span class="hljs-title function_">getAttribute</span>(<span class="hljs-string">&quot;class&quot;</span>) + <span class="hljs-string">&quot; active&quot;</span>);
 <span class="hljs-keyword">var</span> id = circle.<span class="hljs-title function_">getAttribute</span>(<span class="hljs-string">&quot;id&quot;</span>);
-path.<span class="hljs-title function_">setAttribute</span>(<span class="hljs-string">&quot;fill&quot;</span>, <span class="hljs-string">&quot;red&quot;</span>);</pre></code>
+path.<span class="hljs-title function_">setAttribute</span>(<span class="hljs-string">&quot;fill&quot;</span>, <span class="hljs-string">&quot;red&quot;</span>);</pre></code>
 <h2 id="more-like-text-lay-about-amirite">More like text lay-about, amirite?</h2>
 <p>Using text in an SVG feels thrilling at first: you can place it anywhere you want! It can be scaled arbitrarily! You can place it on a path, like one of those horrible Word "TextArt" printouts that people love to use for leaving nasty notes on the communal refridgerator!</p>
 <p>Unfortunately, once you try to place a significant amount of text into a graphic, it becomes clear that SVG just wasn't designed for doing real layout. You can't wrap text, it gets distorted by the underlying coordinate system, and scaling text up and down directly is rarely what you want for responsive graphics.</p>
@@ -56,7 +56,7 @@ path.<span class="hljs-title function_">setAttribute</span>(<span class="hljs-st
 <h2 id="lost-city-of-z">Lost city of Z</h2>
 <p>It's weird, but SVG has no concept of z-index the way that the rest of your page does. On the one hand, this makes it much simpler than CSS, where arbitrary styles can create a "stacking context," around which z-index may have unpredictable effects. On the other hand, that conceptual simplicity is cold comfort when you realize that you can't create a pleasing CSS-only hover effect on your map because the thick outline you want to add to states under the mouse sometimes gets hidden under other shapes.</p>
 <p>The only way to bring an SVG shape to the top (or send it to the back) is to actually alter its order within the DOM. That means writing JavaScript. Luckily, we can take advantage of a quirk in DOM methods to make it a bit less painful: adding an element as a child automatically moves it to the end of the list, even if it already belongs to the parent. So surfacing a given element can be as simple as this:</p>
-<code class="language-js"><pre>svgChild.<span class="hljs-property">parentElement</span>.<span class="hljs-title function_">appendChild</span>(svgChild);</pre></code>
+<code class="language-js"><pre>svgChild.<span class="hljs-property">parentElement</span>.<span class="hljs-title function_">appendChild</span>(svgChild);</pre></code>
 <h2 id="disabling-mouse-events">Disabling mouse events</h2>
 <p>In HTML, we can create a visual element and then put its label inside, which provides a nice event cascade and a natural style hook for hover or focus. However, since you can't nest text inside of SVG shapes, you may end up placing labels side-by-side with the elements they're labeling. Depending on how you're generating the initial SVG, this may be profoundly unhelpful.</p>
 <p>For example, at the Seattle Times we often created network graphics using Gephi, which can output to an SVG and mark the (unlabeled) nodes with IDs for databinding. However, if you then create labels on top of those nodes, you'll end up with an element that "blocks" mouse events from getting to the underlying shape, and you'll have to figure out how to handle interactions that might come from multiple places in the DOM.</p>
@@ -73,11 +73,11 @@ tagged.<span class="hljs-title function_">forEach</span>(<span class="hljs-keywo
   element.<span class="hljs-property">parentNode</span>.<span class="hljs-title function_">replaceChild</span>(g, element);
   <span class="hljs-comment">// now add the element back</span>
   g.<span class="hljs-title function_">appendChild</span>(element);
-});</pre></code>
+});</pre></code>
 <p>However, a simpler solution exists, which is to make it so that the text labels just don't actually trigger events at all. You can do this using the <var>pointer-events</var> style property, which is always supported on SVG (and increasingly&mdash;happily!&mdash;supported on HTML as well):</p>
-<code class="language-css"><pre>svg text<span class="hljs-selector-class">.label</span> {
+<code class="language-css"><pre><span class="hljs-selector-tag">svg</span> <span class="hljs-selector-tag">text</span><span class="hljs-selector-class">.label</span> {
   <span class="hljs-attribute">pointer-events</span>: none;
-}</pre></code>
+}</pre></code>
 <p>With this style set, the element will be essentially invisible to the mouse, allowing any clicks or taps to slide right by and end up on the shape underneath, as you would hope.</p>
 <h2 id="improving-svg-performance">Improving SVG performance</h2>
 <p>Over the past few years, spurred in many ways by the constant drumbeat for performance coming from Chrome, browsers have gotten faster and faster at rendering HTML and CSS. The same isn't true for SVG: opacity and transform aren't hardware-accelerated, and most other SVG properties trigger costly repaints on every frame. The result is that SVG is very smooth with a small number of elements, but increasingly choppy with more complex graphics (or on low-powered mobile platforms) compared to a CSS animation or canvas.</p>

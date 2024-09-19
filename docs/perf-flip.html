@@ -76,7 +76,7 @@ element.<span class="hljs-property">style</span>.<span class="hljs-property">tra
 <span class="hljs-title function_">requestAnimationFrame</span>(<span class="hljs-function"><span class="hljs-params">_</span> =&gt;</span> {
   element.<span class="hljs-property">classList</span>.<span class="hljs-title function_">add</span>(<span class="hljs-string">&quot;enable-transition&quot;</span>);
   element.<span class="hljs-property">style</span>.<span class="hljs-property">transform</span> = <span class="hljs-string">&quot;&quot;</span>;
-});</pre></code>
+});</pre></code>
 <p>The key to FLIP is that it prioritizes the CSS properties that browsers can animate smoothly, because they map cleanly to operations that can be offloaded to the GPU: fading opacity and transforming size or position without affecting layout. Other properties, like changing the color of a background or the layout dimensions of an element, require the browser to repaint element contents instead of re-using them in an composited layer. Paul Lewis' <a href="https://csstriggers.com/">CSS Triggers</a> can serve as a guide for which properties cause repaint, and which ones only need compositing.</p>
 <h2 id="making-flip-slow">Making FLIP slow</h2>
 <p>Here's the thing about doing FLIP: it's basically a process of moving the expensive parts of animation to the beginning of the process so that the rest can go smoothly. Those two calls to <var>getBoundingClientRect()</var> at the start of the process are relatively slow, but after that all animation is done by the browser without any script. For only one or two concurrent animations, that's fine.</p>
@@ -112,7 +112,7 @@ flip.<span class="hljs-title function_">forEach</span>(<span class="hljs-keyword
     f.<span class="hljs-property">element</span>.<span class="hljs-property">classList</span>.<span class="hljs-title function_">add</span>(<span class="hljs-string">&quot;enable-transitions&quot;</span>);
     f.<span class="hljs-property">element</span>.<span class="hljs-property">style</span>.<span class="hljs-property">transform</span> = <span class="hljs-string">&quot;&quot;</span>;
   });
-});</pre></code>
+});</pre></code>
 <p>This kind of batching is not new: Wilson Page's <a href="https://github.com/wilsonpage/fastdom">FastDOM</a> library (created at the Financial Times) has been offering tools for years that let developers prevent costly document reflow by combining reads and writes. But with FLIP, we need to make it very explicit, and account for the <a href="https://aerotwist.com/blog/the-anatomy-of-a-frame/">anatomy of a frame</a>. It may be possible, one day, that browsers will automatically make these kinds of performance improvements for us, but speaking from my limited experience with game engines, I doubt it.</p>
   </main>
   <nav class="chapter-links bottom">

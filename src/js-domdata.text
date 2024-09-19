@@ -2,7 +2,7 @@
 title:Combining data with the DOM
 type:chapter
 summary:Transforming data into HTML | Closures for storage | Cheaper events with lookup tables
-prereqs:js-jquery js-templates
+prereqs:js-jquery
 ...metadata
 
 At the end of the day, as a news developer, the technical part of our job boils down to having data on the one hand, a web page on the other, and trying to get the two of them to communicate. This is not as easy as it sounds, and it can be a daunting task when you're staring at a blank text editor on deadline. So in this chapter, we're going to talk about all the ways that you can transform data into markup, and how to reverse the process when a user interacts with the page.

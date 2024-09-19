@@ -54,16 +54,10 @@ var values = getValues("murder");
 values = getValues("robbery");
 ...codeblock
 
-Now the clever part: instead of looping through those values and figuring out the minimum and maximum by hand, we'll use JavaScript's built-in math functions. `Math.min()` and `Math.max()` accept an arbitrary number of arguments, and will then tell you the lowest and highest value from those arguments. We can use the `apply()` function method to treat our array of values as individual arguments:
+Now the clever part: instead of looping through those values and figuring out the minimum and maximum by hand, we'll use JavaScript's built-in math functions. `Math.min()` and `Math.max()` accept an arbitrary number of arguments, and will then tell you the lowest and highest value from those arguments. The spread operator, which we used in the last chapter to convert a list-like object into an array, also works here to distribute our values across the inputs of a function.
 
 @codeblock(js)...
 
-// apply() takes two arguments:
-// the "this" value, and an arguments array
-var min = Math.min.apply(null, values);
-var max = Math.max.apply(null, values);
-
-// In ES2015, we can just use the spread operator
 var min = Math.min(...values);
 var max = Math.max(...values);
 
@@ -84,7 +78,8 @@ And in our markup, we'll create placeholders for our script to find, using spans
 
 @codeblock(html)...
 <p>
-  Meanwhile, Acme Products (<span class="ticker">ACME</span>) continues its plunge, due mostly to the loss of the valuable "coyote" market.
+  Meanwhile, Acme Products (<span class="ticker">ACME</span>) continues its
+  plunge, due mostly to the loss of the valuable "coyote" market.
 </p>
 ...codeblock
 
@@ -211,8 +206,8 @@ var animate = function() {
 
   var draw = function(t) {
     var elapsed = t - start;
-    var dt = elapsed / 1000;
-    if (dt >= 1) dt = 1;
+    // clamp to 1 as the max value
+    var dt = Math.min(elapsed / 1000, 1);
     if (mode == "swing") dt = swing(dt);
     var cx = dt * canvas.width;
     var cy = canvas.height / 2;
@@ -247,11 +242,16 @@ var animate = function() {
 Now, inside of animate, we'll add a "draw" function, which will be called during every frame of the animation. We're going to schedule it using the `requestAnimationFrame` function, so it'll be passed the current time as its argument. We can compare that time to the start time we recorded when `animate` was first called, to get the number of elapsed milliseconds:
 
 @codeblock(js)...
-var draw = function(t) {
-  var elapsed = t - start;
-  var dt = elapsed / 1000;
-  if (dt >= 1) dt = 1;
-  /* ... */
+var animate = function() {
+  var start = performance.now();
+  var mode = this.dataset.mode;
+  
+  var draw = function(t) {
+    var elapsed = t - start;
+    // clamp to 1 as the max value
+    var dt = Math.min(elapsed / 1000, 1);
+    /* ... */
+  };
 };
 ...codeblock
 
@@ -264,8 +264,8 @@ Now we'll continue the function by converting the scaled time, `dt`, into an x c
 @codeblock(js)...
 var draw = function(t) {
   var elapsed = t - start;
-  var dt = elapsed / 1000;
-  if (dt >= 1) dt = 1;
+  // clamp to 1 as the max value
+  var dt = Math.min(elapsed / 1000, 1);
   // add a little optional easing
   if (mode == "swing") dt = swing(dt);
   // convert dt to position
@@ -302,8 +302,8 @@ var animate = function() {
 
   var draw = function(t) {
     var elapsed = t - start;
-    var dt = elapsed / 1000;
-    if (dt >= 1) dt = 1;
+    // clamp to 1 as the max value
+    var dt = Math.min(elapsed / 1000, 1);
     // add a little optional easing
     if (mode == "swing") dt = swing(dt);
     // convert dt to position

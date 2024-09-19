@@ -37,14 +37,14 @@
   <h1>How to read this book</h1>
 <h2 id="about-the-code">About the code</h2>
 <p>For this book, I'm going to be writing in ES2015, a new version of JavaScript that's supported by most modern browsers. However, I won't be using any features that can't be compiled back down to the well-supported ES5 standard using tools like Babel. It's also not hard to translate in your head. For example, the following ES2015 function definition:</p>
-<code class="language-js"><pre><span class="hljs-keyword">var</span> <span class="hljs-title function_">x</span> = (<span class="hljs-params">a = <span class="hljs-number">3</span>, b = <span class="hljs-number">4</span></span>) =&gt; a + b;</pre></code>
+<code class="language-js"><pre><span class="hljs-keyword">var</span> <span class="hljs-title function_">x</span> = (<span class="hljs-params">a = <span class="hljs-number">3</span>, b = <span class="hljs-number">4</span></span>) =&gt; a + b;</pre></code>
 <p>would translate to something like this:</p>
 <code class="language-js"><pre><span class="hljs-keyword">var</span> x = <span class="hljs-keyword">function</span>(<span class="hljs-params">a, b</span>) {
   <span class="hljs-comment">//set default values</span>
   a = a || <span class="hljs-number">3</span>;
   b = b || <span class="hljs-number">4</span>;
   <span class="hljs-keyword">return</span> a + b;
-};</pre></code>
+};</pre></code>
 <p>To be specific, I'll be using the following ES2015 syntax additions for this book:</p>
 <ul>
 <li>Arrow functions (<var>=&gt;</var>)</li>
@@ -62,22 +62,22 @@ element.<span class="hljs-title function_">setAttribute</span>(<span class="hljs
 
 <span class="hljs-comment">// is the same as</span>
 <span class="hljs-keyword">var</span> v = element.<span class="hljs-property">dataset</span>.<span class="hljs-property">value</span>;
-element.<span class="hljs-property">dataset</span>.<span class="hljs-property">value</span> = v;</pre></code>
+element.<span class="hljs-property">dataset</span>.<span class="hljs-property">value</span> = v;</pre></code>
 <p>One caveat to watch for: like the attributes themselves, dataset does not cast values from strings. If you store numbers or boolean values on an element using the dataset, you'll need to handle that conversion yourself.</p>
 <p>Say what you like about the other DOM methods used in this text, but their names are largely self-explanatory (probably because they're so verbose). Calls like <var>Element.getAttribute()</var> or <var>document.createElement()</var> will not be documented inline--consult <a href="https://developer.mozilla.org">Mozilla Development Network</a> for more information about functions or properties that you don't recognize.</p>
 <h2 id="behind-the-scenes">Behind the scenes</h2>
 <p>The code and text of this book is entirely open-source, and available in <a href="https://github.com/thomaswilburn/viz-book">a GitHub repo</a>. I welcome contributions and corrections via pull request.</p>
 <p>To generate the actual output for this book, you'll need Node to run the build process, which includes a custom templating language and the syntax highlighting for code snippets. The structure of the book is defined by <a href="https://github.com/thomaswilburn/viz-book/blob/master/toc.json"><var>toc.json</var></a>, and the actual text is in the <a href="https://github.com/thomaswilburn/viz-book/blob/master/src/"><var>src</var></a> directory.</p>
 <p>Templating in .text files is based on directives, which are lines starting with an <var>@</var>, followed by the name of a directive, an optional list of arguments, and one or more lines of text input. For example, a subhead with a custom ID is written as:</p>
-<code class="language-less"><pre><span class="hljs-variable">@subhead</span>(id-here) This space intentionally left blank.</pre></code>
+<code class="language-less"><pre><span class="hljs-variable">@subhead</span>(id-here) This space intentionally left blank.</pre></code>
 <p>Which generates:</p>
-<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;id-here&quot;</span>&gt;</span>This space intentionally left blank.<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span></pre></code>
+<code class="language-html"><pre><span class="hljs-tag">&lt;<span class="hljs-name">h2</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;id-here&quot;</span>&gt;</span>This space intentionally left blank.<span class="hljs-tag">&lt;/<span class="hljs-name">h2</span>&gt;</span></pre></code>
 <p>Directives also support a multiline form delimited by ellipses, like this <var>@html</var> block, which injects code directly into the HTML output:</p>
 <code class="language-html"><pre>@html...
 <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Hello, world!<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
-...html</pre></code>
+...html</pre></code>
 <p>Directives are defined <a href="https://github.com/thomaswilburn/viz-book/blob/master/scripts/directives.js">in this file</a>, in case you want to look through them. Most are fairly simple:</p>
 <ul>
 <li><var>@metadata</var> defines the title and summary information for each file</li>

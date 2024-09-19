@@ -32,10 +32,10 @@ To replace jQuery's core functionality, we need to handle a few basic tasks. We 
 
 Let's start by making some selections. After jQuery's popularity skyrocketed, browsers added a similar `querySelectorAll` function for searching the document. Unfortunately, this function wasn't as useful as a regular jQuery search was, because the object wasn't an array that you could loop through. Instead, it was a NodeList, an array-<em>like</em> object that had numbered items and a length, but lacked important methods like `forEach` or `map`.
 
-Luckily, it's pretty easy to convert a NodeList into a JavaScript array. In newer browsers, you can use `Array.from()`, but for broader compatibility we can "borrow" the Array prototype's `slice` method to make a copy, which even works on array-likes. Here's the code for a jQuery-like `$()` function that can search within either the document or a chosen child node:
+Luckily, it's pretty easy to convert a NodeList into a JavaScript array. The "spread" syntax, which looks like <var>[...value]</var>, lets us take any list-ish object and smear it into array form. Here's the code for a jQuery-like `$()` function that can search within either the document or a chosen child node:
 
 @codeblock(js)...
-var $ = (selector, d = document) => Array.prototype.slice.call(d.querySelectorAll(selector));
+var $ = (selector, d = document) => [...d.querySelectorAll(selector)];
 ...codeblock
 
 This function returns an array containing all the selected nodes. If you call it with a different node as the second argument, it'll use that as the root of the search, instead of looking through the entire document. Pretty handy!
@@ -86,41 +86,6 @@ $(".event-handlers").forEach(el => el.addEventListener("click", listener);
 
 When you click on the elements that we selected, the browser should log out the specific element clicked (that's the `this` value) and an event with additional details (mouse position, event type, and so on). I like to define the listener as a separate variable outside of the loop: if you define it inline, you're technically creating a new function for each individual element, which wastes memory. Defined separately, each element shares the same listener, but we can still react to the specific item by using `this`.
 
-@subhead Walking up the tree
-
-A wrapper for `querySelectorAll()` is fine for searching down into a tree, but what if we want to search upward instead? That's the functionality of jQuery's `closest()` method, and we'll want some sort of equivalent in our deconstructed library. Luckily, it's easy to check if an element matches a given selector using the `matches` method (implemented in IE as `matchesSelector`). So to duplicate `closest`, we'll write a function that starts at a given element, and walks up the tree checking each parent, until it hits a root element (usually the document's `html` tag).
-
-@codeblock(js)...
-//shim for IE
-var matches = document.body.matchesSelector ? "matchesSelector" : "matches";
-
-var closest = function(element, selector, root = document) {
-  //walk up the tree until we match or run out of elements
-  while (!element[matches](selector) && element) {
-    element = element.parentElement;
-  }
-  //if we hit the root, that's not a match
-  if (element == root) return null;
-  return element;
-};
-...codeblock
-
-Now we can start at any given spot in the tree, and find the nearest element (including the original) that matches a given class or attribute. This is very useful for setting a class on a container in response to an event:
-
-@codeblock(js)...
-//define our listener once
-var onClick = function() {
-  //find the .list-item that contains this
-  var container = closest(this, ".list-item");
-  container.classList.toggle("selected");
-};
-
-//add the listener to all list buttons
-$(".list-item .select-button").forEach(el => el.addEventListener("click", onClick));
-...codeblock
-
-Now any time that a user clicks a ".select-button" in the list, the containing list item will have the "selected" class toggled, visually indicating its state.
-
 @subhead(delegation) Delegating events
 
 Let's put all of this code together to duplicate one of jQuery's most useful features, event delegation. Of course, to understand delegation, we have to understand how events work.
@@ -151,14 +116,14 @@ So for our delegation utility function, we need a few things to happen:
 * When events are triggered, we filter for the desired elements (or their children)
 * We call the event listener in the context of those elements instead of where we registered the listener
 
-Luckily, `closest()` takes care of the tricky part, which is testing the event's target against the selector. Here's our delegation function:
+We'll use the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Element/closest"><var>closest()</var></a> method on an element to walk up the tree from the event target, and <a href="https://developer.mozilla.org/en-US/docs/Web/API/Node/contains"><var>contains()</var></a> to make sure we didn't accidentally escape our container. Here's our delegation function:
 
 @codeblock(js)...
 var delegate = function(container, selector, event, listener) {
   container.addEventListener(event, function(e) {
     // did this trigger on an element matching our selector?
-    var matched = closest(e.target, selector);
-    if (matched) {
+    var matched = e.target.closest(selector);
+    if (matched && container.contains(matched)) {
       // call listener, with "this" set to the target element
       listener.call(matched, e);
     }
